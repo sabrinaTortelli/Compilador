@@ -1,6 +1,7 @@
 package br.univali.compiladores.compilador.view;
 
 import br.univali.compiladores.compilador.controller.WindowERController;
+import javafx.scene.image.Image;
 
 import javax.swing.*;
 import javax.swing.event.CaretEvent;
@@ -38,8 +39,20 @@ public class WindowER extends JFrame {
     private JMenuItem compAction;
     private JMenuItem runAction;
     private JToolBar toolBar;
+    private ImageIcon newFileIcon;
+    private ImageIcon openFileIcon;
+    private ImageIcon saveFileIcon;
+    private ImageIcon cutIcon;
+    private ImageIcon copyIcon;
+    private ImageIcon pasteIcon;
     private ImageIcon hammerIcon;
     private ImageIcon playIcon;
+    private JButton newFileButton;
+    private JButton openFileButton;
+    private JButton saveFileButton;
+    private JButton cutButton;
+    private JButton copyButton;
+    private JButton pasteButton;
     private JButton hammerButton;
     private JButton playButton;
 
@@ -93,15 +106,35 @@ public class WindowER extends JFrame {
         toolBar = new JToolBar();
 
         //Icons
+        newFileIcon = new ImageIcon("src/resources/newFile.png");
+        openFileIcon = new ImageIcon("src/resources/openFile.png");
+        saveFileIcon = new ImageIcon("src/resources/saveFile.png");
+        cutIcon = new ImageIcon("src/resources/cut.png");
+        copyIcon = new ImageIcon("src/resources/copy.png");
+        pasteIcon = new ImageIcon("src/resources/paste.png");
         hammerIcon = new ImageIcon("src/resources/hammer.png");
         playIcon = new ImageIcon("src/resources/play.png");
 
         toolBar.setBounds(0,0, 800, (hammerIcon.getIconHeight()) + 20);
 
         //Cria botão
+        newFileButton = new JButton(newFileIcon);
+        openFileButton = new JButton(openFileIcon);
+        saveFileButton = new JButton(saveFileIcon);
+        cutButton = new JButton(cutIcon);
+        copyButton = new JButton(copyIcon);
+        pasteButton = new JButton(pasteIcon);
         hammerButton = new JButton(hammerIcon);
         playButton = new JButton(playIcon);
 
+        toolBar.add(newFileButton);
+        toolBar.add(openFileButton);
+        toolBar.add(saveFileButton);
+        toolBar.addSeparator();
+        toolBar.add(cutButton);
+        toolBar.add(copyButton);
+        toolBar.add(pasteButton);
+        toolBar.addSeparator();
         toolBar.add(hammerButton);
         toolBar.add(playButton);
 
