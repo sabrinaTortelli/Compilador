@@ -1,0 +1,198 @@
+options {
+    STATIC = false;
+    IGNORE_CASE = false;
+}
+
+PARSER_BEGIN(LParser)
+
+public class LParser {
+    private int errorCount;
+    public int getErrorCount() {
+        return errorCount;
+    }
+}
+
+PARSER_END(LParser)
+
+
+SKIP :
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+| <LINE_COMMENT:("#" (~["\n","\r"])* ("\n"|"\r"|"\r\n"))> /*LINE COMMENT*/
+| <BLOCK_COMMENT: ("@" ((~["@"])*|"\n"|"\r"|"\r\n")* "@")>/*BLOCK COMMENT*/
+}
+
+TOKEN /*SYMBOLS*/:
+{
+  <SYMBOL:
+  "[" | "]" | "(" | ")"|   "{" |  "}"
+| "." | ","
+| "=" | "+" | "-" | "*" | "/" | "**" | "%" |  "%%"
+| "=="| "!=" | ">>" | "<<" | ">>="| "<<="
+| "&" | "|"
+|  "!">
+}
+
+TOKEN /*RESERVED WORDS*/:
+{
+  <RESERVED_WORD:
+   "do" | "this" | "body" | "description" | "declaration"
+| "type" | "is" | "constant" | "and" | "variable"
+| "as" | "integer" | "real" | "string" | "logic"
+| "designate" | "read" | "write" | "all" | "repeat"
+| "avaliate" | "true" | "untrue">
+}
+
+TOKEN : { < #DIGIT : ["0"-"9"] > }
+TOKEN : { < #LETTER : ["a"-"z","A"-"Z"] > }
+TOKEN : { < #CAPSLETTER : ["A"-"Z"] > }
+TOKEN : { < #UNDER : ["_"] > }
+
+
+TOKEN : /* INT */
+{
+  < CONST_INT: (<DIGIT>) | (<DIGIT>){2} | (<DIGIT>){3} >
+}
+
+TOKEN : /* REAL */
+{
+  < CONST_REAL: ((<DIGIT>) | (<DIGIT>){2} | (<DIGIT>){3} | (<DIGIT>){4} | (<DIGIT>){5}) "." ((<DIGIT>) | (<DIGIT>){2} | (<DIGIT>){3}) >
+}
+
+TOKEN : /* LITERAL */
+{
+  < CONST_LITERAL: ("\"" (~["\"","\n","\r"])* "\"") | ("\'" (~["'","\n","\r"])* "\'") >
+}
+
+TOKEN : {
+    <IDENTIFIER:(<CAPSLETTER>)((((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*|(((<UNDER>)((<LETTER>)+(<DIGIT>){0,2}|(<DIGIT>){1,2}))|((<LETTER>)+(<DIGIT>){0,2}))*((<UNDER>)|(<LETTER>)+(<UNDER>)?)) >
+
+}
+
+TOKEN :
+{
+    < NONSUPPORTED_GRAMMAR/* throws error for any token not listed bellow */:
+    (~ ["a"-"z", "A"-"Z", "0"-"9", "@","\"", "'",
+        "(", ")", "[", "]", "{", "}", ",", ".",
+        ">", "<", "!", "+", "-", "*", "/", "%",
+        "$", "#", " ", "\t", "\n","\r", "\f"]
+    )+ >
+|   < NONSUPPORTED_CONST_LITERAL/* throws error for any open and not closed single quote or double quote */:
+        ("'" (~ ["\n","\r","'"])* | "\"" (~ ["\n","\r","\""])*)
+    >
+|   < NONSUPPORTED_BLOCK_COMMENT/* throws error for any open and not closed block comment  */:
+        ("@" ((~["@"])*|"\n"|"\r"|"\r\n")*)
+    >
+}
+
+//void parseLexical():
+//{Token t;}
+//{
+//  (
+//  t= <SYMBOL> {System.out.println("Special char "+ t.image);}
+//  |t= <RESERVED_WORD> {System.out.println("Reserved word "+ t.image);}
+//  |t= <CONST_INT> {System.out.println("Const Int "+ t.image);}
+//  |t= <CONST_REAL> {System.out.println("Const real "+ t.image);}
+//  |t= <CONST_LITERAL> {System.out.println("Const literal "+ t.image);}
+//  |t= <IDENTIFIER> {System.out.println("Const identifier "+ t.image);}
+//  )*
+//}
+
+public void parseLexical() : { }
+{
+    (
+        nonsupportedBlockComment()
+        | symbol()
+        | reservedWord()
+        | constInt()
+        | constReal()
+        | constLiteral()
+        | identifier()
+        | nonsupportedGrammar()
+        | nonsupportedConstLiteral()
+    )*
+}
+
+void symbol() : { }
+{
+    <SYMBOL>
+    {
+        //ConsoledeEntrada.printRecognizedToken(token.image, " (Line: " + token.beginLine + " Column: " + token.beginColumn + ") recognized symbol ", token.kind);
+    }
+}
+
+void reservedWord() : { }
+{
+    <RESERVED_WORD>
+    {
+        /*ConsoledeEntrada.printRecognizedToken(token.image,
+            " (Line: " + token.beginLine + " Column: " + token.beginColumn + ") recognized reserved word ", token.kind);*/
+    }
+}
+
+void constInt() : { }
+{
+    <CONST_INT>
+    {
+        /*ConsoledeEntrada.printRecognizedToken(token.image,
+            " (Line: " + token.beginLine + " Column: " + token.beginColumn + ") recognized constant: integer ", token.kind);*/
+    }
+}
+
+void constReal() : { }
+{
+    <CONST_REAL>
+    {
+        /*ConsoledeEntrada.printRecognizedToken(token.image,
+            " (Line: " + token.beginLine + " Column: " + token.beginColumn + ") recognized constant: real ", token.kind);*/
+    }
+}
+
+void constLiteral() : { }
+{
+    <CONST_LITERAL>
+    {
+        /*ConsoledeEntrada.printRecognizedToken(token.image,
+            " (Line: " + token.beginLine + " Column: " + token.beginColumn + ") recognized constant: literal ", token.kind);*/
+    }
+}
+
+void identifier() : { }
+{
+    <IDENTIFIER>
+    {
+        /*ConsoledeEntrada.printRecognizedToken(token.image,
+            " (Line: " + token.beginLine + " Column: " + token.beginColumn + ") recognized identifier ", token.kind);*/
+    }
+}
+
+
+void nonsupportedGrammar() : { errorCount++; }
+{
+    <NONSUPPORTED_GRAMMAR>
+    {
+        /*ConsoledeEntrada.printNotRecognizedToken(token.image,
+            " (Line: " + token.beginLine + " Column: " + token.beginColumn + ") is not part of the grammar", token.kind);*/
+    }
+}
+
+void nonsupportedConstLiteral() : { errorCount++; }
+{
+    <NONSUPPORTED_CONST_LITERAL>
+    {
+        /*ConsoledeEntrada.printNotRecognizedToken(token.image,
+            " (Line: " + token.beginLine + " Column: " + token.beginColumn + ") not recognized constant: literal ", token.kind);*/
+    }
+}
+
+void nonsupportedBlockComment() : { errorCount++; }
+{
+    <NONSUPPORTED_BLOCK_COMMENT>
+    {
+        /*ConsoledeEntrada.printNotRecognizedToken(token.image,
+            " (Line: " + token.beginLine + " Column: " + token.beginColumn + ") missing block comment closing statement", token.kind);*/
+    }
+}
