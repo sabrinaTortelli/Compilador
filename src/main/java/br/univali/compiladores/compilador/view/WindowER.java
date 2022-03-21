@@ -1,74 +1,46 @@
 package br.univali.compiladores.compilador.view;
 
+import br.univali.compiladores.compilador.controller.MenuController;
 import br.univali.compiladores.compilador.controller.WindowERController;
-import javafx.scene.image.Image;
 
 import javax.swing.*;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
+import javax.swing.text.DefaultEditorKit;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * Classe de configurações da janela
  */
-public class WindowER extends JFrame {
+public class WindowER extends JFrame implements ActionListener {
 
-    private JButton analisar;
-    private JButton limpar;
-    private JTextArea tf;
-    private JTextArea ta;
-    private JLabel l1;
-    private JLabel l2;
-    private JScrollPane scroll1;
-    private JScrollPane scroll2;
-    private Color primaryColor;
-    private Color secondColor;
-    private Font font;
+    private JTextArea tf, ta;
+    private JLabel l1, l2, teste;
+    private JScrollPane scroll1, scroll2;
     private JMenuBar menuBar;
-    private JMenu fileMenu;
-    private JMenu editMenu;
-    private JMenu compMenu;
-    private JMenuItem newAction;
-    private JMenuItem openAction;
-    private JMenuItem saveAction;
-    private JMenuItem saveAsAction;
-    private JMenuItem exitAction;
-    private JMenuItem cutAction;
-    private JMenuItem copyAction;
-    private JMenuItem pasteAction;
-    private JMenuItem compAction;
-    private JMenuItem runAction;
+    private JMenu fileMenu, editMenu, compMenu;
+    private JMenuItem newAction, openAction, saveAction, saveAsAction, exitAction, cutMenuItem, copyMenuItem, pasteMenuItem, compAction, runAction;
     private JToolBar toolBar;
-    private ImageIcon newFileIcon;
-    private ImageIcon openFileIcon;
-    private ImageIcon saveFileIcon;
-    private ImageIcon cutIcon;
-    private ImageIcon copyIcon;
-    private ImageIcon pasteIcon;
-    private ImageIcon hammerIcon;
-    private ImageIcon playIcon;
-    private JButton newFileButton;
-    private JButton openFileButton;
-    private JButton saveFileButton;
-    private JButton cutButton;
-    private JButton copyButton;
-    private JButton pasteButton;
-    private JButton hammerButton;
-    private JButton playButton;
+    private ImageIcon newFileIcon, openFileIcon, saveFileIcon, cutIcon, copyIcon, pasteIcon, hammerIcon, playIcon;
+    private JButton newFileButton, openFileButton, saveFileButton, cutButton, copyButton, pasteButton, compileButton, executeButton;
+    private MenuController menuController = new MenuController(this);
 
     public WindowER() {
-        super("Compilador");
+        super("Compilador - Novo arquivo");
         initComponents();
     }
 
-    private void initComponents() {
-        //Janela
+    private void setWindow() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800, 770);
+        setLayout(null);
+    }
 
+    private void createMenuBar(){
         //Cria barra de menu
         menuBar = new JMenuBar();
-
         //Define e adiciona tres menus drop down na barra de menus
         fileMenu = new JMenu("Arquivo");
         editMenu = new JMenu("Edição");
@@ -77,34 +49,43 @@ public class WindowER extends JFrame {
         menuBar.add(fileMenu);
         menuBar.add(editMenu);
         menuBar.add(compMenu);
+        setJMenuBar(menuBar);
+    }
 
+    private void createFileMenu(){
         //Cria e adiciona um item simples para o menu
         newAction = new JMenuItem("Novo");
         openAction = new JMenuItem("Abrir");
         saveAction = new JMenuItem("Salvar");
         saveAsAction = new JMenuItem("Salvar como");
         exitAction = new JMenuItem("Sair");
-        copyAction = new JMenuItem("Copiar");
-        pasteAction = new JMenuItem("Colar");
-        cutAction = new JMenuItem("Recortar");
-        compAction = new JMenuItem("Compilar");
-        runAction = new JMenuItem("Executar");
-
         fileMenu.add(newAction);
         fileMenu.add(openAction);
         fileMenu.add(saveAction);
         fileMenu.add(saveAsAction);
         fileMenu.addSeparator();
         fileMenu.add(exitAction);
-        editMenu.add(copyAction);
-        editMenu.add(pasteAction);
-        editMenu.add(cutAction);
+    }
+
+    private void createEditMenu(){
+        copyMenuItem = new JMenuItem("Copiar");
+        pasteMenuItem = new JMenuItem("Colar");
+        cutMenuItem = new JMenuItem("Recortar");
+
+        editMenu.add(copyMenuItem);
+        editMenu.add(pasteMenuItem);
+        editMenu.add(cutMenuItem);
+    }
+
+    private void createCompilateMenu(){
+        compAction = new JMenuItem("Compilar");
+        runAction = new JMenuItem("Executar");
+
         compMenu.add(compAction);
         compMenu.add(runAction);
+    }
 
-        //Cria toolbar
-        toolBar = new JToolBar();
-
+    private void createIconsToolBar(){
         //Icons
         newFileIcon = new ImageIcon("src/resources/newFile.png");
         openFileIcon = new ImageIcon("src/resources/openFile.png");
@@ -114,64 +95,96 @@ public class WindowER extends JFrame {
         pasteIcon = new ImageIcon("src/resources/paste.png");
         hammerIcon = new ImageIcon("src/resources/hammer.png");
         playIcon = new ImageIcon("src/resources/play.png");
+    }
 
+    private void createToolBar(){
+        //Cria toolbar
+        toolBar = new JToolBar();
         toolBar.setBounds(0,0, 800, (hammerIcon.getIconHeight()) + 20);
+        add(toolBar, BorderLayout.NORTH);
+    }
 
-        //Cria botão
+    private void createFileToolBar(){
+        //Botão Novo
         newFileButton = new JButton(newFileIcon);
+        newFileButton.setToolTipText("Novo");
+        //Botão Abrir
         openFileButton = new JButton(openFileIcon);
+        openFileButton.setToolTipText("Abrir");
+        //Botão Salvar
         saveFileButton = new JButton(saveFileIcon);
-        cutButton = new JButton(cutIcon);
-        copyButton = new JButton(copyIcon);
-        pasteButton = new JButton(pasteIcon);
-        hammerButton = new JButton(hammerIcon);
-        playButton = new JButton(playIcon);
+        saveFileButton.setToolTipText("Salvar");
 
         toolBar.add(newFileButton);
         toolBar.add(openFileButton);
         toolBar.add(saveFileButton);
         toolBar.addSeparator();
+    }
+
+    private void createEditToolBar(){
+        //Botão Recortar
+        cutButton = new JButton(cutIcon);
+        cutButton.setToolTipText("Recortar");
+
+        //Botão Copiar
+        copyButton = new JButton(copyIcon);
+        copyButton.setToolTipText("Copiar");
+
+        //Botão Colar
+        pasteButton = new JButton(pasteIcon);
+        pasteButton.setToolTipText("Colar");
+
         toolBar.add(cutButton);
         toolBar.add(copyButton);
         toolBar.add(pasteButton);
         toolBar.addSeparator();
-        toolBar.add(hammerButton);
-        toolBar.add(playButton);
 
+    }
+
+    private void createCompileToolBar(){
+        //botão Compilar
+        compileButton = new JButton(hammerIcon);
+        compileButton.setToolTipText("Compilar");
+        //Botão Executar
+        executeButton = new JButton(playIcon);
+        executeButton.setToolTipText("Executar");
+
+        toolBar.add(compileButton);
+        toolBar.add(executeButton);
+    }
+
+    private void createEditionArea(){
         //Label texto 1
         l1 = new JLabel("Área para edição:");
         l1.setBounds(19, 45, 150, 30);
+        //Área de texto 1
+        ta = new JTextArea();
+        //Scroll texto 1
+        scroll1 = new JScrollPane(ta, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scroll1.setBounds(18, 75, 750, 250);
 
+        add(l1);
+        add(scroll1);
+    }
+
+    private void createMessagesArea(){
         //Label texto 2
         l2 = new JLabel("Área para mensagens:");
         l2.setBounds(19, 360, 250, 30);
-
-        //Área de texto 1
-        ta = new JTextArea();
-
-
         //Área de texto 2
         tf = new JTextArea();
         tf.setLineWrap(true);
         tf.setEditable(false);
-
-        //Scroll texto 1
-        scroll1 = new JScrollPane(ta, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-        scroll1.setBounds(18, 75, 750, 250);
-
         //Scroll texto 2
-        scroll2 = new JScrollPane(tf, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scroll2 = new JScrollPane(tf,  JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scroll2.setBounds(18, 390, 750, 250);
 
-        setJMenuBar(menuBar);
-        add(toolBar, BorderLayout.NORTH);
-        add(l1);
         add(l2);
-        add(scroll1);
         add(scroll2);
-        setLayout(null);
+    }
 
-        JLabel teste = new JLabel("Linha: 1, Coluna: 1 ", JLabel.RIGHT);
+    private void createInfosText(){
+        teste = new JLabel("Linha: 1, Coluna: 1 ", JLabel.RIGHT);
         teste.setBounds(0,680, 120,15);
         add(teste, BorderLayout.SOUTH);
 
@@ -182,6 +195,7 @@ public class WindowER extends JFrame {
                         int lineNumber = 0, column = 0, pos = 0;
                         try {
                             pos = ta.getCaretPosition();
+                            System.out.println(pos);
                             lineNumber = ta.getLineOfOffset(pos);
                             column = pos - ta.getLineOfOffset(lineNumber);
                         } catch (Exception e1) {}
@@ -193,44 +207,75 @@ public class WindowER extends JFrame {
                     }
                 }
         );
+    }
 
-//        //Cores
-//        primaryColor = new Color(65,130,190);
-//        secondColor = new Color(217,230,242);
-//
-//        //Fontes
-//        font = new Font("SansSerif", 1, 15);
-//
-//        //Botão analisar
-//        analisar = new JButton("Analisar");
-//        analisar.setBounds(500, 310, 100, 40);
-//        analisar.setFont(font);
-//        analisar.setForeground(primaryColor);
-//        analisar.setBackground(secondColor);
-//        analisar.setBorder(javax.swing.BorderFactory.createLineBorder(primaryColor, 2));
-//        analisar.setRequestFocusEnabled(false);
-//        analisar.setRolloverEnabled(false);
-//        analisar.setMargin(new Insets(2, 1000, 2, 14));
-//
-//        //Botão limpar
-//        limpar = new JButton("Limpar");
-//        limpar.setBounds(650, 310, 100, 40);
-//        limpar.setFont(font);
-//        limpar.setForeground(primaryColor);
-//        limpar.setBackground(secondColor);
-//        limpar.setBorder(javax.swing.BorderFactory.createLineBorder(primaryColor, 2));
-//        limpar.setRequestFocusEnabled(false);
-//        limpar.setRolloverEnabled(false);
-//        limpar.setMargin(new Insets(2, 1000, 2, 14));
-//
-//        add(analisar);
-//        add(limpar);
+    private void initComponents() {
+        setWindow();
+        createMenuBar();
+        createFileMenu();
+        createEditMenu();
+        createCompilateMenu();
+        createIconsToolBar();
+        createToolBar();
+        createFileToolBar();
+        createEditToolBar();
+        createCompileToolBar();
+        createEditionArea();
+        createMessagesArea();
+        createInfosText();
+        addActions();
      }
 
-//    public void addActions(WindowERController.Actions actions){
-//        analisar.addActionListener(actions);
-//        limpar.addActionListener(actions);
-//    }
+    public void addActions(){
+        newAction.addActionListener(this);
+        newAction.setActionCommand("New");
+
+        newFileButton.addActionListener(this);
+        newFileButton.setActionCommand("New");
+
+        openAction.addActionListener(this);
+        openAction.setActionCommand("Open");
+
+        openFileButton.addActionListener(this);
+        openFileButton.setActionCommand("Open");
+
+        saveAction.addActionListener(this);
+        saveAction.setActionCommand("Save");
+
+        saveAsAction.addActionListener(this);
+        saveAsAction.setActionCommand("SaveAs");
+
+        saveFileButton.addActionListener(this);
+        saveFileButton.setActionCommand("SaveAs");
+
+        exitAction.addActionListener(this);
+        exitAction.setActionCommand("Exit");
+        cutMenuItem.addActionListener(this);
+        cutMenuItem.setActionCommand("Cut");
+        cutButton.addActionListener(this);
+        cutButton.setActionCommand("Cut");
+
+        pasteMenuItem.addActionListener(this);
+        pasteMenuItem.setActionCommand("Paste");
+        pasteButton.addActionListener(this);
+        pasteButton.setActionCommand("Paste");
+
+        copyMenuItem.addActionListener(this);
+        copyMenuItem.setActionCommand("Copy");
+        copyButton.addActionListener(this);
+        copyButton.setActionCommand("Copy");
+
+        compileButton.addActionListener(this);
+        compileButton.setActionCommand("Compile");
+        compAction.addActionListener(this);
+        compAction.setActionCommand("Compile");
+
+        executeButton.addActionListener(this);
+        executeButton.setActionCommand("Execute");
+        runAction.addActionListener(this);
+        runAction.setActionCommand("Execute");
+
+    }
 
     public JTextArea getTf() {
         return tf;
@@ -240,4 +285,41 @@ public class WindowER extends JFrame {
         return ta;
     }
 
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        String command = e.getActionCommand();
+
+        switch (command){
+            case "New":
+                menuController.newFile();
+                break;
+            case "Open":
+                menuController.openFile();
+                break;
+            case "SaveAs":
+                menuController.saveAs();
+                break;
+            case "Save":
+                menuController.save();
+                break;
+            case "Exit":
+                menuController.exit();
+                break;
+            case "Cut":
+                menuController.cut(e);
+                break;
+            case "Copy":
+                menuController.copy(e);
+                break;
+            case "Paste":
+                menuController.paste(e);
+                break;
+            case "Compile":
+                menuController.compile();
+                break;
+            default:
+                System.out.println(command);
+                break;
+        }
+    }
 }
