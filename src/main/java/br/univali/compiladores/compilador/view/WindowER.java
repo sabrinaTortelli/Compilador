@@ -6,6 +6,8 @@ import br.univali.compiladores.compilador.controller.WindowERController;
 import javax.swing.*;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.text.DefaultEditorKit;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -14,7 +16,7 @@ import java.awt.event.ActionListener;
 /**
  * Classe de configurações da janela
  */
-public class WindowER extends JFrame implements ActionListener {
+public class WindowER extends JFrame implements ActionListener, DocumentListener {
 
     private JTextArea tf, ta;
     private JLabel teste;
@@ -27,10 +29,12 @@ public class WindowER extends JFrame implements ActionListener {
     private JButton newFileButton, openFileButton, saveFileButton, cutButton, copyButton, pasteButton, compileButton, executeButton;
     private final MenuController menuController = new MenuController(this);
     private JPanel jpanel;
+    private boolean changedDocument;
 
     public WindowER() {
-        super("Compilador - Novo arquivo");
+        super("Compilador");
         initComponents();
+        changedDocument = false;
     }
 
     private void setWindow() {
@@ -77,13 +81,14 @@ public class WindowER extends JFrame implements ActionListener {
     }
 
     private void createEditMenu(){
+        cutMenuItem = new JMenuItem("Recortar");
         copyMenuItem = new JMenuItem("Copiar");
         pasteMenuItem = new JMenuItem("Colar");
-        cutMenuItem = new JMenuItem("Recortar");
 
+        editMenu.add(cutMenuItem);
         editMenu.add(copyMenuItem);
         editMenu.add(pasteMenuItem);
-        editMenu.add(cutMenuItem);
+
     }
 
     private void createCompilateMenu(){
@@ -166,6 +171,7 @@ public class WindowER extends JFrame implements ActionListener {
     private void createEditionArea(){
         //Área de texto 1
         ta = new JTextArea();
+        ta.getDocument().addDocumentListener(this);
         //Scroll texto 1
         scroll1 = new JScrollPane(ta, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scroll1.setPreferredSize(new Dimension(750, 350));
@@ -263,7 +269,7 @@ public class WindowER extends JFrame implements ActionListener {
         saveAsAction.setActionCommand("SaveAs");
 
         saveFileButton.addActionListener(this);
-        saveFileButton.setActionCommand("SaveAs");
+        saveFileButton.setActionCommand("Save");
 
         exitAction.addActionListener(this);
         exitAction.setActionCommand("Exit");
@@ -302,25 +308,27 @@ public class WindowER extends JFrame implements ActionListener {
         return ta;
     }
 
+    public void setChangedDocument(boolean changedDocument) {
+        this.changedDocument = changedDocument;
+    }
+
+    public boolean isChangedDocument() {
+        return changedDocument;
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         String command = e.getActionCommand();
 
         switch (command){
             case "New":
-                menuController.newFile();
-                break;
             case "Open":
-                menuController.openFile();
+            case "Exit":
+                menuController.verifyEdition(command);
                 break;
             case "SaveAs":
-                menuController.saveAs();
-                break;
             case "Save":
                 menuController.save();
-                break;
-            case "Exit":
-                menuController.exit();
                 break;
             case "Cut":
                 menuController.cut(e);
@@ -338,5 +346,20 @@ public class WindowER extends JFrame implements ActionListener {
                 System.out.println(command);
                 break;
         }
+    }
+
+    @Override
+    public void insertUpdate(DocumentEvent e) {
+        changedDocument = true;
+    }
+
+    @Override
+    public void removeUpdate(DocumentEvent e) {
+        changedDocument = true;
+    }
+
+    @Override
+    public void changedUpdate(DocumentEvent e) {
+        changedDocument = true;
     }
 }
