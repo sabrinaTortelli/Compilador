@@ -1,17 +1,12 @@
 package br.univali.compiladores.compilador.model.LexicalAnalysis;
 
-//import br.univali.compiladores.compilador.model.parser.LParser;
 import br.univali.compiladores.compilador.model.parser.LParser;
 import br.univali.compiladores.compilador.model.parser.ParseException;
 import br.univali.compiladores.compilador.model.parser.TokenMgrError;
-//import br.univali.compiladores.compilador.model.teste.ParseException;
-//import br.univali.compiladores.compilador.model.teste.TokenMgrError;
-//import br.univali.compiladores.compilador.model.teste.LParser1;
 import br.univali.compiladores.compilador.view.WindowER;
 
 import java.awt.*;
 import java.io.BufferedReader;
-import java.io.InputStreamReader;
 
 public class LexicalAnalysis {
 
@@ -64,7 +59,10 @@ public class LexicalAnalysis {
 
             } catch (ParseException ex) {
                 System.out.println("Erro no parser");
-                //Logger.getLogger(ConsoledeEntrada.class.getName()).log(Level.SEVERE, null, ex);
+                gui.getTf().append("---------------------ERRO NO PARSER----------------------\n");
+                gui.getTf().append("Mensagem: " + ex.getMessage() + "\n");
+                gui.getTf().append("-----------------------------------------------------\n");
+                gui.getTf().setForeground(Color.red);
             }
         } catch (TokenMgrError ex) {
             gui.getTf().append("---------------------ERRO NO TOKEN----------------------\n");

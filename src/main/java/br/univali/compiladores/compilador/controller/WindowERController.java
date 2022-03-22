@@ -2,6 +2,7 @@ package br.univali.compiladores.compilador.controller;
 
 import br.univali.compiladores.compilador.view.WindowER;
 
+import javax.swing.*;
 import java.awt.*;
 
 /**

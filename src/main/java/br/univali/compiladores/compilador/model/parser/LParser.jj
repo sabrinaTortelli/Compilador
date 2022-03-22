@@ -5,7 +5,13 @@ options {
 
 PARSER_BEGIN(LParser)
 
+package br.univali.compiladores.compilador.model.parser;
+
+import br.univali.compiladores.compilador.model.LexicalAnalysis.LexicalAnalysis;
+import br.univali.compiladores.compilador.view.WindowER;
+
 public class LParser {
+    private LexicalAnalysis lexicalAnalysis;
     private int errorCount;
     public int getErrorCount() {
         return errorCount;
@@ -49,6 +55,7 @@ TOKEN /*RESERVED WORDS*/:
 TOKEN : { < #DIGIT : ["0"-"9"] > }
 TOKEN : { < #LETTER : ["a"-"z","A"-"Z"] > }
 TOKEN : { < #CAPSLETTER : ["A"-"Z"] > }
+TOKEN : { < #LOWCAPSLETTER : ["a"-"z"] > }
 TOKEN : { < #UNDER : ["_"] > }
 
 
@@ -64,7 +71,7 @@ TOKEN : /* REAL */
 
 TOKEN : /* LITERAL */
 {
-  < CONST_LITERAL: ("\"" (~["\"","\n","\r"])* "\"") | ("\'" (~["'","\n","\r"])* "\'") >
+  < CONST_LITERAL: ("\"" (~["\""])* "\"") | ("\'" (~["'"])* "\'") >
 }
 
 TOKEN : {
@@ -80,11 +87,48 @@ TOKEN :
         ">", "<", "!", "+", "-", "*", "/", "%",
         "$", "#", " ", "\t", "\n","\r", "\f"]
     )+ >
-|   < NONSUPPORTED_CONST_LITERAL/* throws error for any open and not closed single quote or double quote */:
-        ("'" (~ ["\n","\r","'"])* | "\"" (~ ["\n","\r","\""])*)
+|   < NONSUPPORTED_CONST_LITERAL_SINGLE/* throws error for any open and not closed single quote */:
+    ("'" (~ ["'"])*)
+    >
+|   < NONSUPPORTED_CONST_LITERAL_DOUBLE/* throws error for any open and not closed double quote */:
+    ("\"" (~ ["\""])*)
     >
 |   < NONSUPPORTED_BLOCK_COMMENT/* throws error for any open and not closed block comment  */:
-        ("@" ((~["@"])*|"\n"|"\r"|"\r\n")*)
+    ("@" ((~["@"])*|"\n"|"\r"|"\r\n")*)
+    >
+|   < NONSUPPORTED_IDENTIFIER/* throws error for non valid identifiers  */:
+    (
+        /*starting with low caps letter       */
+        ((<LOWCAPSLETTER>)((((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*|(((<UNDER>)((<LETTER>)+(<DIGIT>){0,2}|(<DIGIT>){1,2}))|((<LETTER>)+(<DIGIT>){0,2}))*((<UNDER>)|(<LETTER>)+(<UNDER>)?)))
+
+        /*caps letter followed by 3 digits r2*/
+        |((<CAPSLETTER>)((((<DIGIT>){2}(<DIGIT>)+((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*|(((<UNDER>)((<LETTER>)+(<DIGIT>){0,2}|(<DIGIT>){1,2}))|((<LETTER>)+(<DIGIT>){0,2}))*((<UNDER>)|(<LETTER>)+(<UNDER>)?)))
+
+        /*caps letter followed by 3 digits r3*/
+        |((<CAPSLETTER>)((((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*|(((<UNDER>)((<LETTER>)+(<DIGIT>){2}(<DIGIT>)+|(<DIGIT>){1,2}))|((<LETTER>)+(<DIGIT>){0,2}))*((<UNDER>)|(<LETTER>)+(<UNDER>)?)))
+
+        /*caps letter followed by 3 digits r4*/
+        |((<CAPSLETTER>)((((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*|(((<UNDER>)((<LETTER>)+(<DIGIT>){0,2}|(<DIGIT>){2}(<DIGIT>)+))|((<LETTER>)+(<DIGIT>){0,2}))*((<UNDER>)|(<LETTER>)+(<UNDER>)?)))
+
+        /*caps letter followed by 3 digits r5*/
+        |((<CAPSLETTER>)((((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*|(((<UNDER>)((<LETTER>)+(<DIGIT>){0,2}|(<DIGIT>){1,2}))|((<LETTER>)+(<DIGIT>){2}(<DIGIT>)+))*((<UNDER>)|(<LETTER>)+(<UNDER>)?)))
+
+        /*caps letter followed by double_ r2*/
+        |((<CAPSLETTER>)((((<DIGIT>){1,2}((<LETTER>)+(<UNDER>){2}(<UNDER>)*|(<UNDER>){2}(<UNDER>)*))|((<LETTER>)+(<UNDER>)?))*|(((<UNDER>)((<LETTER>)+(<DIGIT>){0,2}|(<DIGIT>){1,2}))|((<LETTER>)+(<DIGIT>){0,2}))*((<UNDER>)|(<LETTER>)+(<UNDER>)?)))
+
+        /*caps letter followed by double_ r3*/
+        |((<CAPSLETTER>)((((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>){2}(<UNDER>)*))*|(((<UNDER>)((<LETTER>)+(<DIGIT>){0,2}|(<DIGIT>){1,2}))|((<LETTER>)+(<DIGIT>){0,2}))*((<UNDER>)|(<LETTER>)+(<UNDER>)?)))
+
+        /*caps letter followed by double_ r4*/
+        |((<CAPSLETTER>)((((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*|(((<UNDER>){2}(<UNDER>)*((<LETTER>)+(<DIGIT>){0,2}|(<DIGIT>){1,2}))|((<LETTER>)+(<DIGIT>){0,2}))*((<UNDER>)|(<LETTER>)+(<UNDER>)?)))
+
+
+        /*caps letter finishing with double_*/
+        |((<CAPSLETTER>)((((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*|(((<UNDER>)((<LETTER>)+(<DIGIT>){0,2}|(<DIGIT>){1,2}))|((<LETTER>)+(<DIGIT>){0,2}))*((<UNDER>){2}(<UNDER>)*|(<LETTER>)+(<UNDER>){2}(<UNDER>)*)))
+
+        /*caps letter finishing with numbers*/
+        |((<CAPSLETTER>)((((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*|(((<UNDER>)((<LETTER>)+(<DIGIT>){0,2}|(<DIGIT>){1,2}))|((<LETTER>)+(<DIGIT>){0,2}))*((<UNDER>(<DIGIT>)+)|(<LETTER>)+(<UNDER>)?(<DIGIT>)+)))
+    )
     >
 }
 
@@ -112,7 +156,9 @@ public void parseLexical() : { }
         | constLiteral()
         | identifier()
         | nonsupportedGrammar()
-        | nonsupportedConstLiteral()
+        | nonsupportedConstLiteralSingle()
+        | nonsupportedConstLiteralDouble()
+        | nonsupportedIdentifier()
     )*
 }
 
@@ -120,7 +166,7 @@ void symbol() : { }
 {
     <SYMBOL>
     {
-        //ConsoledeEntrada.printRecognizedToken(token.image, " (Line: " + token.beginLine + " Column: " + token.beginColumn + ") recognized symbol ", token.kind);
+        lexicalAnalysis.printRecognizedToken(token.image, "Símbolo", token.kind, token.beginLine, token.beginColumn);
     }
 }
 
@@ -128,8 +174,8 @@ void reservedWord() : { }
 {
     <RESERVED_WORD>
     {
-        /*ConsoledeEntrada.printRecognizedToken(token.image,
-            " (Line: " + token.beginLine + " Column: " + token.beginColumn + ") recognized reserved word ", token.kind);*/
+        lexicalAnalysis.printRecognizedToken(token.image, "Palavra Reservada", token.kind, token.beginLine, token.beginColumn);
+
     }
 }
 
@@ -137,8 +183,8 @@ void constInt() : { }
 {
     <CONST_INT>
     {
-        /*ConsoledeEntrada.printRecognizedToken(token.image,
-            " (Line: " + token.beginLine + " Column: " + token.beginColumn + ") recognized constant: integer ", token.kind);*/
+        lexicalAnalysis.printRecognizedToken(token.image, "Constante Inteira", token.kind, token.beginLine, token.beginColumn);
+
     }
 }
 
@@ -146,8 +192,8 @@ void constReal() : { }
 {
     <CONST_REAL>
     {
-        /*ConsoledeEntrada.printRecognizedToken(token.image,
-            " (Line: " + token.beginLine + " Column: " + token.beginColumn + ") recognized constant: real ", token.kind);*/
+        lexicalAnalysis.printRecognizedToken(token.image, "Constante Real", token.kind, token.beginLine, token.beginColumn);
+
     }
 }
 
@@ -155,8 +201,8 @@ void constLiteral() : { }
 {
     <CONST_LITERAL>
     {
-        /*ConsoledeEntrada.printRecognizedToken(token.image,
-            " (Line: " + token.beginLine + " Column: " + token.beginColumn + ") recognized constant: literal ", token.kind);*/
+        lexicalAnalysis.printRecognizedToken(token.image, "Constante Literal", token.kind, token.beginLine, token.beginColumn);
+
     }
 }
 
@@ -164,8 +210,8 @@ void identifier() : { }
 {
     <IDENTIFIER>
     {
-        /*ConsoledeEntrada.printRecognizedToken(token.image,
-            " (Line: " + token.beginLine + " Column: " + token.beginColumn + ") recognized identifier ", token.kind);*/
+        lexicalAnalysis.printRecognizedToken(token.image, "Identificador", token.kind, token.beginLine, token.beginColumn);
+
     }
 }
 
@@ -174,17 +220,26 @@ void nonsupportedGrammar() : { errorCount++; }
 {
     <NONSUPPORTED_GRAMMAR>
     {
-        /*ConsoledeEntrada.printNotRecognizedToken(token.image,
-            " (Line: " + token.beginLine + " Column: " + token.beginColumn + ") is not part of the grammar", token.kind);*/
+        lexicalAnalysis.printNotRecognizedToken(token.image, "Gramática não suportada", token.kind, token.beginLine, token.beginColumn);
+
     }
 }
 
-void nonsupportedConstLiteral() : { errorCount++; }
+void nonsupportedConstLiteralSingle() : { errorCount++; }
 {
-    <NONSUPPORTED_CONST_LITERAL>
+    <NONSUPPORTED_CONST_LITERAL_SINGLE>
     {
-        /*ConsoledeEntrada.printNotRecognizedToken(token.image,
-            " (Line: " + token.beginLine + " Column: " + token.beginColumn + ") not recognized constant: literal ", token.kind);*/
+        lexicalAnalysis.printNotRecognizedToken(token.image, "Constante literal não suportada, faltando aspas simple", token.kind, token.beginLine, token.beginColumn);
+
+    }
+}
+
+void nonsupportedConstLiteralDouble() : { errorCount++; }
+{
+    <NONSUPPORTED_CONST_LITERAL_DOUBLE>
+    {
+        lexicalAnalysis.printNotRecognizedToken(token.image, "Constante literal não suportada. faltando aspas duplas", token.kind, token.beginLine, token.beginColumn);
+;
     }
 }
 
@@ -192,7 +247,16 @@ void nonsupportedBlockComment() : { errorCount++; }
 {
     <NONSUPPORTED_BLOCK_COMMENT>
     {
-        /*ConsoledeEntrada.printNotRecognizedToken(token.image,
-            " (Line: " + token.beginLine + " Column: " + token.beginColumn + ") missing block comment closing statement", token.kind);*/
+        lexicalAnalysis.printNotRecognizedToken(token.image, "Não contém o fechamento do bloco de comentário", token.kind, token.beginLine, token.beginColumn);
+
+    }
+}
+
+void nonsupportedIdentifier() : { errorCount++; }
+{
+    <NONSUPPORTED_IDENTIFIER>
+    {
+        lexicalAnalysis.printNotRecognizedToken(token.image, "Identificador formatado erroneamente", token.kind, token.beginLine, token.beginColumn);
+
     }
 }

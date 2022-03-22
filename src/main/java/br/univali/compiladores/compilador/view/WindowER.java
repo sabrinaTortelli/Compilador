@@ -17,7 +17,7 @@ import java.awt.event.ActionListener;
 public class WindowER extends JFrame implements ActionListener {
 
     private JTextArea tf, ta;
-    private JLabel l1, l2, teste;
+    private JLabel teste;
     private JScrollPane scroll1, scroll2;
     private JMenuBar menuBar;
     private JMenu fileMenu, editMenu, compMenu;
@@ -25,7 +25,8 @@ public class WindowER extends JFrame implements ActionListener {
     private JToolBar toolBar;
     private ImageIcon newFileIcon, openFileIcon, saveFileIcon, cutIcon, copyIcon, pasteIcon, hammerIcon, playIcon;
     private JButton newFileButton, openFileButton, saveFileButton, cutButton, copyButton, pasteButton, compileButton, executeButton;
-    private MenuController menuController = new MenuController(this);
+    private final MenuController menuController = new MenuController(this);
+    private JPanel jpanel;
 
     public WindowER() {
         super("Compilador - Novo arquivo");
@@ -33,9 +34,16 @@ public class WindowER extends JFrame implements ActionListener {
     }
 
     private void setWindow() {
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        Dimension size = getPreferredSize();
+        size.width = 800;
+        size.height = 770;
+        setPreferredSize(size);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //Dispose_on_close
         setSize(800, 770);
-        setLayout(null);
+        jpanel = new JPanel();
+        jpanel.setLayout(new BoxLayout(jpanel, BoxLayout.PAGE_AXIS));
+        jpanel.setBorder(BorderFactory.createEmptyBorder(5,2,10,2));
+        setContentPane(jpanel);
     }
 
     private void createMenuBar(){
@@ -49,6 +57,7 @@ public class WindowER extends JFrame implements ActionListener {
         menuBar.add(fileMenu);
         menuBar.add(editMenu);
         menuBar.add(compMenu);
+
         setJMenuBar(menuBar);
     }
 
@@ -100,8 +109,9 @@ public class WindowER extends JFrame implements ActionListener {
     private void createToolBar(){
         //Cria toolbar
         toolBar = new JToolBar();
-        toolBar.setBounds(0,0, 800, (hammerIcon.getIconHeight()) + 20);
-        add(toolBar, BorderLayout.NORTH);
+        toolBar.setAlignmentX(Component.LEFT_ALIGNMENT);
+        jpanel.add(toolBar);
+        jpanel.add(Box.createVerticalStrut(5));
     }
 
     private void createFileToolBar(){
@@ -154,39 +164,45 @@ public class WindowER extends JFrame implements ActionListener {
     }
 
     private void createEditionArea(){
-        //Label texto 1
-        l1 = new JLabel("Área para edição:");
-        l1.setBounds(19, 45, 150, 30);
         //Área de texto 1
         ta = new JTextArea();
         //Scroll texto 1
         scroll1 = new JScrollPane(ta, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        scroll1.setBounds(18, 75, 750, 250);
-
-        add(l1);
-        add(scroll1);
+        scroll1.setPreferredSize(new Dimension(750, 350));
+        scroll1.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createCompoundBorder(
+                                BorderFactory.createTitledBorder("Área para edição"),
+                                BorderFactory.createEmptyBorder(5,5,5,5)),
+                        scroll1.getBorder()));
+        scroll1.setAlignmentX(Component.LEFT_ALIGNMENT);
+        jpanel.add(scroll1);
+        jpanel.add(Box.createVerticalStrut(5));
     }
 
     private void createMessagesArea(){
-        //Label texto 2
-        l2 = new JLabel("Área para mensagens:");
-        l2.setBounds(19, 360, 250, 30);
         //Área de texto 2
         tf = new JTextArea();
         tf.setLineWrap(true);
         tf.setEditable(false);
         //Scroll texto 2
         scroll2 = new JScrollPane(tf,  JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        scroll2.setBounds(18, 390, 750, 250);
-
-        add(l2);
-        add(scroll2);
+        scroll2.setPreferredSize(new Dimension(750, 200));
+        scroll2.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createCompoundBorder(
+                                BorderFactory.createTitledBorder("Área para mensagens:"),
+                                BorderFactory.createEmptyBorder(5,5,5,5)),
+                        scroll2.getBorder()));
+        scroll2.setAlignmentX(Component.LEFT_ALIGNMENT);
+        jpanel.add(scroll2);
+        jpanel.add(Box.createVerticalStrut(10));
     }
 
     private void createInfosText(){
-        teste = new JLabel("Linha: 1, Coluna: 1 ", JLabel.RIGHT);
-        teste.setBounds(0,680, 120,15);
-        add(teste, BorderLayout.SOUTH);
+        teste = new JLabel("Linha: 1, Coluna: 1 ", JLabel.LEFT);
+        teste.setAlignmentX(Component.LEFT_ALIGNMENT);
+        jpanel.add(teste);
 
         ta.addCaretListener(
                 new CaretListener() {
@@ -194,6 +210,7 @@ public class WindowER extends JFrame implements ActionListener {
                     public void caretUpdate(CaretEvent e) {
                         int lineNumber = 0, column = 0, pos = 0;
                         try {
+
                             pos = ta.getCaretPosition();
                             System.out.println(pos);
                             lineNumber = ta.getLineOfOffset(pos);

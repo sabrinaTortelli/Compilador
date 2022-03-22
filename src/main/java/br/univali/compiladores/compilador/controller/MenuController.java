@@ -6,7 +6,6 @@ import org.apache.commons.io.input.ReaderInputStream;
 
 
 import javax.swing.*;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.DefaultEditorKit;
 import java.awt.*;
@@ -20,13 +19,13 @@ public class MenuController {
     String fileName;
     String fileAddress;
     private LexicalAnalysis lexicalAnalysis;
-    //FileFilter filter = new FileNameExtensionFilter( "Documentos de texto (*.txt)", "txt" );
 
     public MenuController(WindowER gui){
         this.gui = gui;
     }
 
     public void newFile(){
+        //verificar se houve edição do arquivo anterior
         gui.getTa().setText("");
         gui.getTf().setText("");
         gui.setTitle("Compilador - Novo arquivo");
@@ -35,26 +34,32 @@ public class MenuController {
     }
 
     public void openFile(){
-        FileDialog fd = new FileDialog(gui, "Abrir arquivo", FileDialog.LOAD);
-        fd.setVisible(true);
+        //verificar se houve edição do arquivo anterior
+        JFileChooser fc = new JFileChooser();
+        FileNameExtensionFilter filterFile = new FileNameExtensionFilter( "Apenas documentos de texto (*.txt)", "txt" );
+        fc.setAcceptAllFileFilterUsed(false);
+        fc.addChoosableFileFilter(filterFile);
 
-        if(fd.getFile()!=null){
-            fileName = fd.getFile();
-            fileAddress = fd.getDirectory();
-            fd.getFilenameFilter();
+        int respFile = fc.showOpenDialog(gui);
+        if(respFile == JFileChooser.APPROVE_OPTION){
+            File fileSelected = fc.getSelectedFile();
+            fileName = fileSelected.getName();
             gui.setTitle("Compilador - " + fileName);
-        }
-
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(fileAddress + fileName));
-            gui.getTa().setText("");
-            String line = null;
-            while((line = br.readLine())!=null){
-                gui.getTa().append(line + "\n");
+            fileAddress = fileSelected.getAbsolutePath();
+            try {
+                BufferedReader br = new BufferedReader(new FileReader(fileAddress));
+                gui.getTa().setText("");
+                String line = null;
+                while((line = br.readLine())!=null){
+                    gui.getTa().append(line + "\n");
+                }
+                br.close();
+            } catch (Exception e){
+                System.out.println("Arquivo nao pode ser aberto!");
             }
-            br.close();
-        } catch (Exception e){
-            System.out.println("File not opened!");
+        } else {
+            JOptionPane.showMessageDialog(gui, "Nenhum arquivo foi selecionado");
+            System.out.println("Nenhum arquivo selecionado!");
         }
     }
 
@@ -94,6 +99,7 @@ public class MenuController {
     }
 
     public void exit(){
+        //perguntar se deseja salvar o arquivo antes de fechar
         System.exit(0);
     }
 
@@ -123,8 +129,25 @@ public class MenuController {
             lexicalAnalysis = new LexicalAnalysis(gui);
             lexicalAnalysis.runLexicalVerification(textToParser);
         } catch (Exception e){
-            System.out.println("Erro no compilador!");
+            System.out.println("Erro na função do compilador!");
         }
+    }
+
+    private void verifyEdition(){
+
+
+        String[] options = {"Sim", "Não", "Cancelar"};
+        int optionSelected = JOptionPane.showOptionDialog(gui, "Deseja salvar o arquivo modificado?",  "Salvar arquivo?",
+                JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, "Sim");
+        if(optionSelected == 0){
+
+        } else if(optionSelected == 1){
+
+        } else {
+
+        }
+
+
     }
 
 }
