@@ -19,16 +19,16 @@ public class MenuController {
     String fileName;
     String fileAddress;
     private LexicalAnalysis lexicalAnalysis;
+    private boolean respCancel;
 
     public MenuController(WindowER gui){
         this.gui = gui;
     }
 
     public void newFile(){
-        //verificar se houve edição do arquivo anterior
         gui.getTa().setText("");
         gui.getTf().setText("");
-        gui.setTitle("Compilador - Novo arquivo");
+        gui.setTitle("Compilador");
         fileName = null;
         fileAddress = null;
     }
@@ -39,9 +39,12 @@ public class MenuController {
         FileNameExtensionFilter filterFile = new FileNameExtensionFilter( "Apenas documentos de texto (*.txt)", "txt" );
         fc.setAcceptAllFileFilterUsed(false);
         fc.addChoosableFileFilter(filterFile);
-
+        fc.setDialogTitle("Abrir arquivo de texto");
+        if(fileAddress != null){
+            fc.setCurrentDirectory(new File(fileAddress));
+        }
         int respFile = fc.showOpenDialog(gui);
-        if(respFile == JFileChooser.APPROVE_OPTION){
+        if(respFile == JFileChooser.APPROVE_OPTION) {
             File fileSelected = fc.getSelectedFile();
             fileName = fileSelected.getName();
             gui.setTitle("Compilador - " + fileName);
@@ -50,51 +53,87 @@ public class MenuController {
                 BufferedReader br = new BufferedReader(new FileReader(fileAddress));
                 gui.getTa().setText("");
                 String line = null;
-                while((line = br.readLine())!=null){
+                while ((line = br.readLine()) != null) {
                     gui.getTa().append(line + "\n");
                 }
+                gui.getTf().setText("");
                 br.close();
-            } catch (Exception e){
+            } catch (Exception e) {
                 System.out.println("Arquivo nao pode ser aberto!");
             }
+        } else if(respFile == JFileChooser.CANCEL_OPTION){
+            JOptionPane.showMessageDialog(gui, "Nenhum arquivo foi selecionado!");
         } else {
-            JOptionPane.showMessageDialog(gui, "Nenhum arquivo foi selecionado");
-            System.out.println("Nenhum arquivo selecionado!");
+            JOptionPane.showMessageDialog(gui, "Erro ao selecionar o arquivo!");
         }
     }
 
     public void save(){
-
         if(fileName==null){
             saveAs();
         } else {
             try{
-                FileWriter fw = new FileWriter(fileAddress + fileName);
+                FileWriter fw = new FileWriter(fileAddress);
                 fw.write(gui.getTa().getText());
                 gui.setTitle("Compilador - " + fileName);
                 fw.close();
             }catch(Exception e){
-                System.out.println("Not saved!");
+                System.out.println("Arquivo não pode ser salvo!");
             }
         }
     }
 
-    public void saveAs(){
-        FileDialog fd = new FileDialog(gui, "Salvar", FileDialog.SAVE);
-        fd.setVisible(true);
-
-        if(fd.getFile()!=null){
-            fileName = fd.getFile();
-            fileAddress = fd.getDirectory();
-            gui.setTitle("Compilador - " + fileName);
+    public void saveAs() {
+        JFileChooser fc = new JFileChooser();
+        FileNameExtensionFilter filterFile = new FileNameExtensionFilter( "Apenas documentos de texto (*.txt)", "txt" );
+        fc.setAcceptAllFileFilterUsed(false);
+        fc.addChoosableFileFilter(filterFile);
+        fc.setDialogTitle("Salvar");
+        if(fileAddress != null){
+            fc.setCurrentDirectory(new File(fileAddress));
+            fc.setSelectedFile(new File(fileName));
         }
-
-        try {
-            FileWriter fw = new FileWriter(fileAddress + fileName);
-            fw.write(gui.getTa().getText());
-            fw.close();
-        } catch (Exception e){
-            System.out.println("Not saved!");
+        int respFile = fc.showSaveDialog(gui);
+        respCancel = false;
+        if(respFile == JFileChooser.APPROVE_OPTION) {
+            File fileSelected = fc.getSelectedFile();
+            if(fileSelected.exists()){
+                int selectionOption = JOptionPane.showConfirmDialog(gui, "O arquivo já existe, deseja sobrescrevê-lo?", null, JOptionPane.OK_CANCEL_OPTION);
+                if(selectionOption == JOptionPane.OK_OPTION){
+                    fileName = fileSelected.getName();
+                    gui.setTitle("Compilador - " + fileName);
+                    fileAddress = fileSelected.getAbsolutePath();
+                    try {
+                        FileWriter fw = new FileWriter(fileAddress);
+                        fw.write(gui.getTa().getText());
+                        gui.setTitle("Compilador - " + fileName);
+                        fw.close();
+                    } catch (Exception e) {
+                        System.out.println("Arquivo nao pode ser salvo!");
+                    }
+                }
+            } else {
+                fileAddress = fileSelected.getAbsolutePath();
+                fileName = fileSelected.getName();
+                if(!fileName.endsWith(".txt")){
+                    fileName += ".txt";
+                    fileAddress += ".txt";
+                }
+                try {
+                    FileWriter fw = new FileWriter(fileAddress);
+                    fw.write(gui.getTa().getText());
+                    gui.setTitle("Compilador - " + fileName);
+                    fw.close();
+                } catch (Exception e) {
+                    System.out.println("Arquivo nao pode ser salvo!");
+                }
+            }
+        } else if(respFile == JFileChooser.CANCEL_OPTION){
+            respCancel = true;
+            JOptionPane.showMessageDialog(gui, "Nenhum arquivo foi selecionado!");
+        } else {
+            JOptionPane.showMessageDialog(gui, "Erro ao selecionar o arquivo!");
+            respCancel = true;
         }
     }
 
@@ -119,35 +158,65 @@ public class MenuController {
     }
 
     public void compile(){
-        try {
-            String text = "\n";
-            text += gui.getTa().getText();
-            System.out.println(text);
-            StringReader textReader = new StringReader(text);
-            BufferedReader textToParser = new BufferedReader(new InputStreamReader(new ReaderInputStream(textReader, StandardCharsets.UTF_8)));
-            System.out.println(textToParser.readLine());
-            lexicalAnalysis = new LexicalAnalysis(gui);
-            lexicalAnalysis.runLexicalVerification(textToParser);
-        } catch (Exception e){
-            System.out.println("Erro na função do compilador!");
-        }
-    }
-
-    private void verifyEdition(){
-
-
-        String[] options = {"Sim", "Não", "Cancelar"};
-        int optionSelected = JOptionPane.showOptionDialog(gui, "Deseja salvar o arquivo modificado?",  "Salvar arquivo?",
-                JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, "Sim");
-        if(optionSelected == 0){
-
-        } else if(optionSelected == 1){
-
+        if(!gui.getTa().getText().equals("")){
+            try {
+                String text = "\n";
+                text += gui.getTa().getText();
+                System.out.println(text);
+                StringReader textReader = new StringReader(text);
+                BufferedReader textToParser = new BufferedReader(new InputStreamReader(new ReaderInputStream(textReader, StandardCharsets.UTF_8)));
+                System.out.println(textToParser.readLine());
+                lexicalAnalysis = new LexicalAnalysis(gui);
+                lexicalAnalysis.runLexicalVerification(textToParser);
+            } catch (Exception e){
+                System.out.println("Erro na função do compilador!");
+            }
         } else {
-
+            gui.getTf().setText("Erro - Arquivo vazio não pode ser compilado!");
+            gui.getTf().setForeground(Color.red);
         }
-
 
     }
 
+    public void verifyEdition(String action){
+        boolean changed = gui.isChangedDocument();
+        if(changed){
+            String[] options = {"Sim", "Não", "Cancelar"};
+            int optionSelected = JOptionPane.showOptionDialog(gui, "Deseja salvar o arquivo modificado?",  "Arquivo modificado",
+                    JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, "Sim");
+            if(optionSelected == JOptionPane.YES_OPTION){
+                save();
+                if(!respCancel){
+                    chooseAction(action);
+                }
+            } else if(optionSelected == JOptionPane.NO_OPTION){
+                chooseAction(action);
+            }
+        }else {
+            chooseAction(action);
+        }
+    }
+
+    public void chooseAction(String action){
+        switch (action){
+            case "New":
+                newFile();
+                gui.setChangedDocument(false);
+                break;
+            case "Open":
+                openFile();
+                gui.setChangedDocument(false);
+                break;
+            case "Exit":
+                exit();
+                break;
+            default:
+                System.out.println(action);
+                break;
+        }
+    }
+
+    public String getFileAddress() {
+        return fileAddress;
+    }
 }
