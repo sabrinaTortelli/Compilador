@@ -28,7 +28,6 @@ public class MenuController {
         gui.getTf().setText("");
         gui.setTitle("Compilador");
         fileName = null;
-        fileAddress = null;
     }
 
     public void openFile(){

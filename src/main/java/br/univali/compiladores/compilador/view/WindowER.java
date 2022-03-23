@@ -334,6 +334,8 @@ public class WindowER extends JFrame implements ActionListener, DocumentListener
                 menuController.verifyEdition(command);
                 break;
             case "SaveAs":
+                menuController.saveAs();
+                break;
             case "Save":
                 menuController.save();
                 break;
