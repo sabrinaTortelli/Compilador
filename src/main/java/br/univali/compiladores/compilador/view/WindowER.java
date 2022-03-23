@@ -1,27 +1,26 @@
 package br.univali.compiladores.compilador.view;
 
 import br.univali.compiladores.compilador.controller.MenuController;
-import br.univali.compiladores.compilador.controller.WindowERController;
 
 import javax.swing.*;
-import javax.swing.event.CaretEvent;
-import javax.swing.event.CaretListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.text.DefaultEditorKit;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.JTextComponent;
+import javax.swing.text.Utilities;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 
 /**
  * Classe de configurações da janela
  */
-public class WindowER extends JFrame implements ActionListener, DocumentListener {
+public class WindowER extends JFrame implements ActionListener, DocumentListener, WindowListener {
 
     private JTextArea tf, ta;
     private JLabel teste;
-    private JScrollPane scroll1, scroll2;
-    private JMenuBar menuBar;
     private JMenu fileMenu, editMenu, compMenu;
     private JMenuItem newAction, openAction, saveAction, saveAsAction, exitAction, cutMenuItem, copyMenuItem, pasteMenuItem, compAction, runAction;
     private JToolBar toolBar;
@@ -39,11 +38,12 @@ public class WindowER extends JFrame implements ActionListener, DocumentListener
 
     private void setWindow() {
         Dimension size = getPreferredSize();
-        size.width = 800;
-        size.height = 770;
+        size.width = 1200;
+        size.height = 1000;
         setPreferredSize(size);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //Dispose_on_close
-        setSize(800, 770);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        addWindowListener(this);
+        setSize(size);
         jpanel = new JPanel();
         jpanel.setLayout(new BoxLayout(jpanel, BoxLayout.PAGE_AXIS));
         jpanel.setBorder(BorderFactory.createEmptyBorder(5,2,10,2));
@@ -52,7 +52,7 @@ public class WindowER extends JFrame implements ActionListener, DocumentListener
 
     private void createMenuBar(){
         //Cria barra de menu
-        menuBar = new JMenuBar();
+        JMenuBar menuBar = new JMenuBar();
         //Define e adiciona tres menus drop down na barra de menus
         fileMenu = new JMenu("Arquivo");
         editMenu = new JMenu("Edição");
@@ -88,7 +88,6 @@ public class WindowER extends JFrame implements ActionListener, DocumentListener
         editMenu.add(cutMenuItem);
         editMenu.add(copyMenuItem);
         editMenu.add(pasteMenuItem);
-
     }
 
     private void createCompilateMenu(){
@@ -171,9 +170,10 @@ public class WindowER extends JFrame implements ActionListener, DocumentListener
     private void createEditionArea(){
         //Área de texto 1
         ta = new JTextArea();
+        ta.setTabSize(1);
         ta.getDocument().addDocumentListener(this);
         //Scroll texto 1
-        scroll1 = new JScrollPane(ta, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        JScrollPane scroll1 = new JScrollPane(ta, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scroll1.setPreferredSize(new Dimension(750, 350));
         scroll1.setBorder(
                 BorderFactory.createCompoundBorder(
@@ -191,8 +191,9 @@ public class WindowER extends JFrame implements ActionListener, DocumentListener
         tf = new JTextArea();
         tf.setLineWrap(true);
         tf.setEditable(false);
+        tf.setForeground(Color.BLACK);
         //Scroll texto 2
-        scroll2 = new JScrollPane(tf,  JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        JScrollPane scroll2 = new JScrollPane(tf, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scroll2.setPreferredSize(new Dimension(750, 200));
         scroll2.setBorder(
                 BorderFactory.createCompoundBorder(
@@ -205,30 +206,36 @@ public class WindowER extends JFrame implements ActionListener, DocumentListener
         jpanel.add(Box.createVerticalStrut(10));
     }
 
+    public static int getRow(int pos, JTextComponent editor) {
+        int rn = (pos==0) ? 1 : 0;
+        try {
+            int offs=pos;
+            while( offs>0) {
+                offs= Utilities.getRowStart(editor, offs)-1;
+                rn++;
+            }
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+        return rn;
+    }
+
+    public static int getColumn(int pos, JTextComponent editor) {
+        try {
+            return pos-Utilities.getRowStart(editor, pos)+1;
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
     private void createInfosText(){
         teste = new JLabel("Linha: 1, Coluna: 1 ", JLabel.LEFT);
         teste.setAlignmentX(Component.LEFT_ALIGNMENT);
         jpanel.add(teste);
-
         ta.addCaretListener(
-                new CaretListener() {
-                    @Override
-                    public void caretUpdate(CaretEvent e) {
-                        int lineNumber = 0, column = 0, pos = 0;
-                        try {
-
-                            pos = ta.getCaretPosition();
-                            System.out.println(pos);
-                            lineNumber = ta.getLineOfOffset(pos);
-                            column = pos - ta.getLineOfOffset(lineNumber);
-                        } catch (Exception e1) {}
-                        if (ta.getText().length()==0) {
-                            lineNumber = 0;
-                            column = 0;
-                        }
-                        teste.setText("Linha: " + (lineNumber+1) + ", Coluna: " + (column+1));
-                    }
-                }
+                e -> teste.setText("Linha: " + getRow(e.getDot(), (JTextComponent)e.getSource()) + ", Coluna: "
+                        + getColumn(e.getDot(), (JTextComponent)e.getSource()))
         );
     }
 
@@ -361,5 +368,40 @@ public class WindowER extends JFrame implements ActionListener, DocumentListener
     @Override
     public void changedUpdate(DocumentEvent e) {
         changedDocument = true;
+    }
+
+    @Override
+    public void windowOpened(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowClosing(WindowEvent e) {
+        menuController.verifyEdition("Exit");
+    }
+
+    @Override
+    public void windowClosed(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowIconified(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowDeiconified(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowActivated(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowDeactivated(WindowEvent e) {
+
     }
 }

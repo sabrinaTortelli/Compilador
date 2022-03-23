@@ -4,7 +4,6 @@ import br.univali.compiladores.compilador.model.LexicalAnalysis.LexicalAnalysis;
 import br.univali.compiladores.compilador.view.WindowER;
 import org.apache.commons.io.input.ReaderInputStream;
 
-
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.DefaultEditorKit;
@@ -15,10 +14,9 @@ import java.nio.charset.StandardCharsets;
 
 public class MenuController {
 
-    private WindowER gui;
+    private final WindowER gui;
     String fileName;
     String fileAddress;
-    private LexicalAnalysis lexicalAnalysis;
     private boolean respCancel;
 
     public MenuController(WindowER gui){
@@ -34,7 +32,6 @@ public class MenuController {
     }
 
     public void openFile(){
-        //verificar se houve edição do arquivo anterior
         JFileChooser fc = new JFileChooser();
         FileNameExtensionFilter filterFile = new FileNameExtensionFilter( "Apenas documentos de texto (*.txt)", "txt" );
         fc.setAcceptAllFileFilterUsed(false);
@@ -52,7 +49,7 @@ public class MenuController {
             try {
                 BufferedReader br = new BufferedReader(new FileReader(fileAddress));
                 gui.getTa().setText("");
-                String line = null;
+                String line;
                 while ((line = br.readLine()) != null) {
                     gui.getTa().append(line + "\n");
                 }
@@ -138,7 +135,6 @@ public class MenuController {
     }
 
     public void exit(){
-        //perguntar se deseja salvar o arquivo antes de fechar
         System.exit(0);
     }
 
@@ -166,13 +162,13 @@ public class MenuController {
                 StringReader textReader = new StringReader(text);
                 BufferedReader textToParser = new BufferedReader(new InputStreamReader(new ReaderInputStream(textReader, StandardCharsets.UTF_8)));
                 System.out.println(textToParser.readLine());
-                lexicalAnalysis = new LexicalAnalysis(gui);
+                LexicalAnalysis lexicalAnalysis = new LexicalAnalysis(gui);
                 lexicalAnalysis.runLexicalVerification(textToParser);
             } catch (Exception e){
                 System.out.println("Erro na função do compilador!");
             }
         } else {
-            gui.getTf().setText("Erro - Arquivo vazio não pode ser compilado!");
+            gui.getTf().setText("----------Erro - Arquivo vazio não pode ser compilado!------------");
             gui.getTf().setForeground(Color.red);
         }
 
@@ -214,9 +210,5 @@ public class MenuController {
                 System.out.println(action);
                 break;
         }
-    }
-
-    public String getFileAddress() {
-        return fileAddress;
     }
 }
