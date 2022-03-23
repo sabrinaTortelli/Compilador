@@ -24,7 +24,7 @@ public class WindowER extends JFrame implements ActionListener, DocumentListener
     private JMenu fileMenu, editMenu, compMenu;
     private JMenuItem newAction, openAction, saveAction, saveAsAction, exitAction, cutMenuItem, copyMenuItem, pasteMenuItem, compAction, runAction;
     private JToolBar toolBar;
-    private ImageIcon newFileIcon, openFileIcon, saveFileIcon, cutIcon, copyIcon, pasteIcon, hammerIcon, playIcon;
+    //private ImageIcon newFileIcon, openFileIcon, saveFileIcon, cutIcon, copyIcon, pasteIcon, hammerIcon, playIcon;
     private JButton newFileButton, openFileButton, saveFileButton, cutButton, copyButton, pasteButton, compileButton, executeButton;
     private final MenuController menuController = new MenuController(this);
     private JPanel jpanel;
@@ -36,10 +36,27 @@ public class WindowER extends JFrame implements ActionListener, DocumentListener
         changedDocument = false;
     }
 
+    private void initComponents() {
+        setWindow();
+        createMenuBar();
+        createFileMenu();
+        createEditMenu();
+        createCompilateMenu();
+        //createIconsToolBar();
+        createToolBar();
+        createFileToolBar();
+        createEditToolBar();
+        createCompileToolBar();
+        createEditionArea();
+        createMessagesArea();
+        createInfosText();
+        addActions();
+    }
+
     private void setWindow() {
         Dimension size = getPreferredSize();
-        size.width = 1200;
-        size.height = 1000;
+        size.width = 1100;
+        size.height = 800;
         setPreferredSize(size);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         addWindowListener(this);
@@ -98,17 +115,17 @@ public class WindowER extends JFrame implements ActionListener, DocumentListener
         compMenu.add(runAction);
     }
 
-    private void createIconsToolBar(){
-        //Icons
-        newFileIcon = new ImageIcon("src/resources/newFile.png");
-        openFileIcon = new ImageIcon("src/resources/openFile.png");
-        saveFileIcon = new ImageIcon("src/resources/saveFile.png");
-        cutIcon = new ImageIcon("src/resources/cut.png");
-        copyIcon = new ImageIcon("src/resources/copy.png");
-        pasteIcon = new ImageIcon("src/resources/paste.png");
-        hammerIcon = new ImageIcon("src/resources/hammer.png");
-        playIcon = new ImageIcon("src/resources/play.png");
-    }
+//    private void createIconsToolBar(){
+//        //Icons
+//        newFileIcon = new ImageIcon("src/resources/newFile.png");
+//        openFileIcon = new ImageIcon("src/resources/openFile.png");
+//        saveFileIcon = new ImageIcon("src/resources/saveFile.png");
+//        cutIcon = new ImageIcon("src/resources/cut.png");
+//        copyIcon = new ImageIcon("src/resources/copy.png");
+//        pasteIcon = new ImageIcon("src/resources/paste.png");
+//        hammerIcon = new ImageIcon("src/resources/hammer.png");
+//        playIcon = new ImageIcon("src/resources/play.png");
+//    }
 
     private void createToolBar(){
         //Cria toolbar
@@ -120,13 +137,13 @@ public class WindowER extends JFrame implements ActionListener, DocumentListener
 
     private void createFileToolBar(){
         //Botão Novo
-        newFileButton = new JButton(newFileIcon);
+        newFileButton = new JButton("Novo");
         newFileButton.setToolTipText("Novo");
         //Botão Abrir
-        openFileButton = new JButton(openFileIcon);
+        openFileButton = new JButton("Abrir");
         openFileButton.setToolTipText("Abrir");
         //Botão Salvar
-        saveFileButton = new JButton(saveFileIcon);
+        saveFileButton = new JButton("Salvar");
         saveFileButton.setToolTipText("Salvar");
 
         toolBar.add(newFileButton);
@@ -137,15 +154,15 @@ public class WindowER extends JFrame implements ActionListener, DocumentListener
 
     private void createEditToolBar(){
         //Botão Recortar
-        cutButton = new JButton(cutIcon);
+        cutButton = new JButton("Recortar");
         cutButton.setToolTipText("Recortar");
 
         //Botão Copiar
-        copyButton = new JButton(copyIcon);
+        copyButton = new JButton("Copiar");
         copyButton.setToolTipText("Copiar");
 
         //Botão Colar
-        pasteButton = new JButton(pasteIcon);
+        pasteButton = new JButton("Colar");
         pasteButton.setToolTipText("Colar");
 
         toolBar.add(cutButton);
@@ -157,10 +174,10 @@ public class WindowER extends JFrame implements ActionListener, DocumentListener
 
     private void createCompileToolBar(){
         //botão Compilar
-        compileButton = new JButton(hammerIcon);
+        compileButton = new JButton("Compilar");
         compileButton.setToolTipText("Compilar");
         //Botão Executar
-        executeButton = new JButton(playIcon);
+        executeButton = new JButton("Executar");
         executeButton.setToolTipText("Executar");
 
         toolBar.add(compileButton);
@@ -238,23 +255,6 @@ public class WindowER extends JFrame implements ActionListener, DocumentListener
                         + getColumn(e.getDot(), (JTextComponent)e.getSource()))
         );
     }
-
-    private void initComponents() {
-        setWindow();
-        createMenuBar();
-        createFileMenu();
-        createEditMenu();
-        createCompilateMenu();
-        createIconsToolBar();
-        createToolBar();
-        createFileToolBar();
-        createEditToolBar();
-        createCompileToolBar();
-        createEditionArea();
-        createMessagesArea();
-        createInfosText();
-        addActions();
-     }
 
     public void addActions(){
         newAction.addActionListener(this);
