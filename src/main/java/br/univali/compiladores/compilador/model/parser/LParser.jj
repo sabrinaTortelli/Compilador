@@ -16,6 +16,9 @@ public class LParser {
     public int getErrorCount() {
         return errorCount;
     }
+    public void setLexicalAnalysis(WindowER gui){
+        lexicalAnalysis = new LexicalAnalysis(gui);
+    }
 }
 
 PARSER_END(LParser)
@@ -31,25 +34,60 @@ SKIP :
 | <BLOCK_COMMENT: ("@" ((~["@"])*|"\n"|"\r"|"\r\n")* "@")>/*BLOCK COMMENT*/
 }
 
-TOKEN /*SYMBOLS*/:
+TOKEN /*SPECIAL_SYMBOLS*/:
 {
-  <SYMBOL:
-  "[" | "]" | "(" | ")"|   "{" |  "}"
-| "." | ","
-| "=" | "+" | "-" | "*" | "/" | "**" | "%" |  "%%"
-| "=="| "!=" | ">>" | "<<" | ">>="| "<<="
-| "&" | "|"
-|  "!">
+  <ESP_SYMBOL_L_BRACKET: "[">  
+| <ESP_SYMBOL_R_BRACKET: "]"> 
+| <ESP_SYMBOL_L_PARENTHESIS: "("> 
+| <ESP_SYMBOL_R_PARENTHESIS: ")"> 
+| <ESP_SYMBOL_L_BRACE: "{"> 
+| <ESP_SYMBOL_R_BRACE: "}"> 
+| <ESP_SYMBOL_DOT: "."> 
+| <ESP_SYMBOL_COMA: ","> 
+| <ESP_SYMBOL_ASSIGNE: "="> 
+| <ESP_SYMBOL_PLUS: "+"> 
+| <ESP_SYMBOL_MINUS: "-"> 
+| <ESP_SYMBOL_STAR: "*"> 
+| <ESP_SYMBOL_DIVISION_REAL: "/"> 
+| <ESP_SYMBOL_POWER: "**"> 
+| <ESP_SYMBOL_DIVISION_INT: "%"> 
+| <ESP_SYMBOL_MOD: "%%"> 
+| <ESP_SYMBOL_EQUAL: "=="> 
+| <ESP_SYMBOL_DIFFERENT: "!="> 
+| <ESP_SYMBOL_GREATER: ">>"> 
+| <ESP_SYMBOL_LESSER: "<<"> 
+| <ESP_SYMBOL_GREATEREQUAL: ">>="> 
+| <ESP_SYMBOL_LESSERREQUAL: "<<="> 
+| <ESP_SYMBOL_AND:  "&"> 
+| <ESP_SYMBOL_OR:  "|"> 
+| <ESP_SYMBOL_NOT: "!">
 }
 
-TOKEN /*RESERVED WORDS*/:
+TOKEN /*RESERVED WORDS*/: 
 {
-  <RESERVED_WORD:
-   "do" | "this" | "body" | "description" | "declaration"
-| "type" | "is" | "constant" | "and" | "variable"
-| "as" | "integer" | "real" | "string" | "logic"
-| "designate" | "read" | "write" | "all" | "repeat"
-| "avaliate" | "true" | "untrue">
+  <RESERVED_WORD_DO:("D"|"d")("O"|"o")>
+| <RESERVED_WORD_THIS:("T"|"t")("H"|"h")("I"|"i")("S"|"s")>
+| <RESERVED_WORD_BODY:("B"|"b")("O"|"o")("D"|"d")("Y"|"y")>
+| <RESERVED_WORD_DESCRIPTION:("D"|"d")("E"|"e")("S"|"s")("C"|"c")("R"|"r")("I"|"i")("P"|"p")("T"|"t")("I"|"i")("O"|"o")("N"|"n")>
+| <RESERVED_WORD_DECLARATION: ("D"|"d")("E"|"e")("C"|"c")("L"|"l")("A"|"a")("R"|"r")("A"|"a")("T"|"t")("I"|"i")("O"|"o")("N"|"n")>
+| <RESERVED_WORD_TYPE:("T"|"t")("Y"|"y")("P"|"p")("E"|"e")>
+| <RESERVED_WORD_IS:("I"|"i")("S"|"s")>
+| <RESERVED_WORD_CONSTANT:("C"|"c")("O"|"o")("N"|"n")("S"|"s")("T"|"t")("A"|"a")("N"|"n")("T"|"t")>
+| <RESERVED_WORD_AND:("A"|"a")("N"|"n")("D"|"d")>
+| <RESERVED_WORD_VARIABLE:("V"|"v")("A"|"a")("R"|"r")("I"|"i")("A"|"a")("B"|"b")("L"|"l")("E"|"e")>
+| <RESERVED_WORD_AS:("A"|"a")("S"|"s")>
+| <RESERVED_WORD_INTEGER:("I"|"i")("N"|"n")("T"|"t")("E"|"e")("G"|"g")("E"|"e")("R"|"r")>
+| <RESERVED_WORD_REAL:("R"|"r")("E"|"e")("A"|"a")("L"|"l")>
+| <RESERVED_WORD_STRING:("S"|"s")("T"|"t")("R"|"r")("I"|"i")("N"|"n")("G"|"g")>
+| <RESERVED_WORD_LOGIC:("L"|"l")("O"|"o")("G"|"g")("I"|"i")("C"|"c")>
+| <RESERVED_WORD_DESIGNATE:("D"|"d")("E"|"e")("S"|"s")("I"|"i")("G"|"g")("N"|"n")("A"|"a")("T"|"t")("E"|"e")>
+| <RESERVED_WORD_READ:("R"|"r")("E"|"e")("A"|"a")("D"|"d")>
+| <RESERVED_WORD_WRITE:("W"|"w")("R"|"r")("I"|"i")("T"|"t")("E"|"e")>
+| <RESERVED_WORD_ALL:("A"|"a")("L"|"l")("L"|"l")>
+| <RESERVED_WORD_REPEAT:("R"|"r")("E"|"e")("P"|"p")("E"|"e")("A"|"a")("T"|"t")>
+| <RESERVED_WORD_AVALIATE:("A"|"a")("V"|"v")("A"|"a")("L"|"l")("I"|"i")("A"|"a")("T"|"t")("E"|"e")>
+| <RESERVED_WORD_TRUE:("T"|"t")("R"|"r")("U"|"u")("E"|"e")>
+| <RESERVED_WORD_UNTRUE:("U"|"u")("N"|"n")("T"|"t")("R"|"r")("U"|"u")("E"|"e")>
 }
 
 TOKEN : { < #DIGIT : ["0"-"9"] > }
@@ -75,13 +113,15 @@ TOKEN : /* LITERAL */
 }
 
 TOKEN : {
-    <IDENTIFIER:(<CAPSLETTER>)((((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*|(((<UNDER>)((<LETTER>)+(<DIGIT>){0,2}|(<DIGIT>){1,2}))|((<LETTER>)+(<DIGIT>){0,2}))*((<UNDER>)|(<LETTER>)+(<UNDER>)?)) >
+    /*<IDENTIFIER:(<CAPSLETTER>)((((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*|(((<UNDER>)((<LETTER>)+(<DIGIT>){0,2}|(<DIGIT>){1,2}))|((<LETTER>)+(<DIGIT>){0,2}))*((<UNDER>)|(<LETTER>)+(<UNDER>)?)) >*/
+
+    <IDENTIFIER:(<CAPSLETTER>)((((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*|((<UNDER>)(<LETTER>)+(<UNDER>)?)*|((<UNDER>)?(<LETTER>)*)(((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*)>
 
 }
 
 TOKEN :
 {
-    < NONSUPPORTED_GRAMMAR/* throws error for any token not listed bellow */:
+    < NONSUPPORTED_SYMBOL/* throws error for any token not listed bellow */:
     (~ ["a"-"z", "A"-"Z", "0"-"9", "@","\"", "'",
         "(", ")", "[", "]", "{", "}", ",", ".",
         ">", "<", "!", "+", "-", "*", "/", "%",
@@ -98,86 +138,126 @@ TOKEN :
     >
 |   < NONSUPPORTED_IDENTIFIER/* throws error for non valid identifiers  */:
     (
-        /*starting with low caps letter       */
-        ((<LOWCAPSLETTER>)((((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*|(((<UNDER>)((<LETTER>)+(<DIGIT>){0,2}|(<DIGIT>){1,2}))|((<LETTER>)+(<DIGIT>){0,2}))*((<UNDER>)|(<LETTER>)+(<UNDER>)?)))
+        /*starting with low caps letter*/
+        ((<LOWCAPSLETTER>)((((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*|((<UNDER>)(<LETTER>)+(<UNDER>)?)*|((<UNDER>)?(<LETTER>)*)(((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*))
 
         /*caps letter followed by 3 digits r2*/
-        |((<CAPSLETTER>)((((<DIGIT>){2}(<DIGIT>)+((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*|(((<UNDER>)((<LETTER>)+(<DIGIT>){0,2}|(<DIGIT>){1,2}))|((<LETTER>)+(<DIGIT>){0,2}))*((<UNDER>)|(<LETTER>)+(<UNDER>)?)))
-
-        /*caps letter followed by 3 digits r3*/
-        |((<CAPSLETTER>)((((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*|(((<UNDER>)((<LETTER>)+(<DIGIT>){2}(<DIGIT>)+|(<DIGIT>){1,2}))|((<LETTER>)+(<DIGIT>){0,2}))*((<UNDER>)|(<LETTER>)+(<UNDER>)?)))
+        |((<CAPSLETTER>)((((<DIGIT>){2}(<DIGIT>)+((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*|((<UNDER>)(<LETTER>)+(<UNDER>)?)*|((<UNDER>)?(<LETTER>)*)(((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*))
 
         /*caps letter followed by 3 digits r4*/
-        |((<CAPSLETTER>)((((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*|(((<UNDER>)((<LETTER>)+(<DIGIT>){0,2}|(<DIGIT>){2}(<DIGIT>)+))|((<LETTER>)+(<DIGIT>){0,2}))*((<UNDER>)|(<LETTER>)+(<UNDER>)?)))
+        |((<CAPSLETTER>)((((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*|((<UNDER>)(<LETTER>)+(<UNDER>)?)*|((<UNDER>)?(<LETTER>)*)(((<DIGIT>){2}(<DIGIT>)+((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*))
 
-        /*caps letter followed by 3 digits r5*/
-        |((<CAPSLETTER>)((((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*|(((<UNDER>)((<LETTER>)+(<DIGIT>){0,2}|(<DIGIT>){1,2}))|((<LETTER>)+(<DIGIT>){2}(<DIGIT>)+))*((<UNDER>)|(<LETTER>)+(<UNDER>)?)))
+        /*caps letter followed by double_ or more*/
+        |((<CAPSLETTER>)((((<DIGIT>){1,2}((<LETTER>)+(<UNDER>){2}(<UNDER>)*|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*|((<UNDER>)(<LETTER>)+(<UNDER>)?)*|((<UNDER>)?(<LETTER>)*)(((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*))
 
-        /*caps letter followed by double_ r2*/
-        |((<CAPSLETTER>)((((<DIGIT>){1,2}((<LETTER>)+(<UNDER>){2}(<UNDER>)*|(<UNDER>){2}(<UNDER>)*))|((<LETTER>)+(<UNDER>)?))*|(((<UNDER>)((<LETTER>)+(<DIGIT>){0,2}|(<DIGIT>){1,2}))|((<LETTER>)+(<DIGIT>){0,2}))*((<UNDER>)|(<LETTER>)+(<UNDER>)?)))
+        |((<CAPSLETTER>)((((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>){2}(<UNDER>)*))|((<LETTER>)+(<UNDER>)?))*|((<UNDER>)(<LETTER>)+(<UNDER>)?)*|((<UNDER>)?(<LETTER>)*)(((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*))
 
-        /*caps letter followed by double_ r3*/
-        |((<CAPSLETTER>)((((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>){2}(<UNDER>)*))*|(((<UNDER>)((<LETTER>)+(<DIGIT>){0,2}|(<DIGIT>){1,2}))|((<LETTER>)+(<DIGIT>){0,2}))*((<UNDER>)|(<LETTER>)+(<UNDER>)?)))
+        |((<CAPSLETTER>)((((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>){2}(<UNDER>)*))*|((<UNDER>)(<LETTER>)+(<UNDER>)?)*|((<UNDER>)?(<LETTER>)*)(((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*))
+        
+        |((<CAPSLETTER>)((((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*|((<UNDER>){2}(<UNDER>)+(<LETTER>)+(<UNDER>)?)*|((<UNDER>)?(<LETTER>)*)(((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*))
 
-        /*caps letter followed by double_ r4*/
-        |((<CAPSLETTER>)((((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*|(((<UNDER>){2}(<UNDER>)*((<LETTER>)+(<DIGIT>){0,2}|(<DIGIT>){1,2}))|((<LETTER>)+(<DIGIT>){0,2}))*((<UNDER>)|(<LETTER>)+(<UNDER>)?)))
+        |((<CAPSLETTER>)((((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*|((<UNDER>)(<LETTER>)+(<UNDER>){2}(<UNDER>)+)*|((<UNDER>)?(<LETTER>)*)(((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*))
 
+        |((<CAPSLETTER>)((((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*|((<UNDER>)(<LETTER>)+(<UNDER>)?)*|((<UNDER>){2}(<UNDER>)*(<LETTER>)*)(((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*))
 
-        /*caps letter finishing with double_*/
-        |((<CAPSLETTER>)((((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*|(((<UNDER>)((<LETTER>)+(<DIGIT>){0,2}|(<DIGIT>){1,2}))|((<LETTER>)+(<DIGIT>){0,2}))*((<UNDER>){2}(<UNDER>)*|(<LETTER>)+(<UNDER>){2}(<UNDER>)*)))
+        |((<CAPSLETTER>)((((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*|((<UNDER>)(<LETTER>)+(<UNDER>)?)*|((<UNDER>)?(<LETTER>)*)(((<DIGIT>){1,2}((<LETTER>)+(<UNDER>){2}(<UNDER>)*|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*))
+
+        |((<CAPSLETTER>)((((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*|((<UNDER>)(<LETTER>)+(<UNDER>)?)*|((<UNDER>)?(<LETTER>)*)(((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>){2}(<UNDER>)*))|((<LETTER>)+(<UNDER>)?))*))
+
+        |((<CAPSLETTER>)((((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*|((<UNDER>)(<LETTER>)+(<UNDER>)?)*|((<UNDER>)?(<LETTER>)*)(((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>){2}(<UNDER>)*))*))
+
+        |((<CAPSLETTER>)((((<DIGIT>){1,2}((<LETTER>)+(<UNDER>){2}(<UNDER>)*|(<UNDER>){2}(<UNDER>)*))|((<LETTER>)+(<UNDER>){2}(<UNDER>)*))*|((<UNDER>){2}(<UNDER>)*(<LETTER>)+(<UNDER>){2}(<UNDER>)*)*|((<UNDER>){2}(<UNDER>)*(<LETTER>)*)(((<DIGIT>){1,2}((<LETTER>)+(<UNDER>){2}(<UNDER>)*|(<UNDER>){2}(<UNDER>)*))|((<LETTER>)+(<UNDER>){2}(<UNDER>)*))*))
 
         /*caps letter finishing with numbers*/
-        |((<CAPSLETTER>)((((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*|(((<UNDER>)((<LETTER>)+(<DIGIT>){0,2}|(<DIGIT>){1,2}))|((<LETTER>)+(<DIGIT>){0,2}))*((<UNDER>(<DIGIT>)+)|(<LETTER>)+(<UNDER>)?(<DIGIT>)+)))
+        |((<CAPSLETTER>)((((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*|((<UNDER>)(<LETTER>)+(<UNDER>)?)*|((<UNDER>)?(<LETTER>)*)(((<DIGIT>){1,2}((<LETTER>)+(<UNDER>)?|(<UNDER>)))|((<LETTER>)+(<UNDER>)?))*)(<DIGIT>)+)
     )
     >
 }
-
-//void parseLexical():
-//{Token t;}
-//{
-//  (
-//  t= <SYMBOL> {System.out.println("Special char "+ t.image);}
-//  |t= <RESERVED_WORD> {System.out.println("Reserved word "+ t.image);}
-//  |t= <CONST_INT> {System.out.println("Const Int "+ t.image);}
-//  |t= <CONST_REAL> {System.out.println("Const real "+ t.image);}
-//  |t= <CONST_LITERAL> {System.out.println("Const literal "+ t.image);}
-//  |t= <IDENTIFIER> {System.out.println("Const identifier "+ t.image);}
-//  )*
-//}
 
 public void parseLexical() : { }
 {
     (
         nonsupportedBlockComment()
-        | symbol()
+        | specialSymbol()
         | reservedWord()
         | constInt()
         | constReal()
         | constLiteral()
         | identifier()
-        | nonsupportedGrammar()
+        | nonsupportedSymbol()
         | nonsupportedConstLiteralSingle()
         | nonsupportedConstLiteralDouble()
         | nonsupportedIdentifier()
     )*
 }
 
-void symbol() : { }
+void specialSymbol() : { }
 {
-    <SYMBOL>
+    (
+        <ESP_SYMBOL_L_BRACKET>  
+        | <ESP_SYMBOL_R_BRACKET> 
+        | <ESP_SYMBOL_L_PARENTHESIS> 
+        | <ESP_SYMBOL_R_PARENTHESIS> 
+        | <ESP_SYMBOL_L_BRACE> 
+        | <ESP_SYMBOL_R_BRACE> 
+        | <ESP_SYMBOL_DOT> 
+        | <ESP_SYMBOL_COMA> 
+        | <ESP_SYMBOL_ASSIGNE> 
+        | <ESP_SYMBOL_PLUS> 
+        | <ESP_SYMBOL_MINUS> 
+        | <ESP_SYMBOL_STAR> 
+        | <ESP_SYMBOL_DIVISION_REAL> 
+        | <ESP_SYMBOL_POWER> 
+        | <ESP_SYMBOL_DIVISION_INT> 
+        | <ESP_SYMBOL_MOD> 
+        | <ESP_SYMBOL_EQUAL> 
+        | <ESP_SYMBOL_DIFFERENT> 
+        | <ESP_SYMBOL_GREATER> 
+        | <ESP_SYMBOL_LESSER> 
+        | <ESP_SYMBOL_GREATEREQUAL> 
+        | <ESP_SYMBOL_LESSERREQUAL> 
+        | <ESP_SYMBOL_AND> 
+        | <ESP_SYMBOL_OR> 
+        | <ESP_SYMBOL_NOT>
+    )
     {
-        lexicalAnalysis.printRecognizedToken(token.image, "Símbolo", token.kind, token.beginLine, token.beginColumn);
+        lexicalAnalysis.printRecognizedToken(token.image, "Simbolo Especial", token.kind, token.beginLine, token.beginColumn);
     }
 }
 
 void reservedWord() : { }
 {
-    <RESERVED_WORD>
+     (
+          <RESERVED_WORD_DO>
+        | <RESERVED_WORD_THIS>
+        | <RESERVED_WORD_BODY>
+        | <RESERVED_WORD_DESCRIPTION>
+        | <RESERVED_WORD_DECLARATION>
+        | <RESERVED_WORD_TYPE>
+        | <RESERVED_WORD_IS>
+        | <RESERVED_WORD_CONSTANT>
+        | <RESERVED_WORD_AND>
+        | <RESERVED_WORD_VARIABLE>
+        | <RESERVED_WORD_AS>
+        | <RESERVED_WORD_INTEGER>
+        | <RESERVED_WORD_REAL>
+        | <RESERVED_WORD_STRING>
+        | <RESERVED_WORD_LOGIC>
+        | <RESERVED_WORD_DESIGNATE>
+        | <RESERVED_WORD_READ>
+        | <RESERVED_WORD_WRITE>
+        | <RESERVED_WORD_ALL>
+        | <RESERVED_WORD_REPEAT>
+        | <RESERVED_WORD_AVALIATE>
+        | <RESERVED_WORD_TRUE>
+        | <RESERVED_WORD_UNTRUE>
+    )
     {
         lexicalAnalysis.printRecognizedToken(token.image, "Palavra Reservada", token.kind, token.beginLine, token.beginColumn);
 
     }
 }
+
 
 void constInt() : { }
 {
@@ -216,11 +296,11 @@ void identifier() : { }
 }
 
 
-void nonsupportedGrammar() : { errorCount++; }
+void nonsupportedSymbol() : { errorCount++; }
 {
-    <NONSUPPORTED_GRAMMAR>
+    <NONSUPPORTED_SYMBOL>
     {
-        lexicalAnalysis.printNotRecognizedToken(token.image, "Gramática não suportada", token.kind, token.beginLine, token.beginColumn);
+        lexicalAnalysis.printNotRecognizedToken(token.image, "Simbolo nao suportado", token.kind, token.beginLine, token.beginColumn);
 
     }
 }
@@ -229,7 +309,7 @@ void nonsupportedConstLiteralSingle() : { errorCount++; }
 {
     <NONSUPPORTED_CONST_LITERAL_SINGLE>
     {
-        lexicalAnalysis.printNotRecognizedToken(token.image, "Constante literal não suportada, faltando aspas simple", token.kind, token.beginLine, token.beginColumn);
+        lexicalAnalysis.printNotRecognizedToken(token.image, "Constante literal nao suportada, faltando aspas simples", token.kind, token.beginLine, token.beginColumn);
 
     }
 }
@@ -238,7 +318,7 @@ void nonsupportedConstLiteralDouble() : { errorCount++; }
 {
     <NONSUPPORTED_CONST_LITERAL_DOUBLE>
     {
-        lexicalAnalysis.printNotRecognizedToken(token.image, "Constante literal não suportada. faltando aspas duplas", token.kind, token.beginLine, token.beginColumn);
+        lexicalAnalysis.printNotRecognizedToken(token.image, "Constante literal nao suportada. faltando aspas duplas", token.kind, token.beginLine, token.beginColumn);
 ;
     }
 }
@@ -247,7 +327,7 @@ void nonsupportedBlockComment() : { errorCount++; }
 {
     <NONSUPPORTED_BLOCK_COMMENT>
     {
-        lexicalAnalysis.printNotRecognizedToken(token.image, "Não contém o fechamento do bloco de comentário", token.kind, token.beginLine, token.beginColumn);
+        lexicalAnalysis.printNotRecognizedToken(token.image, "Nao contem o fechamento do bloco de comentario", token.kind, token.beginLine, token.beginColumn);
 
     }
 }
@@ -256,7 +336,7 @@ void nonsupportedIdentifier() : { errorCount++; }
 {
     <NONSUPPORTED_IDENTIFIER>
     {
-        lexicalAnalysis.printNotRecognizedToken(token.image, "Identificador formatado erroneamente", token.kind, token.beginLine, token.beginColumn);
+        lexicalAnalysis.printNotRecognizedToken(token.image, "Identificador invalido", token.kind, token.beginLine, token.beginColumn);
 
     }
 }

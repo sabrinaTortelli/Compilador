@@ -187,7 +187,7 @@ public class WindowER extends JFrame implements ActionListener, DocumentListener
     private void createEditionArea(){
         //Área de texto 1
         ta = new JTextArea();
-        ta.setTabSize(1);
+        ta.setTabSize(4);
         ta.getDocument().addDocumentListener(this);
         //Scroll texto 1
         JScrollPane scroll1 = new JScrollPane(ta, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);

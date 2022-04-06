@@ -5,134 +5,383 @@ import br.univali.compiladores.compilador.model.LexicalAnalysis.LexicalAnalysis;
 import br.univali.compiladores.compilador.view.WindowER;
 
 public class LParser implements LParserConstants {
-  private LexicalAnalysis lexicalAnalysis;
-  private int errorCount;
-  public int getErrorCount() {
-    return errorCount;
-  }
+    private LexicalAnalysis lexicalAnalysis;
+    private int errorCount;
+    public int getErrorCount() {
+        return errorCount;
+    }
+    public void setLexicalAnalysis(WindowER gui){
+        lexicalAnalysis = new LexicalAnalysis(gui);
+    }
 
   final public void parseLexical() throws ParseException {
     label_1:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case SYMBOL:
-        case RESERVED_WORD:
-        case CONST_INT:
-        case CONST_REAL:
-        case CONST_LITERAL:
-        case IDENTIFIER:
-        case NONSUPPORTED_GRAMMAR:
-        case NONSUPPORTED_CONST_LITERAL_SINGLE:
-        case NONSUPPORTED_CONST_LITERAL_DOUBLE:
-        case NONSUPPORTED_BLOCK_COMMENT:
-        case NONSUPPORTED_IDENTIFIER:
-          ;
-          break;
-        default:
-          jj_la1[0] = jj_gen;
-          break label_1;
+      case ESP_SYMBOL_L_BRACKET:
+      case ESP_SYMBOL_R_BRACKET:
+      case ESP_SYMBOL_L_PARENTHESIS:
+      case ESP_SYMBOL_R_PARENTHESIS:
+      case ESP_SYMBOL_L_BRACE:
+      case ESP_SYMBOL_R_BRACE:
+      case ESP_SYMBOL_DOT:
+      case ESP_SYMBOL_COMA:
+      case ESP_SYMBOL_ASSIGNE:
+      case ESP_SYMBOL_PLUS:
+      case ESP_SYMBOL_MINUS:
+      case ESP_SYMBOL_STAR:
+      case ESP_SYMBOL_DIVISION_REAL:
+      case ESP_SYMBOL_POWER:
+      case ESP_SYMBOL_DIVISION_INT:
+      case ESP_SYMBOL_MOD:
+      case ESP_SYMBOL_EQUAL:
+      case ESP_SYMBOL_DIFFERENT:
+      case ESP_SYMBOL_GREATER:
+      case ESP_SYMBOL_LESSER:
+      case ESP_SYMBOL_GREATEREQUAL:
+      case ESP_SYMBOL_LESSERREQUAL:
+      case ESP_SYMBOL_AND:
+      case ESP_SYMBOL_OR:
+      case ESP_SYMBOL_NOT:
+      case RESERVED_WORD_DO:
+      case RESERVED_WORD_THIS:
+      case RESERVED_WORD_BODY:
+      case RESERVED_WORD_DESCRIPTION:
+      case RESERVED_WORD_DECLARATION:
+      case RESERVED_WORD_TYPE:
+      case RESERVED_WORD_IS:
+      case RESERVED_WORD_CONSTANT:
+      case RESERVED_WORD_AND:
+      case RESERVED_WORD_VARIABLE:
+      case RESERVED_WORD_AS:
+      case RESERVED_WORD_INTEGER:
+      case RESERVED_WORD_REAL:
+      case RESERVED_WORD_STRING:
+      case RESERVED_WORD_LOGIC:
+      case RESERVED_WORD_DESIGNATE:
+      case RESERVED_WORD_READ:
+      case RESERVED_WORD_WRITE:
+      case RESERVED_WORD_ALL:
+      case RESERVED_WORD_REPEAT:
+      case RESERVED_WORD_AVALIATE:
+      case RESERVED_WORD_TRUE:
+      case RESERVED_WORD_UNTRUE:
+      case CONST_INT:
+      case CONST_REAL:
+      case CONST_LITERAL:
+      case IDENTIFIER:
+      case NONSUPPORTED_SYMBOL:
+      case NONSUPPORTED_CONST_LITERAL_SINGLE:
+      case NONSUPPORTED_CONST_LITERAL_DOUBLE:
+      case NONSUPPORTED_BLOCK_COMMENT:
+      case NONSUPPORTED_IDENTIFIER:
+        ;
+        break;
+      default:
+        jj_la1[0] = jj_gen;
+        break label_1;
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case NONSUPPORTED_BLOCK_COMMENT:
-          nonsupportedBlockComment();
-          break;
-        case SYMBOL:
-          symbol();
-          break;
-        case RESERVED_WORD:
-          reservedWord();
-          break;
-        case CONST_INT:
-          constInt();
-          break;
-        case CONST_REAL:
-          constReal();
-          break;
-        case CONST_LITERAL:
-          constLiteral();
-          break;
-        case IDENTIFIER:
-          identifier();
-          break;
-        case NONSUPPORTED_GRAMMAR:
-          nonsupportedGrammar();
-          break;
-        case NONSUPPORTED_CONST_LITERAL_SINGLE:
-          nonsupportedConstLiteralSingle();
-          break;
-        case NONSUPPORTED_CONST_LITERAL_DOUBLE:
-          nonsupportedConstLiteralDouble();
-          break;
-        case NONSUPPORTED_IDENTIFIER:
-          nonsupportedIdentifier();
-          break;
-        default:
-          jj_la1[1] = jj_gen;
-          jj_consume_token(-1);
-          throw new ParseException();
+      case NONSUPPORTED_BLOCK_COMMENT:
+        nonsupportedBlockComment();
+        break;
+      case ESP_SYMBOL_L_BRACKET:
+      case ESP_SYMBOL_R_BRACKET:
+      case ESP_SYMBOL_L_PARENTHESIS:
+      case ESP_SYMBOL_R_PARENTHESIS:
+      case ESP_SYMBOL_L_BRACE:
+      case ESP_SYMBOL_R_BRACE:
+      case ESP_SYMBOL_DOT:
+      case ESP_SYMBOL_COMA:
+      case ESP_SYMBOL_ASSIGNE:
+      case ESP_SYMBOL_PLUS:
+      case ESP_SYMBOL_MINUS:
+      case ESP_SYMBOL_STAR:
+      case ESP_SYMBOL_DIVISION_REAL:
+      case ESP_SYMBOL_POWER:
+      case ESP_SYMBOL_DIVISION_INT:
+      case ESP_SYMBOL_MOD:
+      case ESP_SYMBOL_EQUAL:
+      case ESP_SYMBOL_DIFFERENT:
+      case ESP_SYMBOL_GREATER:
+      case ESP_SYMBOL_LESSER:
+      case ESP_SYMBOL_GREATEREQUAL:
+      case ESP_SYMBOL_LESSERREQUAL:
+      case ESP_SYMBOL_AND:
+      case ESP_SYMBOL_OR:
+      case ESP_SYMBOL_NOT:
+        specialSymbol();
+        break;
+      case RESERVED_WORD_DO:
+      case RESERVED_WORD_THIS:
+      case RESERVED_WORD_BODY:
+      case RESERVED_WORD_DESCRIPTION:
+      case RESERVED_WORD_DECLARATION:
+      case RESERVED_WORD_TYPE:
+      case RESERVED_WORD_IS:
+      case RESERVED_WORD_CONSTANT:
+      case RESERVED_WORD_AND:
+      case RESERVED_WORD_VARIABLE:
+      case RESERVED_WORD_AS:
+      case RESERVED_WORD_INTEGER:
+      case RESERVED_WORD_REAL:
+      case RESERVED_WORD_STRING:
+      case RESERVED_WORD_LOGIC:
+      case RESERVED_WORD_DESIGNATE:
+      case RESERVED_WORD_READ:
+      case RESERVED_WORD_WRITE:
+      case RESERVED_WORD_ALL:
+      case RESERVED_WORD_REPEAT:
+      case RESERVED_WORD_AVALIATE:
+      case RESERVED_WORD_TRUE:
+      case RESERVED_WORD_UNTRUE:
+        reservedWord();
+        break;
+      case CONST_INT:
+        constInt();
+        break;
+      case CONST_REAL:
+        constReal();
+        break;
+      case CONST_LITERAL:
+        constLiteral();
+        break;
+      case IDENTIFIER:
+        identifier();
+        break;
+      case NONSUPPORTED_SYMBOL:
+        nonsupportedSymbol();
+        break;
+      case NONSUPPORTED_CONST_LITERAL_SINGLE:
+        nonsupportedConstLiteralSingle();
+        break;
+      case NONSUPPORTED_CONST_LITERAL_DOUBLE:
+        nonsupportedConstLiteralDouble();
+        break;
+      case NONSUPPORTED_IDENTIFIER:
+        nonsupportedIdentifier();
+        break;
+      default:
+        jj_la1[1] = jj_gen;
+        jj_consume_token(-1);
+        throw new ParseException();
       }
     }
   }
 
-  final public void symbol() throws ParseException {
-    jj_consume_token(SYMBOL);
-    lexicalAnalysis.printRecognizedToken(token.image, "Símbolo", token.kind, token.beginLine, token.beginColumn);
+  final public void specialSymbol() throws ParseException {
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case ESP_SYMBOL_L_BRACKET:
+      jj_consume_token(ESP_SYMBOL_L_BRACKET);
+      break;
+    case ESP_SYMBOL_R_BRACKET:
+      jj_consume_token(ESP_SYMBOL_R_BRACKET);
+      break;
+    case ESP_SYMBOL_L_PARENTHESIS:
+      jj_consume_token(ESP_SYMBOL_L_PARENTHESIS);
+      break;
+    case ESP_SYMBOL_R_PARENTHESIS:
+      jj_consume_token(ESP_SYMBOL_R_PARENTHESIS);
+      break;
+    case ESP_SYMBOL_L_BRACE:
+      jj_consume_token(ESP_SYMBOL_L_BRACE);
+      break;
+    case ESP_SYMBOL_R_BRACE:
+      jj_consume_token(ESP_SYMBOL_R_BRACE);
+      break;
+    case ESP_SYMBOL_DOT:
+      jj_consume_token(ESP_SYMBOL_DOT);
+      break;
+    case ESP_SYMBOL_COMA:
+      jj_consume_token(ESP_SYMBOL_COMA);
+      break;
+    case ESP_SYMBOL_ASSIGNE:
+      jj_consume_token(ESP_SYMBOL_ASSIGNE);
+      break;
+    case ESP_SYMBOL_PLUS:
+      jj_consume_token(ESP_SYMBOL_PLUS);
+      break;
+    case ESP_SYMBOL_MINUS:
+      jj_consume_token(ESP_SYMBOL_MINUS);
+      break;
+    case ESP_SYMBOL_STAR:
+      jj_consume_token(ESP_SYMBOL_STAR);
+      break;
+    case ESP_SYMBOL_DIVISION_REAL:
+      jj_consume_token(ESP_SYMBOL_DIVISION_REAL);
+      break;
+    case ESP_SYMBOL_POWER:
+      jj_consume_token(ESP_SYMBOL_POWER);
+      break;
+    case ESP_SYMBOL_DIVISION_INT:
+      jj_consume_token(ESP_SYMBOL_DIVISION_INT);
+      break;
+    case ESP_SYMBOL_MOD:
+      jj_consume_token(ESP_SYMBOL_MOD);
+      break;
+    case ESP_SYMBOL_EQUAL:
+      jj_consume_token(ESP_SYMBOL_EQUAL);
+      break;
+    case ESP_SYMBOL_DIFFERENT:
+      jj_consume_token(ESP_SYMBOL_DIFFERENT);
+      break;
+    case ESP_SYMBOL_GREATER:
+      jj_consume_token(ESP_SYMBOL_GREATER);
+      break;
+    case ESP_SYMBOL_LESSER:
+      jj_consume_token(ESP_SYMBOL_LESSER);
+      break;
+    case ESP_SYMBOL_GREATEREQUAL:
+      jj_consume_token(ESP_SYMBOL_GREATEREQUAL);
+      break;
+    case ESP_SYMBOL_LESSERREQUAL:
+      jj_consume_token(ESP_SYMBOL_LESSERREQUAL);
+      break;
+    case ESP_SYMBOL_AND:
+      jj_consume_token(ESP_SYMBOL_AND);
+      break;
+    case ESP_SYMBOL_OR:
+      jj_consume_token(ESP_SYMBOL_OR);
+      break;
+    case ESP_SYMBOL_NOT:
+      jj_consume_token(ESP_SYMBOL_NOT);
+      break;
+    default:
+      jj_la1[2] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+        lexicalAnalysis.printRecognizedToken(token.image, "Simbolo Especial", token.kind, token.beginLine, token.beginColumn);
   }
 
   final public void reservedWord() throws ParseException {
-    jj_consume_token(RESERVED_WORD);
-    lexicalAnalysis.printRecognizedToken(token.image, "Palavra Reservada", token.kind, token.beginLine, token.beginColumn);
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case RESERVED_WORD_DO:
+      jj_consume_token(RESERVED_WORD_DO);
+      break;
+    case RESERVED_WORD_THIS:
+      jj_consume_token(RESERVED_WORD_THIS);
+      break;
+    case RESERVED_WORD_BODY:
+      jj_consume_token(RESERVED_WORD_BODY);
+      break;
+    case RESERVED_WORD_DESCRIPTION:
+      jj_consume_token(RESERVED_WORD_DESCRIPTION);
+      break;
+    case RESERVED_WORD_DECLARATION:
+      jj_consume_token(RESERVED_WORD_DECLARATION);
+      break;
+    case RESERVED_WORD_TYPE:
+      jj_consume_token(RESERVED_WORD_TYPE);
+      break;
+    case RESERVED_WORD_IS:
+      jj_consume_token(RESERVED_WORD_IS);
+      break;
+    case RESERVED_WORD_CONSTANT:
+      jj_consume_token(RESERVED_WORD_CONSTANT);
+      break;
+    case RESERVED_WORD_AND:
+      jj_consume_token(RESERVED_WORD_AND);
+      break;
+    case RESERVED_WORD_VARIABLE:
+      jj_consume_token(RESERVED_WORD_VARIABLE);
+      break;
+    case RESERVED_WORD_AS:
+      jj_consume_token(RESERVED_WORD_AS);
+      break;
+    case RESERVED_WORD_INTEGER:
+      jj_consume_token(RESERVED_WORD_INTEGER);
+      break;
+    case RESERVED_WORD_REAL:
+      jj_consume_token(RESERVED_WORD_REAL);
+      break;
+    case RESERVED_WORD_STRING:
+      jj_consume_token(RESERVED_WORD_STRING);
+      break;
+    case RESERVED_WORD_LOGIC:
+      jj_consume_token(RESERVED_WORD_LOGIC);
+      break;
+    case RESERVED_WORD_DESIGNATE:
+      jj_consume_token(RESERVED_WORD_DESIGNATE);
+      break;
+    case RESERVED_WORD_READ:
+      jj_consume_token(RESERVED_WORD_READ);
+      break;
+    case RESERVED_WORD_WRITE:
+      jj_consume_token(RESERVED_WORD_WRITE);
+      break;
+    case RESERVED_WORD_ALL:
+      jj_consume_token(RESERVED_WORD_ALL);
+      break;
+    case RESERVED_WORD_REPEAT:
+      jj_consume_token(RESERVED_WORD_REPEAT);
+      break;
+    case RESERVED_WORD_AVALIATE:
+      jj_consume_token(RESERVED_WORD_AVALIATE);
+      break;
+    case RESERVED_WORD_TRUE:
+      jj_consume_token(RESERVED_WORD_TRUE);
+      break;
+    case RESERVED_WORD_UNTRUE:
+      jj_consume_token(RESERVED_WORD_UNTRUE);
+      break;
+    default:
+      jj_la1[3] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+        lexicalAnalysis.printRecognizedToken(token.image, "Palavra Reservada", token.kind, token.beginLine, token.beginColumn);
   }
 
   final public void constInt() throws ParseException {
     jj_consume_token(CONST_INT);
-    lexicalAnalysis.printRecognizedToken(token.image, "Constante Inteira", token.kind, token.beginLine, token.beginColumn);
+        lexicalAnalysis.printRecognizedToken(token.image, "Constante Inteira", token.kind, token.beginLine, token.beginColumn);
   }
 
   final public void constReal() throws ParseException {
     jj_consume_token(CONST_REAL);
-    lexicalAnalysis.printRecognizedToken(token.image, "Constante Real", token.kind, token.beginLine, token.beginColumn);
+        lexicalAnalysis.printRecognizedToken(token.image, "Constante Real", token.kind, token.beginLine, token.beginColumn);
   }
 
   final public void constLiteral() throws ParseException {
     jj_consume_token(CONST_LITERAL);
-    lexicalAnalysis.printRecognizedToken(token.image, "Constante Literal", token.kind, token.beginLine, token.beginColumn);
+        lexicalAnalysis.printRecognizedToken(token.image, "Constante Literal", token.kind, token.beginLine, token.beginColumn);
   }
 
   final public void identifier() throws ParseException {
     jj_consume_token(IDENTIFIER);
-    lexicalAnalysis.printRecognizedToken(token.image, "Identificador", token.kind, token.beginLine, token.beginColumn);
+        lexicalAnalysis.printRecognizedToken(token.image, "Identificador", token.kind, token.beginLine, token.beginColumn);
   }
 
-  final public void nonsupportedGrammar() throws ParseException {
-    errorCount++;
-    jj_consume_token(NONSUPPORTED_GRAMMAR);
-    lexicalAnalysis.printNotRecognizedToken(token.image, "Gramática não suportada", token.kind, token.beginLine, token.beginColumn);
+  final public void nonsupportedSymbol() throws ParseException {
+                              errorCount++;
+    jj_consume_token(NONSUPPORTED_SYMBOL);
+        lexicalAnalysis.printNotRecognizedToken(token.image, "Simbolo nao suportado", token.kind, token.beginLine, token.beginColumn);
   }
 
   final public void nonsupportedConstLiteralSingle() throws ParseException {
-    errorCount++;
+                                          errorCount++;
     jj_consume_token(NONSUPPORTED_CONST_LITERAL_SINGLE);
-    lexicalAnalysis.printNotRecognizedToken(token.image, "Constante literal não suportada: faltando aspas simples", token.kind, token.beginLine, token.beginColumn);
+        lexicalAnalysis.printNotRecognizedToken(token.image, "Constante literal nao suportada, faltando aspas simples", token.kind, token.beginLine, token.beginColumn);
   }
 
   final public void nonsupportedConstLiteralDouble() throws ParseException {
-    errorCount++;
+                                          errorCount++;
     jj_consume_token(NONSUPPORTED_CONST_LITERAL_DOUBLE);
-    lexicalAnalysis.printNotRecognizedToken(token.image, "Constante literal não suportada: faltando aspas duplas", token.kind, token.beginLine, token.beginColumn);
-    ;
+        lexicalAnalysis.printNotRecognizedToken(token.image, "Constante literal nao suportada. faltando aspas duplas", token.kind, token.beginLine, token.beginColumn);
+;
   }
 
   final public void nonsupportedBlockComment() throws ParseException {
-    errorCount++;
+                                    errorCount++;
     jj_consume_token(NONSUPPORTED_BLOCK_COMMENT);
-    lexicalAnalysis.printNotRecognizedToken(token.image, "Não contém o fechamento do bloco de comentário", token.kind, token.beginLine, token.beginColumn);
+        lexicalAnalysis.printNotRecognizedToken(token.image, "Nao contem o fechamento do bloco de comentario", token.kind, token.beginLine, token.beginColumn);
   }
 
   final public void nonsupportedIdentifier() throws ParseException {
-    errorCount++;
+                                  errorCount++;
     jj_consume_token(NONSUPPORTED_IDENTIFIER);
-    lexicalAnalysis.printNotRecognizedToken(token.image, "Identificador formatado erroneamente", token.kind, token.beginLine, token.beginColumn);
+        lexicalAnalysis.printNotRecognizedToken(token.image, "Identificador invalido", token.kind, token.beginLine, token.beginColumn);
   }
 
   /** Generated Token Manager. */
@@ -144,18 +393,28 @@ public class LParser implements LParserConstants {
   public Token jj_nt;
   private int jj_ntk;
   private int jj_gen;
-  final private int[] jj_la1 = new int[2];
+  final private int[] jj_la1 = new int[4];
   static private int[] jj_la1_0;
+  static private int[] jj_la1_1;
+  static private int[] jj_la1_2;
   static {
-    jj_la1_init_0();
-  }
-  private static void jj_la1_init_0() {
-    jj_la1_0 = new int[] {0x7fc180,0x7fc180,};
-  }
+      jj_la1_init_0();
+      jj_la1_init_1();
+      jj_la1_init_2();
+   }
+   private static void jj_la1_init_0() {
+      jj_la1_0 = new int[] {0xffffff80,0xffffff80,0xffffff80,0x0,};
+   }
+   private static void jj_la1_init_1() {
+      jj_la1_1 = new int[] {0xf07fffff,0xf07fffff,0x0,0x7fffff,};
+   }
+   private static void jj_la1_init_2() {
+      jj_la1_2 = new int[] {0x1f,0x1f,0x0,0x0,};
+   }
 
   /** Constructor with InputStream. */
   public LParser(java.io.InputStream stream) {
-    this(stream, null);
+     this(stream, null);
   }
   /** Constructor with InputStream and supplied encoding */
   public LParser(java.io.InputStream stream, String encoding) {
@@ -164,12 +423,12 @@ public class LParser implements LParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 2; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 4; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
   public void ReInit(java.io.InputStream stream) {
-    ReInit(stream, null);
+     ReInit(stream, null);
   }
   /** Reinitialise. */
   public void ReInit(java.io.InputStream stream, String encoding) {
@@ -178,7 +437,7 @@ public class LParser implements LParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 2; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 4; i++) jj_la1[i] = -1;
   }
 
   /** Constructor. */
@@ -188,7 +447,7 @@ public class LParser implements LParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 2; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 4; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -198,7 +457,7 @@ public class LParser implements LParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 2; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 4; i++) jj_la1[i] = -1;
   }
 
   /** Constructor with generated Token Manager. */
@@ -207,7 +466,7 @@ public class LParser implements LParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 2; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 4; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -216,7 +475,7 @@ public class LParser implements LParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 2; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 4; i++) jj_la1[i] = -1;
   }
 
   private Token jj_consume_token(int kind) throws ParseException {
@@ -234,7 +493,7 @@ public class LParser implements LParserConstants {
   }
 
 
-  /** Get the next Token. */
+/** Get the next Token. */
   final public Token getNextToken() {
     if (token.next != null) token = token.next;
     else token = token.next = token_source.getNextToken();
@@ -243,7 +502,7 @@ public class LParser implements LParserConstants {
     return token;
   }
 
-  /** Get the specific Token. */
+/** Get the specific Token. */
   final public Token getToken(int index) {
     Token t = token;
     for (int i = 0; i < index; i++) {
@@ -267,21 +526,27 @@ public class LParser implements LParserConstants {
   /** Generate ParseException. */
   public ParseException generateParseException() {
     jj_expentries.clear();
-    boolean[] la1tokens = new boolean[23];
+    boolean[] la1tokens = new boolean[69];
     if (jj_kind >= 0) {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < 4; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {
             la1tokens[j] = true;
           }
+          if ((jj_la1_1[i] & (1<<j)) != 0) {
+            la1tokens[32+j] = true;
+          }
+          if ((jj_la1_2[i] & (1<<j)) != 0) {
+            la1tokens[64+j] = true;
+          }
         }
       }
     }
-    for (int i = 0; i < 23; i++) {
+    for (int i = 0; i < 69; i++) {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;
@@ -301,10 +566,6 @@ public class LParser implements LParserConstants {
 
   /** Disable tracing. */
   final public void disable_tracing() {
-  }
-
-  public void setLexicalAnalysis(WindowER gui){
-    lexicalAnalysis = new LexicalAnalysis(gui);
   }
 
 }
