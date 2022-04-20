@@ -122,9 +122,9 @@ TOKEN : {
 TOKEN :
 {
     < NONSUPPORTED_SYMBOL/* throws error for any token not listed bellow */:
-    (~ ["a"-"z", "A"-"Z", "0"-"9", "@","\"", "'",
-        "(", ")", "[", "]", "{", "}", ",", ".",
-        ">", "<", "!", "+", "-", "*", "/", "%",
+    (~ ["a"-"z", "A"-"Z", "0"-"9", "@","\"", "'", "&",
+        "(", ")", "[", "]", "{", "}", ",", ".", "=",
+        ">", "<", "!", "+", "-", "*", "/", "%", "|",
         "$", "#", " ", "\t", "\n","\r", "\f"]
     )+ >
 |   < NONSUPPORTED_CONST_LITERAL_SINGLE/* throws error for any open and not closed single quote */:
