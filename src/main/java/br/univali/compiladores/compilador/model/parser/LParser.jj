@@ -11,11 +11,24 @@ import br.univali.compiladores.compilador.model.LexicalAnalysis.LexicalAnalysis;
 import br.univali.compiladores.compilador.view.WindowER;
 
 public class LParser {
+    //errorCount mudou para lexErrorcount
+    //getErrorCount mudou para getLexErrorCount
+    //adicionado synErrorcount
+    //adicionado synLexErrorCount
+
     private LexicalAnalysis lexicalAnalysis;
-    private int errorCount;
-    public int getErrorCount() {
-        return errorCount;
+    private int lexErrorCount;
+    private int synErrorCount;
+    
+    public int getLexErrorCount() {
+        return lexErrorCount;
     }
+
+    public int getSynErrorCount() {
+        return synErrorCount;
+    }
+
+
     public void setLexicalAnalysis(WindowER gui){
         lexicalAnalysis = new LexicalAnalysis(gui);
     }
@@ -80,6 +93,7 @@ TOKEN /*RESERVED WORDS*/:
 | <RESERVED_WORD_REAL:("R"|"r")("E"|"e")("A"|"a")("L"|"l")>
 | <RESERVED_WORD_STRING:("S"|"s")("T"|"t")("R"|"r")("I"|"i")("N"|"n")("G"|"g")>
 | <RESERVED_WORD_LOGIC:("L"|"l")("O"|"o")("G"|"g")("I"|"i")("C"|"c")>
+| <RESERVED_WORD_ENUM:("E"|"e")("N"|"n")("U"|"u")("M"|"m")>
 | <RESERVED_WORD_DESIGNATE:("D"|"d")("E"|"e")("S"|"s")("I"|"i")("G"|"g")("N"|"n")("A"|"a")("T"|"t")("E"|"e")>
 | <RESERVED_WORD_READ:("R"|"r")("E"|"e")("A"|"a")("D"|"d")>
 | <RESERVED_WORD_WRITE:("W"|"w")("R"|"r")("I"|"i")("T"|"t")("E"|"e")>
@@ -88,6 +102,7 @@ TOKEN /*RESERVED WORDS*/:
 | <RESERVED_WORD_AVALIATE:("A"|"a")("V"|"v")("A"|"a")("L"|"l")("I"|"i")("A"|"a")("T"|"t")("E"|"e")>
 | <RESERVED_WORD_TRUE:("T"|"t")("R"|"r")("U"|"u")("E"|"e")>
 | <RESERVED_WORD_UNTRUE:("U"|"u")("N"|"n")("T"|"t")("R"|"r")("U"|"u")("E"|"e")>
+| <RESERVED_WORD_RESULT:("R"|"r")("E"|"e")("S"|"s")("U"|"u")("L"|"l")("T"|"t")>
 }
 
 TOKEN : { < #DIGIT : ["0"-"9"] > }
@@ -174,6 +189,353 @@ TOKEN :
     >
 }
 
+
+//syntactical analysis
+public void parseSyntactical() : {}
+{
+    Program() 
+} 
+
+
+void Program() :
+{}
+{
+<RESERVED_WORD_DO> <RESERVED_WORD_THIS> <IDENTIFIER> <ESP_SYMBOL_L_BRACKET> <ESP_SYMBOL_R_BRACKET> EnumeratedType() ConstantsAndVariables() <RESERVED_WORD_BODY> <ESP_SYMBOL_L_BRACKET>  CommandList() <ESP_SYMBOL_R_BRACKET> Description()
+}
+
+
+
+void Description() :
+{}
+{
+(<RESERVED_WORD_DESCRIPTION> <CONST_LITERAL>)?
+}
+
+
+//Tipo Enumerado 🡪
+void EnumeratedType() :
+{}
+{
+(<RESERVED_WORD_DECLARATION> <RESERVED_WORD_TYPE> <ESP_SYMBOL_L_BRACKET> ListEnumeratedType() <ESP_SYMBOL_R_BRACKET>)?
+}
+
+void ListEnumeratedType() :
+{}
+{
+<IDENTIFIER> <RESERVED_WORD_IS> IdConstantsList() <ESP_SYMBOL_DOT> ListEnumeratedTypeL()
+}
+
+void ListEnumeratedTypeL()  :
+{}
+{
+(ListEnumeratedType())?
+}
+
+
+//Lista de Identificadores de Constantes🡪
+void IdConstantsList() :
+{}
+{
+ConstantsList() IdConstantsListL()
+}
+
+void IdConstantsListL() :
+{}
+{
+( <ESP_SYMBOL_COMA> IdConstantsList())?
+}
+
+void ConstantsList()  :
+{}
+{
+<CONST_INT> | <CONST_REAL> | <CONST_LITERAL>
+}
+
+
+
+//Lista de Identificadores de Variáveis🡪
+void IdentifiersVariablesList() :
+{}
+{
+VariablesList() IdentifiersVariablesListL()
+}
+
+void IdentifiersVariablesListL() :
+{}
+{
+( <ESP_SYMBOL_COMA> IdentifiersVariablesList())?
+}
+
+void VariablesList() :
+{}
+{
+(<CONST_INT> | <CONST_REAL> | <CONST_LITERAL>) Index()
+}
+
+//Tipo de Variáveis🡪
+void TypeVariables() :
+{}
+{
+<RESERVED_WORD_INTEGER> | <RESERVED_WORD_REAL> | <RESERVED_WORD_STRING> | <RESERVED_WORD_LOGIC> | <RESERVED_WORD_ENUM>
+}
+
+
+//Tipo de Constantes🡪
+void TypeAndValueConstants() :
+{}
+{
+<RESERVED_WORD_INTEGER> <ESP_SYMBOL_ASSIGNE> <CONST_INT> | <RESERVED_WORD_REAL> <ESP_SYMBOL_ASSIGNE> <CONST_REAL> | <RESERVED_WORD_STRING> <ESP_SYMBOL_ASSIGNE> <CONST_LITERAL> | <RESERVED_WORD_LOGIC> <ESP_SYMBOL_ASSIGNE> TypeAndValueLogicConstants()
+}
+void TypeAndValueLogicConstants() :
+{}
+{
+<RESERVED_WORD_TRUE> | <RESERVED_WORD_UNTRUE>
+}
+
+
+//Constantes e Variáveis 🡪
+void ConstantsAndVariables() :
+{}
+{
+(<RESERVED_WORD_DECLARATION> <RESERVED_WORD_CONSTANT> <RESERVED_WORD_AND> <RESERVED_WORD_VARIABLE> <ESP_SYMBOL_L_BRACKET> OrderConstantsAndVariables() <ESP_SYMBOL_R_BRACKET>)? 
+}
+
+void OrderConstantsAndVariables() :
+{}
+{
+<RESERVED_WORD_AS> OrderConstantAndVariable()
+}
+
+void OrderConstantAndVariable() :
+{}
+{
+<RESERVED_WORD_CONSTANT> ConstantsDec() (<RESERVED_WORD_AS> <RESERVED_WORD_VARIABLE>  VariablesDec())? | <RESERVED_WORD_VARIABLE>  VariablesDec() (<RESERVED_WORD_AS> <RESERVED_WORD_CONSTANT> ConstantsDec())?
+}
+
+void ConstantsDec() :
+{}
+{
+IdConstantsList() <RESERVED_WORD_IS> TypeAndValueConstants() <ESP_SYMBOL_DOT> ConstantsDecL()
+}
+
+void ConstantsDecL() :
+{}
+{
+(ConstantsDec())?
+}
+
+void VariablesDec() :
+{}
+{
+IdentifiersVariablesList() <RESERVED_WORD_IS>  TypeVariables() <ESP_SYMBOL_DOT> VariablesDecL()
+}
+
+void VariablesDecL() :
+{}
+{
+(VariablesDec())?
+}
+
+//Atribuição 🡪
+void Assignment() :
+{}
+{
+<RESERVED_WORD_DESIGNATE> <RESERVED_WORD_THIS> IdentifiersVariablesList() <RESERVED_WORD_AS> Expression() <ESP_SYMBOL_DOT>
+}
+
+//Entrada de dados 🡪
+void DataInput() :
+{}
+{
+<RESERVED_WORD_READ> <RESERVED_WORD_THIS> <ESP_SYMBOL_L_BRACKET>  IdentifiersVariablesList() <ESP_SYMBOL_R_BRACKET> <ESP_SYMBOL_DOT>
+}
+
+//Saída de dados 🡪
+void DataOutput() :
+{}
+{
+<RESERVED_WORD_WRITE> DataOutputL()
+}
+
+void DataOutputL() :
+{}
+{
+(<RESERVED_WORD_ALL>)? DataOutputS()
+}
+
+void DataOutputS() :
+{}
+{
+<RESERVED_WORD_THIS> <ESP_SYMBOL_L_BRACKET> IdentifiersAndOrConstantsList() <ESP_SYMBOL_R_BRACKET> <ESP_SYMBOL_DOT> 
+}
+
+//Lista de identificadores e/ou constantes 🡪
+void IdentifiersAndOrConstantsList() :
+{}
+{
+IdConstantsList() IdentifiersAndOrConstantsListL()
+}
+void IdentifiersAndOrConstantsListL() :
+{}
+{
+(IdentifiersVariablesList())?
+}
+
+
+//Seleção 🡪
+void Selection() :
+{}
+{
+<RESERVED_WORD_AVALIATE> <RESERVED_WORD_THIS> Expression() Avaliation() <ESP_SYMBOL_DOT>
+}
+
+void Avaliation() :
+{}
+{
+TrueResult() AvaliationLT() | UntrueResult() AvaliationLU()
+}
+
+void AvaliationLT() :
+{}
+{
+(UntrueResult())?
+}
+
+void AvaliationLU() :
+{}
+{
+(TrueResult())? 
+}
+
+void UntrueResult() :
+{}
+{
+<RESERVED_WORD_UNTRUE> <RESERVED_WORD_RESULT> <ESP_SYMBOL_L_BRACKET> CommandList() <ESP_SYMBOL_R_BRACKET> 
+}
+
+void TrueResult() :
+{}
+{
+<RESERVED_WORD_TRUE> <RESERVED_WORD_RESULT> <ESP_SYMBOL_L_BRACKET> CommandList() <ESP_SYMBOL_R_BRACKET> 
+}
+
+//Lista de comandos 🡪
+
+void CommandList() :
+{}
+{
+Command() (CommandN())? CommandListL()
+}
+
+void CommandListL() :
+{}
+{
+(CommandList())?
+}
+
+void Command() :
+{}
+{
+Assignment() | DataInput()  | DataOutput() | Selection() | Repetition()
+}
+
+void CommandN() :
+{}
+{
+<RESERVED_WORD_DECLARATION> TwoCommands()
+}
+
+void TwoCommands() :
+{}
+{
+EnumType() | ConstAndVar()
+}
+
+void EnumType() :
+{}
+{
+<RESERVED_WORD_TYPE> <ESP_SYMBOL_L_BRACKET>  ListEnumeratedType() <ESP_SYMBOL_R_BRACKET>
+}
+
+void ConstAndVar() :
+{}
+{
+<RESERVED_WORD_CONSTANT> <RESERVED_WORD_AND> <RESERVED_WORD_VARIABLE> <ESP_SYMBOL_L_BRACKET> OrderConstantsAndVariables() <ESP_SYMBOL_R_BRACKET>
+}
+
+
+//Repetição 🡪
+void Repetition() :
+{}
+{
+<RESERVED_WORD_REPEAT> <RESERVED_WORD_THIS> Expression() <ESP_SYMBOL_L_BRACKET> CommandList() <ESP_SYMBOL_R_BRACKET> <ESP_SYMBOL_DOT>
+}
+ 
+//Expressão 🡪
+void Expression() :
+{}
+{
+ArithmeticOrLogicalExpression() ExpressionL()
+}
+
+void ExpressionL() :
+{}
+{
+(<ESP_SYMBOL_EQUAL>  ArithmeticOrLogicalExpression() | <ESP_SYMBOL_DIFFERENT> ArithmeticOrLogicalExpression() | <ESP_SYMBOL_GREATER>  ArithmeticOrLogicalExpression() |  <ESP_SYMBOL_LESSER> ArithmeticOrLogicalExpression() | <ESP_SYMBOL_LESSERREQUAL> ArithmeticOrLogicalExpression() | <ESP_SYMBOL_GREATEREQUAL> ArithmeticOrLogicalExpression())?
+}
+
+void ArithmeticOrLogicalExpression() :
+{}
+{
+SecondTerm() LowestPriority()
+}
+
+void LowestPriority() :
+{}
+{
+(<ESP_SYMBOL_PLUS> SecondTerm() LowestPriority() | <ESP_SYMBOL_MINUS> SecondTerm() LowestPriority() | <ESP_SYMBOL_OR> SecondTerm() LowestPriority())?
+}
+
+void SecondTerm() :
+{}
+{
+FirstTerm() MediumPriority() 
+}
+
+void MediumPriority () :
+{}
+{
+(<ESP_SYMBOL_STAR> FirstTerm() MediumPriority() | <ESP_SYMBOL_DIVISION_REAL> FirstTerm() MediumPriority() | <ESP_SYMBOL_DIVISION_INT> FirstTerm() MediumPriority() | <ESP_SYMBOL_MOD> FirstTerm() MediumPriority() | <ESP_SYMBOL_AND> FirstTerm() MediumPriority())?
+}
+
+void FirstTerm() :
+{}
+{
+Element() HighestPriority()
+}
+
+void HighestPriority() :
+{}
+{
+(<ESP_SYMBOL_POWER> Element() HighestPriority())?
+}
+
+void Element() :
+{}
+{
+<IDENTIFIER> Index() | <CONST_INT> | <CONST_REAL> | <CONST_LITERAL> | <RESERVED_WORD_TRUE> | <RESERVED_WORD_UNTRUE> | <ESP_SYMBOL_L_PARENTHESIS> Expression() <ESP_SYMBOL_R_PARENTHESIS> | <ESP_SYMBOL_DIFFERENT> <ESP_SYMBOL_L_PARENTHESIS> Expression() <ESP_SYMBOL_R_PARENTHESIS>
+}
+
+void Index() :
+{}
+{
+(<ESP_SYMBOL_L_BRACE> <CONST_INT> <ESP_SYMBOL_R_BRACE>)?
+}
+
+
+
+
+//lexical analysis
 public void parseLexical() : { }
 {
     (
@@ -296,7 +658,7 @@ void identifier() : { }
 }
 
 
-void nonsupportedSymbol() : { errorCount++; }
+void nonsupportedSymbol() : { lexErrorCount++; }
 {
     <NONSUPPORTED_SYMBOL>
     {
@@ -305,7 +667,7 @@ void nonsupportedSymbol() : { errorCount++; }
     }
 }
 
-void nonsupportedConstLiteralSingle() : { errorCount++; }
+void nonsupportedConstLiteralSingle() : { lexErrorCount++; }
 {
     <NONSUPPORTED_CONST_LITERAL_SINGLE>
     {
@@ -314,7 +676,7 @@ void nonsupportedConstLiteralSingle() : { errorCount++; }
     }
 }
 
-void nonsupportedConstLiteralDouble() : { errorCount++; }
+void nonsupportedConstLiteralDouble() : { lexErrorCount++; }
 {
     <NONSUPPORTED_CONST_LITERAL_DOUBLE>
     {
@@ -323,7 +685,7 @@ void nonsupportedConstLiteralDouble() : { errorCount++; }
     }
 }
 
-void nonsupportedBlockComment() : { errorCount++; }
+void nonsupportedBlockComment() : { lexErrorCount++; }
 {
     <NONSUPPORTED_BLOCK_COMMENT>
     {
@@ -332,7 +694,7 @@ void nonsupportedBlockComment() : { errorCount++; }
     }
 }
 
-void nonsupportedIdentifier() : { errorCount++; }
+void nonsupportedIdentifier() : { lexErrorCount++; }
 {
     <NONSUPPORTED_IDENTIFIER>
     {

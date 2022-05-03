@@ -42,9 +42,9 @@ public class LexicalAnalysis {
             parser.setLexicalAnalysis(this.gui);
             try {
                 parser.parseLexical();
-                if (parser.getErrorCount() > 0) {
+                if (parser.getLexErrorCount() > 0) {
                     gui.getTf().append("--------------------------------CONCLUSÃO--------------------------------\n\n" +
-                            "Análise Léxica concluída. Erro(s) encontrados: " + parser.getErrorCount() + "\n");
+                            "Análise Léxica concluída. Erro(s) encontrados: " + parser.getLexErrorCount() + "\n");
                 } else {
                     gui.getTf().append("--------------------------------CONCLUSÃO--------------------------------\n\n" +
                             "Análise Léxica concluída. Nenhum erro encontrado" + "\n");
