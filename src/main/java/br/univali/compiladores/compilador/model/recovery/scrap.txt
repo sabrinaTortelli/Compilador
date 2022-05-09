@@ -1,0 +1,7 @@
+/DeclarationEnumeratedType block
+
+
+Resolver com look ahead as declares
+ VariablesTypes e ConstTypeValueCombo
+ AsVariables e AsConstants
+

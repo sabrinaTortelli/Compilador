@@ -36,9 +36,9 @@ public class LexicalAnalysis {
     }
 
 
-    public void runLexicalVerification(BufferedReader textToParser) {
+    public LParser runLexicalVerification(BufferedReader textToParser) {
+        LParser parser = new LParser(textToParser);
         try {
-            LParser parser = new LParser(textToParser);
             parser.setLexicalAnalysis(this.gui);
             try {
                 parser.parseLexical();
@@ -59,5 +59,6 @@ public class LexicalAnalysis {
             gui.getTf().append("------------------------------------ERRO NO TOKEN--------------------------------\n\n" +
                     "Mensagem: " + ex.getMessage() + "\n");
         }
+        return parser;
     }
 }

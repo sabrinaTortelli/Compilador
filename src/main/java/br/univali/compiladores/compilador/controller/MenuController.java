@@ -1,6 +1,8 @@
 package br.univali.compiladores.compilador.controller;
 
 import br.univali.compiladores.compilador.model.LexicalAnalysis.LexicalAnalysis;
+import br.univali.compiladores.compilador.model.SintaticAnalysis.SintaticAnalysis;
+import br.univali.compiladores.compilador.model.parser.LParser;
 import br.univali.compiladores.compilador.view.WindowER;
 import org.apache.commons.io.input.ReaderInputStream;
 
@@ -162,7 +164,11 @@ public class MenuController {
                 BufferedReader textToParser = new BufferedReader(new InputStreamReader(new ReaderInputStream(textReader, StandardCharsets.UTF_8)));
                 System.out.println(textToParser.readLine());
                 LexicalAnalysis lexicalAnalysis = new LexicalAnalysis(gui);
-                lexicalAnalysis.runLexicalVerification(textToParser);
+                LParser parser = lexicalAnalysis.runLexicalVerification(textToParser);
+                SintaticAnalysis sintaticAnalysis = new SintaticAnalysis(gui);
+                sintaticAnalysis.runSintaticVerification(parser);
+
+
             } catch (Exception e){
                 System.out.println("Erro na função do compilador!");
             }
