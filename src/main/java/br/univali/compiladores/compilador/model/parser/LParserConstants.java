@@ -95,53 +95,51 @@ public interface LParserConstants {
   /** RegularExpression Id. */
   int RESERVED_WORD_LOGIC = 46;
   /** RegularExpression Id. */
-  int RESERVED_WORD_ENUM = 47;
+  int RESERVED_WORD_DESIGNATE = 47;
   /** RegularExpression Id. */
-  int RESERVED_WORD_DESIGNATE = 48;
+  int RESERVED_WORD_READ = 48;
   /** RegularExpression Id. */
-  int RESERVED_WORD_READ = 49;
+  int RESERVED_WORD_WRITE = 49;
   /** RegularExpression Id. */
-  int RESERVED_WORD_WRITE = 50;
+  int RESERVED_WORD_ALL = 50;
   /** RegularExpression Id. */
-  int RESERVED_WORD_ALL = 51;
+  int RESERVED_WORD_REPEAT = 51;
   /** RegularExpression Id. */
-  int RESERVED_WORD_REPEAT = 52;
+  int RESERVED_WORD_AVALIATE = 52;
   /** RegularExpression Id. */
-  int RESERVED_WORD_AVALIATE = 53;
+  int RESERVED_WORD_RESULT = 53;
   /** RegularExpression Id. */
   int RESERVED_WORD_TRUE = 54;
   /** RegularExpression Id. */
   int RESERVED_WORD_UNTRUE = 55;
   /** RegularExpression Id. */
-  int RESERVED_WORD_RESULT = 56;
+  int DIGIT = 56;
   /** RegularExpression Id. */
-  int DIGIT = 57;
+  int LETTER = 57;
   /** RegularExpression Id. */
-  int LETTER = 58;
+  int CAPSLETTER = 58;
   /** RegularExpression Id. */
-  int CAPSLETTER = 59;
+  int LOWCAPSLETTER = 59;
   /** RegularExpression Id. */
-  int LOWCAPSLETTER = 60;
+  int UNDER = 60;
   /** RegularExpression Id. */
-  int UNDER = 61;
+  int CONST_INT = 61;
   /** RegularExpression Id. */
-  int CONST_INT = 62;
+  int CONST_REAL = 62;
   /** RegularExpression Id. */
-  int CONST_REAL = 63;
+  int CONST_LITERAL = 63;
   /** RegularExpression Id. */
-  int CONST_LITERAL = 64;
+  int IDENTIFIER = 64;
   /** RegularExpression Id. */
-  int IDENTIFIER = 65;
+  int NONSUPPORTED_SYMBOL = 65;
   /** RegularExpression Id. */
-  int NONSUPPORTED_SYMBOL = 66;
+  int NONSUPPORTED_CONST_LITERAL_SINGLE = 66;
   /** RegularExpression Id. */
-  int NONSUPPORTED_CONST_LITERAL_SINGLE = 67;
+  int NONSUPPORTED_CONST_LITERAL_DOUBLE = 67;
   /** RegularExpression Id. */
-  int NONSUPPORTED_CONST_LITERAL_DOUBLE = 68;
+  int NONSUPPORTED_BLOCK_COMMENT = 68;
   /** RegularExpression Id. */
-  int NONSUPPORTED_BLOCK_COMMENT = 69;
-  /** RegularExpression Id. */
-  int NONSUPPORTED_IDENTIFIER = 70;
+  int NONSUPPORTED_IDENTIFIER = 69;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -195,16 +193,15 @@ public interface LParserConstants {
     "<RESERVED_WORD_REAL>",
     "<RESERVED_WORD_STRING>",
     "<RESERVED_WORD_LOGIC>",
-    "<RESERVED_WORD_ENUM>",
     "<RESERVED_WORD_DESIGNATE>",
     "<RESERVED_WORD_READ>",
     "<RESERVED_WORD_WRITE>",
     "<RESERVED_WORD_ALL>",
     "<RESERVED_WORD_REPEAT>",
     "<RESERVED_WORD_AVALIATE>",
+    "<RESERVED_WORD_RESULT>",
     "<RESERVED_WORD_TRUE>",
     "<RESERVED_WORD_UNTRUE>",
-    "<RESERVED_WORD_RESULT>",
     "<DIGIT>",
     "<LETTER>",
     "<CAPSLETTER>",

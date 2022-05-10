@@ -1,10 +1,7 @@
 package br.univali.compiladores.compilador.controller;
 
-import br.univali.compiladores.compilador.model.LexicalAnalysis.LexicalAnalysis;
-import br.univali.compiladores.compilador.model.SintaticAnalysis.SintaticAnalysis;
-import br.univali.compiladores.compilador.model.parser.LParser;
+import br.univali.compiladores.compilador.model.Compile.Compile;
 import br.univali.compiladores.compilador.view.WindowER;
-import org.apache.commons.io.input.ReaderInputStream;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -12,7 +9,6 @@ import javax.swing.text.DefaultEditorKit;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 
 public class MenuController {
 
@@ -157,20 +153,12 @@ public class MenuController {
     public void compile(){
         if(!gui.getTa().getText().equals("")){
             try {
-                String text = "\n";
+                String text = "";
                 text += gui.getTa().getText();
-                System.out.println(text);
-                StringReader textReader = new StringReader(text);
-                BufferedReader textToParser = new BufferedReader(new InputStreamReader(new ReaderInputStream(textReader, StandardCharsets.UTF_8)));
-                System.out.println(textToParser.readLine());
-                LexicalAnalysis lexicalAnalysis = new LexicalAnalysis(gui);
-                LParser parser = lexicalAnalysis.runLexicalVerification(textToParser);
-                SintaticAnalysis sintaticAnalysis = new SintaticAnalysis(gui);
-                sintaticAnalysis.runSintaticVerification(parser);
-
-
+                Compile compile = new Compile(gui);
+                compile.runLexicalVerification(text);
             } catch (Exception e){
-                System.out.println("Erro na função do compilador!");
+                System.out.println("Erro na função do compilador!" + e.getMessage());
             }
         } else {
             gui.getTf().setText("----------Erro - Arquivo vazio não pode ser compilado!------------");
