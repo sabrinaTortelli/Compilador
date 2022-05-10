@@ -9,7 +9,6 @@ PARSER_BEGIN(LParser)
 
 package br.univali.compiladores.compilador.model.parser;
 import br.univali.compiladores.compilador.model.LexicalAnalysis.LexicalAnalysis;
-import br.univali.compiladores.compilador.model.SintaticAnalysis.SintaticAnalysis;
 import br.univali.compiladores.compilador.model.recovery.First;
 import br.univali.compiladores.compilador.model.recovery.RecoverySet;
 import br.univali.compiladores.compilador.model.recovery.ParseEOFException;
@@ -20,7 +19,6 @@ public class LParser
     private LexicalAnalysis lexicalAnalysis;
     private int lexErrorCount;
     private int synErrorCount;
-    private SintaticAnalysis sintaticAnalysis;
 
     //para o AS
     private boolean debug_recovery = true;
@@ -156,16 +154,15 @@ TOKEN /*RESERVED WORDS*/:
 | <RESERVED_WORD_REAL:("R"|"r")("E"|"e")("A"|"a")("L"|"l")>
 | <RESERVED_WORD_STRING:("S"|"s")("T"|"t")("R"|"r")("I"|"i")("N"|"n")("G"|"g")>
 | <RESERVED_WORD_LOGIC:("L"|"l")("O"|"o")("G"|"g")("I"|"i")("C"|"c")>
-| <RESERVED_WORD_ENUM:("E"|"e")("N"|"n")("U"|"u")("M"|"m")>
 | <RESERVED_WORD_DESIGNATE:("D"|"d")("E"|"e")("S"|"s")("I"|"i")("G"|"g")("N"|"n")("A"|"a")("T"|"t")("E"|"e")>
 | <RESERVED_WORD_READ:("R"|"r")("E"|"e")("A"|"a")("D"|"d")>
 | <RESERVED_WORD_WRITE:("W"|"w")("R"|"r")("I"|"i")("T"|"t")("E"|"e")>
 | <RESERVED_WORD_ALL:("A"|"a")("L"|"l")("L"|"l")>
 | <RESERVED_WORD_REPEAT:("R"|"r")("E"|"e")("P"|"p")("E"|"e")("A"|"a")("T"|"t")>
 | <RESERVED_WORD_AVALIATE:("A"|"a")("V"|"v")("A"|"a")("L"|"l")("I"|"i")("A"|"a")("T"|"t")("E"|"e")>
+| <RESERVED_WORD_RESULT:("R"|"r")("E"|"e")("S"|"s")("U"|"u")("L"|"l")("T"|"t")>
 | <RESERVED_WORD_TRUE:("T"|"t")("R"|"r")("U"|"u")("E"|"e")>
 | <RESERVED_WORD_UNTRUE:("U"|"u")("N"|"n")("T"|"t")("R"|"r")("U"|"u")("E"|"e")>
-| <RESERVED_WORD_RESULT:("R"|"r")("E"|"e")("S"|"s")("U"|"u")("L"|"l")("T"|"t")>
 }
 
 TOKEN : { < #DIGIT : ["0"-"9"] > }
@@ -279,9 +276,10 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET).union(g),
 try{
 <RESERVED_WORD_DO> <RESERVED_WORD_THIS> <IDENTIFIER> <ESP_SYMBOL_L_BRACKET> <ESP_SYMBOL_R_BRACKET>
  DeclarationEnumeratedType(f3) DeclarationConstantsAndVariables(f2) <RESERVED_WORD_BODY> <ESP_SYMBOL_L_BRACKET>
-   CommandList(f1) <ESP_SYMBOL_R_BRACKET> Description(g)
+   CommandList(f1) <ESP_SYMBOL_R_BRACKET> Description(g) <EOF>
 }
 catch (ParseException e){
+    lexicalAnalysis.printNotRecognized(g, e, "program declaration");
 consumeUntil(g, e, "program declaration");
 }
 }
@@ -295,6 +293,7 @@ try{
 [<RESERVED_WORD_DESCRIPTION> <CONST_LITERAL>]
 }
 catch(ParseException e){
+    lexicalAnalysis.printNotRecognized(g, e, "description statement");
 consumeUntil(g, e, "description statement");
 }
 }
@@ -310,6 +309,7 @@ try{
 [LOOKAHEAD (2) <RESERVED_WORD_DECLARATION> <RESERVED_WORD_TYPE> <ESP_SYMBOL_L_BRACKET> IdentifierEnumTypeDeclarationList(f1) <ESP_SYMBOL_R_BRACKET>]
 }
 catch(ParseException e){
+    lexicalAnalysis.printNotRecognized(g, e, "enumerated type declaration");
 consumeUntil(g, e, "enumerated type declaration");
 }
 }
@@ -323,6 +323,7 @@ try{
 (<IDENTIFIER> <RESERVED_WORD_IS> IdentifierList(f1) <ESP_SYMBOL_DOT>)+
 }
 catch(ParseException e){
+    lexicalAnalysis.printNotRecognized(g, e, "Identifier Enum Type Declaration List");
 consumeUntil(g, e, "Identifier Enum Type Declaration List");
 }
 }
@@ -335,6 +336,7 @@ try{
 <IDENTIFIER> ((<ESP_SYMBOL_COMA> <IDENTIFIER>)*)
 }
 catch(ParseException e){
+    lexicalAnalysis.printNotRecognized(g, e, "identifier list");
 consumeUntil(g, e, "identifier list");
 }
 }
@@ -349,7 +351,8 @@ try{
     <ESP_SYMBOL_L_BRACKET> OrderConstantsAndVariables(f1) <ESP_SYMBOL_R_BRACKET>]
 }
 catch(ParseException e){
-consumeUntil(g, e, "constants and varibles");
+    lexicalAnalysis.printNotRecognized(g, e, "declaration constants and varibles");
+consumeUntil(g, e, "declaration constants and varibles");
 }
 }
 void OrderConstantsAndVariables(RecoverySet g) throws ParseEOFException:
@@ -359,6 +362,7 @@ try{
 <RESERVED_WORD_AS> ConstantAndVariablesInitiation(g)
 }
 catch(ParseException e){
+    lexicalAnalysis.printNotRecognized(g, e, "order constant and variables");
 consumeUntil(g, e, "order constant and variables");
 }
 }
@@ -374,6 +378,7 @@ try{
 | <RESERVED_WORD_VARIABLE> AsVariables(f2) [(<RESERVED_WORD_AS> <RESERVED_WORD_CONSTANT> AsConstants(g))]
 }
 catch(ParseException e){
+    lexicalAnalysis.printNotRecognized(g, e, "constants and varibles");
 consumeUntil(g, e, "constants and varibles");
 }
 }
@@ -388,6 +393,7 @@ try{
 [ConstantsList(g)]
 }
 catch(ParseException e){
+    lexicalAnalysis.printNotRecognized(g, e, "Constants");
 consumeUntil(g, e, "Constants");
 }
 }
@@ -403,7 +409,8 @@ try{
 (IdentifierList(f1) <RESERVED_WORD_IS> ConstTypeValueCombo(f2)<ESP_SYMBOL_DOT>)+
 }
 catch(ParseException e){
-consumeUntil(g, e, "constants and varibles");
+    lexicalAnalysis.printNotRecognized(g, e, "constants list");
+consumeUntil(g, e, "constants list");
 }
 }
 
@@ -418,7 +425,8 @@ try{
 |<RESERVED_WORD_LOGIC> <ESP_SYMBOL_ASSIGNE> TypeAndValueLogicConstants(g)
 }
 catch(ParseException e){
-consumeUntil(g, e, "constants and varibles");
+    lexicalAnalysis.printNotRecognized(g, e, "type constants");
+consumeUntil(g, e, "type constants");
 }
 }
 
@@ -430,6 +438,7 @@ try{
 | <RESERVED_WORD_UNTRUE>
 }
 catch(ParseException e){
+    lexicalAnalysis.printNotRecognized(g, e, "logical operators");
 consumeUntil(g, e, "logical operators");
 }
 }
@@ -444,6 +453,7 @@ void AsVariables(RecoverySet g) throws ParseEOFException:
  [VariablesList(g)]
  }
  catch(ParseException e){
+     lexicalAnalysis.printNotRecognized(g, e, "Varibles");
  consumeUntil(g, e, "Varibles");
  }
  }
@@ -458,6 +468,7 @@ void AsVariables(RecoverySet g) throws ParseEOFException:
  (IdentifierVariablesList(f1) <RESERVED_WORD_IS> VariablesTypes(f2) <ESP_SYMBOL_DOT>)+
  }
  catch(ParseException e){
+     lexicalAnalysis.printNotRecognized(g, e, "List Of Variable Identifiers");
  consumeUntil(g, e, "List Of Variable Identifiers");
  }
  }
@@ -471,6 +482,7 @@ void AsVariables(RecoverySet g) throws ParseEOFException:
  <IDENTIFIER> Index(f1) ((<ESP_SYMBOL_COMA> <IDENTIFIER> Index(f1))*)
  }
  catch(ParseException e){
+     lexicalAnalysis.printNotRecognized(g, e, "Identifier Variables List");
  consumeUntil(g, e, "Identifier Variables List");
  }
  }
@@ -482,6 +494,7 @@ void AsVariables(RecoverySet g) throws ParseEOFException:
  [<ESP_SYMBOL_L_BRACE> <CONST_INT> <ESP_SYMBOL_R_BRACE>]
  }
  catch(ParseException e){
+     lexicalAnalysis.printNotRecognized(g, e, "index");
  consumeUntil(g, e, "index");
  }
  }
@@ -498,6 +511,7 @@ void AsVariables(RecoverySet g) throws ParseEOFException:
  | DeclarationEnumeratedType(g)
  }
  catch(ParseException e){
+     lexicalAnalysis.printNotRecognized(g, e, "Variables Types");
  consumeUntil(g, e, "Variables Types");
  }
  }
@@ -514,6 +528,7 @@ try{
     Expression(f2) <ESP_SYMBOL_DOT>
 }
 catch(ParseException e){
+    lexicalAnalysis.printNotRecognized(g, e, "Command Assignment declaration");
  consumeUntil(g, e, "Command Assignment declaration");
 }
 }
@@ -527,6 +542,7 @@ try{
 ArithmeticOrLogicalExpression(f1) ExpressionL(g)
 }
 catch(ParseException e){
+    lexicalAnalysis.printNotRecognized(g, e, "expression");
 consumeUntil(g, e, "expression");
 }
 }
@@ -543,6 +559,7 @@ try{
 | <ESP_SYMBOL_GREATEREQUAL> ArithmeticOrLogicalExpression(g))]
 }
 catch(ParseException e){
+    lexicalAnalysis.printNotRecognized(g, e, "comparative operators");
 consumeUntil(g, e, "comparative operators");
 }
 }
@@ -556,6 +573,7 @@ try{
 SecondTerm(f1) LowestPriority(g)
 }
 catch(ParseException e){
+    lexicalAnalysis.printNotRecognized(g, e, "arithmetical or logical expression");
 consumeUntil(g, e, "arithmetical or logical expression");
 }
 }
@@ -571,6 +589,7 @@ try{
 | <ESP_SYMBOL_OR> SecondTerm(f1) LowestPriority(g))]
 }
 catch(ParseException e){
+    lexicalAnalysis.printNotRecognized(g, e, "low priority expression values");
 consumeUntil(g, e, "low priority expression values");
 }
 }
@@ -584,6 +603,7 @@ try{
 FirstTerm(f1) MediumPriority(g)
 }
 catch(ParseException e){
+    lexicalAnalysis.printNotRecognized(g, e, "expression second term");
 consumeUntil(g, e, "expression second term");
 }
 }
@@ -601,6 +621,7 @@ try{
 | <ESP_SYMBOL_AND> FirstTerm(f1) MediumPriority(g))]
 }
 catch(ParseException e){
+    lexicalAnalysis.printNotRecognized(g, e, "medium priority expression values");
 consumeUntil(g, e, "medium priority expression values");
 }
 }
@@ -614,6 +635,7 @@ try{
 Element(f1) HighestPriority(g)
 }
 catch(ParseException e){
+    lexicalAnalysis.printNotRecognized(g, e, "expression first term");
 consumeUntil(g, e, "expression first term");
 }
 }
@@ -627,6 +649,7 @@ try{
 [(<ESP_SYMBOL_POWER> Element(f1) HighestPriority(g))]
 }
 catch(ParseException e){
+    lexicalAnalysis.printNotRecognized(g, e, "high priority expression values");
 consumeUntil(g, e, "high priority expression values");
 }
 }
@@ -647,7 +670,8 @@ try{
 | <ESP_SYMBOL_DIFFERENT> <ESP_SYMBOL_L_PARENTHESIS> Expression(f1) <ESP_SYMBOL_R_PARENTHESIS>
 }
 catch(ParseException e){
-consumeUntil(g, e, "constant identifier");
+    lexicalAnalysis.printNotRecognized(g, e, "Element");
+consumeUntil(g, e, "Element");
 }
 }
 //index is located at Variables declaration sub block/
@@ -663,6 +687,7 @@ try{
 <ESP_SYMBOL_R_BRACKET> <ESP_SYMBOL_DOT>
 }
 catch(ParseException e){
+    lexicalAnalysis.printNotRecognized(g, e, "Command Input Data Declaration");
 consumeUntil(g, e, "Command Input Data Declaration");
 }
 }
@@ -676,6 +701,7 @@ try{
 <RESERVED_WORD_WRITE> (This(g) | AllThis(g))
 }
 catch(ParseException e){
+    lexicalAnalysis.printNotRecognized(g, e, "Command Output Data Declaration");
 consumeUntil(g, e, "Command Output Data Declaration");
 }
 }
@@ -689,6 +715,7 @@ try{
 <RESERVED_WORD_THIS> <ESP_SYMBOL_L_BRACKET> IdentifiersAndOrConstantsList(f1) <ESP_SYMBOL_R_BRACKET> <ESP_SYMBOL_DOT>
 }
 catch(ParseException e){
+    lexicalAnalysis.printNotRecognized(g, e, "output this");
 consumeUntil(g, e, "output this");
 }
 }
@@ -700,6 +727,7 @@ try{
 <RESERVED_WORD_ALL> This(g)
 }
 catch(ParseException e){
+    lexicalAnalysis.printNotRecognized(g, e, "output all this");
 consumeUntil(g, e, "output all this");
 }
 }
@@ -715,6 +743,7 @@ try{
 | OutPutConstants(f1) ((<ESP_SYMBOL_COMA> OutPutConstants(f1))*)
 }
 catch(ParseException e){
+    lexicalAnalysis.printNotRecognized(g, e, "IdentifiersAndOrConstantsList");
 consumeUntil(g, e, "output");
 }
 }
@@ -727,6 +756,7 @@ try{
 <CONST_LITERAL> | <CONST_INT> | <CONST_REAL>
 }
 catch(ParseException e){
+    lexicalAnalysis.printNotRecognized(g, e, "output constants");
 consumeUntil(g, e, "output");
 }
 }
@@ -742,6 +772,7 @@ try{
 <RESERVED_WORD_AVALIATE> <RESERVED_WORD_THIS> Expression(f2) Evaluate(f1) <ESP_SYMBOL_DOT>
 }
 catch(ParseException e){
+    lexicalAnalysis.printNotRecognized(g, e, "Command Select Declaration");
 consumeUntil(g, e, "Command Select Declaration");
 }
 }
@@ -756,6 +787,7 @@ try{
 EvaluateTrue(f1) [EvaluateUntrue(g)] | EvaluateUntrue(f2) [EvaluateTrue(g)]
 }
 catch(ParseException e){
+    lexicalAnalysis.printNotRecognized(g, e, "Evaluate");
 consumeUntil(g, e, "Evaluate");
 }
 }
@@ -769,6 +801,7 @@ try {
 <RESERVED_WORD_TRUE> <RESERVED_WORD_RESULT> <ESP_SYMBOL_L_BRACKET> CommandList(f1)
 <ESP_SYMBOL_R_BRACKET>
 } catch (ParseException e) {
+    lexicalAnalysis.printNotRecognized(g, e, "selection statement: true");
 consumeUntil(g, e, "selection statement: true");
 }
 }
@@ -782,6 +815,7 @@ try {
 <RESERVED_WORD_UNTRUE> <RESERVED_WORD_RESULT> <ESP_SYMBOL_L_BRACKET> CommandList(f1)
 <ESP_SYMBOL_R_BRACKET>
 } catch (ParseException e) {
+    lexicalAnalysis.printNotRecognized(g, e, "selection statement: untrue");
 consumeUntil(g, e, "selection statement: untrue");
 }
 }
@@ -794,6 +828,7 @@ void CommandList(RecoverySet g) throws ParseEOFException :
 try {
 (Command(f1))+
 } catch (ParseException e) {
+    lexicalAnalysis.printNotRecognized(g, e, "command list");
 consumeUntil(g, e, "command list");
 }
 }
@@ -809,6 +844,7 @@ CmdAssignment(g)
 | CmdRepetition(g)
 }
 catch(ParseException e){
+    lexicalAnalysis.printNotRecognized(g, e, "command");
 consumeUntil(g, e, "command");
 }
 }
@@ -826,6 +862,7 @@ try{
 <RESERVED_WORD_REPEAT> <RESERVED_WORD_THIS> Expression(f1) EvaluateRep(f2)<ESP_SYMBOL_DOT>
 }
 catch(ParseException e){
+    lexicalAnalysis.printNotRecognized(g, e, "Command Repetition Declaration");
 consumeUntil(g, e, "Command Repetition Declaration");
 }
 }
@@ -838,6 +875,7 @@ try{
 (LOOKAHEAD(2) EvaluateRepTrue(g) | EvaluateRepUntrue(g))
 }
 catch(ParseException e){
+    lexicalAnalysis.printNotRecognized(g, e, "Evaluate Repetition Condition");
 consumeUntil(g, e, "Evaluate Repetition Condition");
 }
 }
@@ -850,6 +888,7 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
 try {
 <ESP_SYMBOL_L_BRACKET> CommandList(f1)<ESP_SYMBOL_R_BRACKET>
 } catch (ParseException e) {
+    lexicalAnalysis.printNotRecognized(g, e, "repetition evaluation: condition satisfied");
 consumeUntil(g, e, "repetition evaluation: condition satisfied");
 }
 }
@@ -862,6 +901,7 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
 try {
 <ESP_SYMBOL_L_BRACKET><ESP_SYMBOL_R_BRACKET>
 } catch (ParseException e) {
+    lexicalAnalysis.printNotRecognized(g, e, "repetition evaluation: condition not satisfied");
 consumeUntil(g, e, "repetition evaluation: condition not satisfied");
 }
 }
@@ -943,6 +983,7 @@ void reservedWord() : { }
         | <RESERVED_WORD_ALL>
         | <RESERVED_WORD_REPEAT>
         | <RESERVED_WORD_AVALIATE>
+        | <RESERVED_WORD_RESULT>
         | <RESERVED_WORD_TRUE>
         | <RESERVED_WORD_UNTRUE>
     )
