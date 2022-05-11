@@ -4,7 +4,6 @@ import br.univali.compiladores.compilador.model.parser.LParser;
 import br.univali.compiladores.compilador.model.parser.ParseException;
 import br.univali.compiladores.compilador.model.parser.TokenMgrError;
 import br.univali.compiladores.compilador.model.recovery.ParseEOFException;
-import br.univali.compiladores.compilador.model.recovery.RecoverySet;
 import br.univali.compiladores.compilador.view.WindowER;
 import org.apache.commons.io.input.ReaderInputStream;
 
@@ -33,7 +32,7 @@ public class Compile {
     }
 
     public void printNotRecognizedToken(String token, String msg, int kind, int line, int column) {
-        gui.getTf().append("------------------------------------ERRO LÉXICO--------------------------------------\n\n" +
+        gui.getTf().append("---------------------------------------ERRO LÉXICO----------------------------------------\n\n" +
                 "Lexema: " + token + "\n" +
                 "Linha: " + line + "\n" +
                 "Coluna: " + column + "\n" +
@@ -56,10 +55,10 @@ public class Compile {
                 parser.parseLexical();
                 if (parser.getLexErrorCount() > 0) {
 
-                    gui.getTf().append("-----------------------------CONCLUSÃO ANÁLISE LÉXICA-----------------------------\n\n" +
+                    gui.getTf().append("---------------------------CONCLUSÃO ANÁLISE LÉXICA----------------------------\n\n" +
                             "Análise Léxica concluída. Erro(s) encontrados: " + parser.getLexErrorCount() + "\n");
                 } else {
-                    gui.getTf().append("-----------------------------CONCLUSÃO ANÁLISE LÉXICA------------------------------\n\n" +
+                    gui.getTf().append("---------------------------CONCLUSÃO ANÁLISE LÉXICA-----------------------------\n\n" +
                             "Análise Léxica concluída. Nenhum erro encontrado" + "\n");
                 }
             } catch (ParseException ex) {
@@ -68,7 +67,7 @@ public class Compile {
                         "Mensagem: " + ex.getMessage() + "\n");
             } finally {
                 gui.getTf().append("\n\n---------------------------------------------------------------------------------------------------\n");
-                gui.getTf().append("----------------------------------FINAL ANÁLISE LÉXICA---------------------------------\n");
+                gui.getTf().append("------------------------------------FIM ANÁLISE LÉXICA----------------------------------\n");
                 gui.getTf().append("---------------------------------------------------------------------------------------------------\n\n");
                 gui.getTf().append("\n---------------------------------------------------------------------------------------------------\n");
                 gui.getTf().append("-------------------------------INÍCIO ANÁLISE SINTÁTICA------------------------------\n");
@@ -90,14 +89,14 @@ public class Compile {
             parser.parseSyntactical();
 
             if (parser.getSynErrorCount() > 0) {
-                gui.getTf().append("----------------------------CONCLUSÃO ANÁLISE SINTÁTICA----------------------------\n\n" +
+                gui.getTf().append("--------------------------CONCLUSÃO ANÁLISE SINTÁTICA--------------------------\n\n" +
                         "Análise Sintática concluída. Erro(s) encontrados: " + parser.getSynErrorCount() + "\n");
             } else {
-                gui.getTf().append("----------------------------CONCLUSÃO ANÁLISE SINTÁTICA----------------------------\n\n" +
+                gui.getTf().append("--------------------------CONCLUSÃO ANÁLISE SINTÁTICA--------------------------\n\n" +
                         "Análise Sintática concluída. Nenhum erro encontrado" + "\n");
             }
             gui.getTf().append("\n\n---------------------------------------------------------------------------------------------------\n");
-            gui.getTf().append("--------------------------------FINAL ANÁLISE SINTÁTICA------------------------------\n");
+            gui.getTf().append("----------------------------------FIM ANÁLISE SINTÁTICA-------------------------------\n");
             gui.getTf().append("---------------------------------------------------------------------------------------------------\n\n");
         } catch (ParseException | ParseEOFException ex) {
             System.out.println("ERRO NA ANÁLISE SINTÁTICA: "+ ex.getMessage());
@@ -107,10 +106,12 @@ public class Compile {
         }
     }
 
-    public void printNotRecognized(RecoverySet g, ParseException e, String met) {
-        gui.getTf().append("--------------------------------------ERRO SINTÁTICO---------------------------------\n\n" +
-                "RecoverySet: " + g + "\n" +
-                "ParseException: " + e.getMessage() + "\n" +
-                "String: " + met + "\n\n");
+    public void printNotRecognized(ParseException e, String met) {
+        gui.getTf().append("----------------------------------------ERRO SINTÁTICO----------------------------------\n\n" +
+                "Erro sintático encontrado em " + met + "\n" +
+                "Encontrado \"" + e.currentToken.next + "\" que é um token do tipo " + e.tokenImage[e.currentToken.next.kind] +
+                " mas era esperado um token do tipo \"" + e.tokenImage[e.expectedTokenSequences[0][0]] + "\"\n"+
+                "Linha: " + e.currentToken.next.beginLine + "\n" +
+                "Coluna: " + e.currentToken.next.beginColumn + "\n\n");
     }
 }
