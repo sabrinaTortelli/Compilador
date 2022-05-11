@@ -124,8 +124,8 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET).union(g),
         Description(g);
         jj_consume_token(0);
       } catch (ParseException e) {
-    compile.printNotRecognized(g, e, "program declaration");
-consumeUntil(g, e, "program declaration");
+    compile.printNotRecognized(e, "declaração do programa");
+    consumeUntil(g, e, "program declaration");
       }
     } finally {
       trace_return("Program");
@@ -148,8 +148,8 @@ consumeUntil(g, e, "program declaration");
           ;
         }
       } catch (ParseException e) {
-    compile.printNotRecognized(g, e, "description statement");
-consumeUntil(g, e, "description statement");
+        compile.printNotRecognized(e, "declaração da descrição");
+        consumeUntil(g, e, "description statement");
       }
     } finally {
       trace_return("Description");
@@ -172,8 +172,8 @@ consumeUntil(g, e, "description statement");
           ;
         }
       } catch (ParseException e) {
-    compile.printNotRecognized(g, e, "enumerated type declaration");
-consumeUntil(g, e, "enumerated type declaration");
+        compile.printNotRecognized(e, "declaração de tipo enumerado");
+        consumeUntil(g, e, "enumerated type declaration");
       }
     } finally {
       trace_return("DeclarationEnumeratedType");
@@ -201,8 +201,8 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_DOT);
           }
         }
       } catch (ParseException e) {
-    compile.printNotRecognized(g, e, "Identifier Enum Type Declaration List");
-consumeUntil(g, e, "Identifier Enum Type Declaration List");
+        compile.printNotRecognized(e, "declaração de lista de identificador de tipo enumerado");
+        consumeUntil(g, e, "Identifier Enum Type Declaration List");
       }
     } finally {
       trace_return("IdentifierEnumTypeDeclarationList");
@@ -228,8 +228,8 @@ consumeUntil(g, e, "Identifier Enum Type Declaration List");
           jj_consume_token(IDENTIFIER);
         }
       } catch (ParseException e) {
-    compile.printNotRecognized(g, e, "identifier list");
-consumeUntil(g, e, "identifier list");
+        compile.printNotRecognized(e, "lista de identificadores");
+        consumeUntil(g, e, "identifier list");
       }
     } finally {
       trace_return("IdentifierList");
@@ -256,8 +256,8 @@ consumeUntil(g, e, "identifier list");
           ;
         }
       } catch (ParseException e) {
-    compile.printNotRecognized(g, e, "declaration constants and varibles");
-consumeUntil(g, e, "declaration constants and varibles");
+          compile.printNotRecognized(e, "declaração de constantes e variáveis");
+        consumeUntil(g, e, "declaration constants and varibles");
       }
     } finally {
       trace_return("DeclarationConstantsAndVariables");
@@ -271,8 +271,8 @@ consumeUntil(g, e, "declaration constants and varibles");
         jj_consume_token(RESERVED_WORD_AS);
         ConstantAndVariablesInitiation(g);
       } catch (ParseException e) {
-    compile.printNotRecognized(g, e, "order constant and variables");
-consumeUntil(g, e, "order constant and variables");
+          compile.printNotRecognized(e, "ordenação de constantes e variáveis");
+        consumeUntil(g, e, "order constant and variables");
       }
     } finally {
       trace_return("OrderConstantsAndVariables");
@@ -320,8 +320,8 @@ consumeUntil(g, e, "order constant and variables");
           throw new ParseException();
         }
       } catch (ParseException e) {
-    compile.printNotRecognized(g, e, "constants and varibles");
-consumeUntil(g, e, "constants and varibles");
+        compile.printNotRecognized(e, "inicialização de constantes e variáveis");
+        consumeUntil(g, e, "constants and varibles");
       }
     } finally {
       trace_return("ConstantAndVariablesInitiation");
@@ -342,8 +342,8 @@ consumeUntil(g, e, "constants and varibles");
           ;
         }
       } catch (ParseException e) {
-    compile.printNotRecognized(g, e, "Constants");
-consumeUntil(g, e, "Constants");
+            compile.printNotRecognized(e, "constantes");
+            consumeUntil(g, e, "Constants");
       }
     } finally {
       trace_return("AsConstants");
@@ -372,8 +372,8 @@ consumeUntil(g, e, "Constants");
           }
         }
       } catch (ParseException e) {
-    compile.printNotRecognized(g, e, "constants list");
-consumeUntil(g, e, "constants list");
+            compile.printNotRecognized(e, "lista de constantes");
+            consumeUntil(g, e, "constants list");
       }
     } finally {
       trace_return("ConstantsList");
@@ -411,8 +411,8 @@ consumeUntil(g, e, "constants list");
           throw new ParseException();
         }
       } catch (ParseException e) {
-    compile.printNotRecognized(g, e, "type constants");
-consumeUntil(g, e, "type constants");
+        compile.printNotRecognized(e, "tipo e valor de constantes");
+        consumeUntil(g, e, "type constants");
       }
     } finally {
       trace_return("ConstTypeValueCombo");
@@ -436,8 +436,8 @@ consumeUntil(g, e, "type constants");
           throw new ParseException();
         }
       } catch (ParseException e) {
-    compile.printNotRecognized(g, e, "logical operators");
-consumeUntil(g, e, "logical operators");
+        compile.printNotRecognized(e, "tipo e valor de constantes lógicas");
+        consumeUntil(g, e, "logical operators");
       }
     } finally {
       trace_return("TypeAndValueLogicConstants");
@@ -458,8 +458,8 @@ consumeUntil(g, e, "logical operators");
           ;
         }
       } catch (ParseException e) {
-     compile.printNotRecognized(g, e, "Varibles");
- consumeUntil(g, e, "Varibles");
+        compile.printNotRecognized(e, "variáveis");
+        consumeUntil(g, e, "Varibles");
       }
     } finally {
       trace_return("AsVariables");
@@ -488,7 +488,7 @@ consumeUntil(g, e, "logical operators");
           }
         }
       } catch (ParseException e) {
-     compile.printNotRecognized(g, e, "List Of Variable Identifiers");
+     compile.printNotRecognized(e, "lista de variáveis");
  consumeUntil(g, e, "List Of Variable Identifiers");
       }
     } finally {
@@ -518,7 +518,7 @@ consumeUntil(g, e, "logical operators");
           Index(f1);
         }
       } catch (ParseException e) {
-     compile.printNotRecognized(g, e, "Identifier Variables List");
+     compile.printNotRecognized(e, "lista de identificadores de variáveis");
  consumeUntil(g, e, "Identifier Variables List");
       }
     } finally {
@@ -541,8 +541,8 @@ consumeUntil(g, e, "logical operators");
           ;
         }
       } catch (ParseException e) {
-     compile.printNotRecognized(g, e, "index");
- consumeUntil(g, e, "index");
+        compile.printNotRecognized(e, "índice");
+        consumeUntil(g, e, "index");
       }
     } finally {
       trace_return("Index");
@@ -571,8 +571,8 @@ consumeUntil(g, e, "logical operators");
           DeclarationEnumeratedType(g);
         }
       } catch (ParseException e) {
-     compile.printNotRecognized(g, e, "Variables Types");
- consumeUntil(g, e, "Variables Types");
+        compile.printNotRecognized(e, "tipos de variáveis");
+        consumeUntil(g, e, "Variables Types");
       }
     } finally {
       trace_return("VariablesTypes");
@@ -594,8 +594,8 @@ consumeUntil(g, e, "logical operators");
         Expression(f2);
         jj_consume_token(ESP_SYMBOL_DOT);
       } catch (ParseException e) {
-    compile.printNotRecognized(g, e, "Command Assignment declaration");
- consumeUntil(g, e, "Command Assignment declaration");
+        compile.printNotRecognized(e, "declaração de comando de atribuição");
+        consumeUntil(g, e, "Command Assignment declaration");
       }
     } finally {
       trace_return("CmdAssignment");
@@ -610,8 +610,8 @@ RecoverySet f1 = First.ExpressionL.union(g);
         ArithmeticOrLogicalExpression(f1);
         ExpressionL(g);
       } catch (ParseException e) {
-    compile.printNotRecognized(g, e, "expression");
-consumeUntil(g, e, "expression");
+          compile.printNotRecognized(e, "expressão");
+          consumeUntil(g, e, "expression");
       }
     } finally {
       trace_return("Expression");
@@ -665,8 +665,8 @@ consumeUntil(g, e, "expression");
           ;
         }
       } catch (ParseException e) {
-    compile.printNotRecognized(g, e, "comparative operators");
-consumeUntil(g, e, "comparative operators");
+        compile.printNotRecognized(e, "comparação de operadores");
+        consumeUntil(g, e, "comparative operators");
       }
     } finally {
       trace_return("ExpressionL");
@@ -681,7 +681,7 @@ RecoverySet f1 = First.LowestPriority.union(g);
         SecondTerm(f1);
         LowestPriority(g);
       } catch (ParseException e) {
-    compile.printNotRecognized(g, e, "arithmetical or logical expression");
+    compile.printNotRecognized(e, "expressão aritmética ou lógica");
 consumeUntil(g, e, "arithmetical or logical expression");
       }
     } finally {
@@ -725,8 +725,8 @@ consumeUntil(g, e, "arithmetical or logical expression");
           ;
         }
       } catch (ParseException e) {
-    compile.printNotRecognized(g, e, "low priority expression values");
-consumeUntil(g, e, "low priority expression values");
+    compile.printNotRecognized(e, "menor prioridade de expressões");
+    consumeUntil(g, e, "low priority expression values");
       }
     } finally {
       trace_return("LowestPriority");
@@ -741,8 +741,8 @@ consumeUntil(g, e, "low priority expression values");
         FirstTerm(f1);
         MediumPriority(g);
       } catch (ParseException e) {
-    compile.printNotRecognized(g, e, "expression second term");
-consumeUntil(g, e, "expression second term");
+    compile.printNotRecognized(e, "segundo termo de expressões");
+    consumeUntil(g, e, "expression second term");
       }
     } finally {
       trace_return("SecondTerm");
@@ -797,8 +797,8 @@ consumeUntil(g, e, "expression second term");
           ;
         }
       } catch (ParseException e) {
-    compile.printNotRecognized(g, e, "medium priority expression values");
-consumeUntil(g, e, "medium priority expression values");
+    compile.printNotRecognized(e, "média prioridade de expressões");
+    consumeUntil(g, e, "medium priority expression values");
       }
     } finally {
       trace_return("MediumPriority");
@@ -813,8 +813,8 @@ consumeUntil(g, e, "medium priority expression values");
         Element(f1);
         HighestPriority(g);
       } catch (ParseException e) {
-    compile.printNotRecognized(g, e, "expression first term");
-consumeUntil(g, e, "expression first term");
+        compile.printNotRecognized(e, "primeiro termo de expressões");
+    consumeUntil(g, e, "expression first term");
       }
     } finally {
       trace_return("FirstTerm");
@@ -837,8 +837,8 @@ consumeUntil(g, e, "expression first term");
           ;
         }
       } catch (ParseException e) {
-    compile.printNotRecognized(g, e, "high priority expression values");
-consumeUntil(g, e, "high priority expression values");
+    compile.printNotRecognized(e, "alta prioridade de expressões");
+    consumeUntil(g, e, "high priority expression values");
       }
     } finally {
       trace_return("HighestPriority");
@@ -887,8 +887,8 @@ consumeUntil(g, e, "high priority expression values");
           throw new ParseException();
         }
       } catch (ParseException e) {
-    compile.printNotRecognized(g, e, "Element");
-consumeUntil(g, e, "Element");
+    compile.printNotRecognized(e, "elemento");
+    consumeUntil(g, e, "Element");
       }
     } finally {
       trace_return("Element");
@@ -910,8 +910,8 @@ consumeUntil(g, e, "Element");
         jj_consume_token(ESP_SYMBOL_R_BRACKET);
         jj_consume_token(ESP_SYMBOL_DOT);
       } catch (ParseException e) {
-    compile.printNotRecognized(g, e, "Command Input Data Declaration");
-consumeUntil(g, e, "Command Input Data Declaration");
+    compile.printNotRecognized(e, "declaração de comando de entrada de dados");
+    consumeUntil(g, e, "Command Input Data Declaration");
       }
     } finally {
       trace_return("CmdDataInput");
@@ -938,8 +938,8 @@ consumeUntil(g, e, "Command Input Data Declaration");
           throw new ParseException();
         }
       } catch (ParseException e) {
-    compile.printNotRecognized(g, e, "Command Output Data Declaration");
-consumeUntil(g, e, "Command Output Data Declaration");
+    compile.printNotRecognized(e, "declaração de comando de saída de dados");
+    consumeUntil(g, e, "Command Output Data Declaration");
       }
     } finally {
       trace_return("CmdDataOutput");
@@ -957,8 +957,8 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
         jj_consume_token(ESP_SYMBOL_R_BRACKET);
         jj_consume_token(ESP_SYMBOL_DOT);
       } catch (ParseException e) {
-    compile.printNotRecognized(g, e, "output this");
-consumeUntil(g, e, "output this");
+    compile.printNotRecognized(e, "saída de dados this");
+    consumeUntil(g, e, "output this");
       }
     } finally {
       trace_return("This");
@@ -972,8 +972,8 @@ consumeUntil(g, e, "output this");
         jj_consume_token(RESERVED_WORD_ALL);
         This(g);
       } catch (ParseException e) {
-    compile.printNotRecognized(g, e, "output all this");
-consumeUntil(g, e, "output all this");
+    compile.printNotRecognized(e, "saída de dados all this");
+    consumeUntil(g, e, "output all this");
       }
     } finally {
       trace_return("AllThis");
@@ -1025,8 +1025,8 @@ consumeUntil(g, e, "output all this");
           throw new ParseException();
         }
       } catch (ParseException e) {
-    compile.printNotRecognized(g, e, "IdentifiersAndOrConstantsList");
-consumeUntil(g, e, "output");
+        compile.printNotRecognized(e, "lista de constantes e/ou identificadores");
+    consumeUntil(g, e, "output");
       }
     } finally {
       trace_return("IdentifiersAndOrConstantsList");
@@ -1053,8 +1053,8 @@ consumeUntil(g, e, "output");
           throw new ParseException();
         }
       } catch (ParseException e) {
-    compile.printNotRecognized(g, e, "output constants");
-consumeUntil(g, e, "output");
+    compile.printNotRecognized(e, "saída de dados de constantes");
+    consumeUntil(g, e, "output");
       }
     } finally {
       trace_return("OutPutConstants");
@@ -1075,8 +1075,8 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_DOT),
         Evaluate(f1);
         jj_consume_token(ESP_SYMBOL_DOT);
       } catch (ParseException e) {
-    compile.printNotRecognized(g, e, "Command Select Declaration");
-consumeUntil(g, e, "Command Select Declaration");
+    compile.printNotRecognized(e, "declaração de comando de seleção");
+    consumeUntil(g, e, "Command Select Declaration");
       }
     } finally {
       trace_return("CmdSelection");
@@ -1118,8 +1118,8 @@ consumeUntil(g, e, "Command Select Declaration");
           throw new ParseException();
         }
       } catch (ParseException e) {
-    compile.printNotRecognized(g, e, "Evaluate");
-consumeUntil(g, e, "Evaluate");
+    compile.printNotRecognized(e, "avaliação");
+    consumeUntil(g, e, "Evaluate");
       }
     } finally {
       trace_return("Evaluate");
@@ -1137,8 +1137,8 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
         CommandList(f1);
         jj_consume_token(ESP_SYMBOL_R_BRACKET);
       } catch (ParseException e) {
-    compile.printNotRecognized(g, e, "selection statement: true");
-consumeUntil(g, e, "selection statement: true");
+    compile.printNotRecognized(e, "declaração da seleção: true");
+    consumeUntil(g, e, "selection statement: true");
       }
     } finally {
       trace_return("EvaluateTrue");
@@ -1156,8 +1156,8 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
         CommandList(f1);
         jj_consume_token(ESP_SYMBOL_R_BRACKET);
       } catch (ParseException e) {
-    compile.printNotRecognized(g, e, "selection statement: untrue");
-consumeUntil(g, e, "selection statement: untrue");
+        compile.printNotRecognized(e, "declaração da seleção: untrue");
+    consumeUntil(g, e, "selection statement: untrue");
       }
     } finally {
       trace_return("EvaluateUntrue");
@@ -1186,8 +1186,8 @@ consumeUntil(g, e, "selection statement: untrue");
           }
         }
       } catch (ParseException e) {
-    compile.printNotRecognized(g, e, "command list");
-consumeUntil(g, e, "command list");
+    compile.printNotRecognized(e, "lista de comandos");
+    consumeUntil(g, e, "command list");
       }
     } finally {
       trace_return("CommandList");
@@ -1220,8 +1220,8 @@ consumeUntil(g, e, "command list");
           throw new ParseException();
         }
       } catch (ParseException e) {
-    compile.printNotRecognized(g, e, "command");
-consumeUntil(g, e, "command");
+    compile.printNotRecognized(e, "declaração de comando");
+    consumeUntil(g, e, "command");
       }
     } finally {
       trace_return("Command");
@@ -1240,8 +1240,8 @@ RecoverySet f1 = First.EvaluateRep.union(f2);
         EvaluateRep(f2);
         jj_consume_token(ESP_SYMBOL_DOT);
       } catch (ParseException e) {
-    compile.printNotRecognized(g, e, "Command Repetition Declaration");
-consumeUntil(g, e, "Command Repetition Declaration");
+        compile.printNotRecognized(e, "declaração de comando de repetição");
+    consumeUntil(g, e, "Command Repetition Declaration");
       }
     } finally {
       trace_return("CmdRepetition");
@@ -1266,8 +1266,8 @@ consumeUntil(g, e, "Command Repetition Declaration");
           }
         }
       } catch (ParseException e) {
-    compile.printNotRecognized(g, e, "Evaluate Repetition Condition");
-consumeUntil(g, e, "Evaluate Repetition Condition");
+    compile.printNotRecognized(e, "avaliação de condição de repetição");
+    consumeUntil(g, e, "Evaluate Repetition Condition");
       }
     } finally {
       trace_return("EvaluateRep");
@@ -1283,8 +1283,8 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
         CommandList(f1);
         jj_consume_token(ESP_SYMBOL_R_BRACKET);
       } catch (ParseException e) {
-    compile.printNotRecognized(g, e, "repetition evaluation: condition satisfied");
-consumeUntil(g, e, "repetition evaluation: condition satisfied");
+        compile.printNotRecognized(e, "avaliação de repetição: condição satisfeita");
+    consumeUntil(g, e, "repetition evaluation: condition satisfied");
       }
     } finally {
       trace_return("EvaluateRepTrue");
@@ -1299,8 +1299,8 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
         jj_consume_token(ESP_SYMBOL_L_BRACKET);
         jj_consume_token(ESP_SYMBOL_R_BRACKET);
       } catch (ParseException e) {
-    compile.printNotRecognized(g, e, "repetition evaluation: condition not satisfied");
-consumeUntil(g, e, "repetition evaluation: condition not satisfied");
+        compile.printNotRecognized(e, "avaliação de repetição: condição não satisfeita");
+    consumeUntil(g, e, "repetition evaluation: condition not satisfied");
       }
     } finally {
       trace_return("EvaluateRepUntrue");
