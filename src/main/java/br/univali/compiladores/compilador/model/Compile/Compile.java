@@ -4,6 +4,7 @@ import br.univali.compiladores.compilador.model.parser.LParser;
 import br.univali.compiladores.compilador.model.parser.ParseException;
 import br.univali.compiladores.compilador.model.parser.TokenMgrError;
 import br.univali.compiladores.compilador.model.recovery.ParseEOFException;
+import br.univali.compiladores.compilador.model.recovery.RecoverySet;
 import br.univali.compiladores.compilador.view.WindowER;
 import org.apache.commons.io.input.ReaderInputStream;
 
@@ -15,10 +16,12 @@ import java.nio.charset.StandardCharsets;
 public class Compile {
 
     private final WindowER gui;
+    private SemanticActions semanticActions;
 
     public Compile(WindowER gui){
         this.gui = gui;
         gui.getTf().setText("");
+        semanticActions = new SemanticActions();
     }
 
 
@@ -57,6 +60,9 @@ public class Compile {
 
                     gui.getTf().append("---------------------------CONCLUSÃO ANÁLISE LÉXICA----------------------------\n\n" +
                             "Análise Léxica concluída. Erro(s) encontrados: " + parser.getLexErrorCount() + "\n");
+                    gui.getTf().append("\n\n---------------------------------------------------------------------------------------------------\n");
+                    gui.getTf().append("------------------------------------FIM ANÁLISE LÉXICA----------------------------------\n");
+                    gui.getTf().append("---------------------------------------------------------------------------------------------------\n\n");
                 } else {
                     gui.getTf().append("---------------------------CONCLUSÃO ANÁLISE LÉXICA-----------------------------\n\n" +
                             "Análise Léxica concluída. Nenhum erro encontrado" + "\n");
@@ -86,17 +92,22 @@ public class Compile {
                     StandardCharsets.UTF_8)));
             parser.ReInit(textToParser);
             parser.parseSyntactical();
-
             if (parser.getSynErrorCount() > 0) {
                 gui.getTf().append("--------------------------CONCLUSÃO ANÁLISE SINTÁTICA--------------------------\n\n" +
                         "Análise Sintática concluída. Erro(s) encontrados: " + parser.getSynErrorCount() + "\n");
+                gui.getTf().append("\n\n---------------------------------------------------------------------------------------------------\n");
+                gui.getTf().append("----------------------------------FIM ANÁLISE SINTÁTICA-------------------------------\n");
+                gui.getTf().append("---------------------------------------------------------------------------------------------------\n\n");
+                //mostrar uma mensagem ao executar
             } else {
                 gui.getTf().append("--------------------------CONCLUSÃO ANÁLISE SINTÁTICA--------------------------\n\n" +
                         "Análise Sintática concluída. Nenhum erro encontrado" + "\n");
+                gui.getTf().append("\n\n---------------------------------------------------------------------------------------------------\n");
+                gui.getTf().append("----------------------------------FIM ANÁLISE SINTÁTICA-------------------------------\n");
+                gui.getTf().append("---------------------------------------------------------------------------------------------------\n\n");
+                //runSemanticVerification();
+                //mostrar erros semânticos
             }
-            gui.getTf().append("\n\n---------------------------------------------------------------------------------------------------\n");
-            gui.getTf().append("----------------------------------FIM ANÁLISE SINTÁTICA-------------------------------\n");
-            gui.getTf().append("---------------------------------------------------------------------------------------------------\n\n");
         } catch (ParseException | ParseEOFException ex) {
             System.out.println("ERRO NA ANÁLISE SINTÁTICA: "+ ex.getMessage());
             gui.getTf().append("----------------------------------ERRO NO PARSER-----------------------------\n\n" +
@@ -105,12 +116,29 @@ public class Compile {
         }
     }
 
-    public void printNotRecognized(ParseException e, String met) {
+    public void printNotRecognized(RecoverySet g, ParseException e, String met) {
         gui.getTf().append("----------------------------------------ERRO SINTÁTICO----------------------------------\n\n" +
                 "Erro sintático encontrado em " + met + "\n" +
                 "Encontrado \"" + e.currentToken.next + "\" que é um token do tipo " + e.tokenImage[e.currentToken.next.kind] +
                 " mas era esperado um token do tipo \"" + e.tokenImage[e.expectedTokenSequences[0][0]] + "\"\n"+
                 "Linha: " + e.currentToken.next.beginLine + "\n" +
                 "Coluna: " + e.currentToken.next.beginColumn + "\n\n");
+    }
+
+    public void runSemanticVerification() {
+        if (semanticActions.getSemErrorCount() > 0) {
+            gui.getTf().append("--------------------------CONCLUSÃO ANÁLISE SINTÁTICA--------------------------\n\n" +
+                    "Análise Sintática concluída. Erro(s) encontrados: " + semanticActions.getSemErrorCount() + "\n");
+            gui.getTf().append("\n\n---------------------------------------------------------------------------------------------------\n");
+            gui.getTf().append("----------------------------------FIM ANÁLISE SINTÁTICA-------------------------------\n");
+            gui.getTf().append("---------------------------------------------------------------------------------------------------\n\n");
+        } else {
+            gui.getTf().append("--------------------------CONCLUSÃO ANÁLISE SINTÁTICA--------------------------\n\n" +
+                    "Análise Sintática concluída. Nenhum erro encontrado" + "\n");
+            gui.getTf().append("\n\n---------------------------------------------------------------------------------------------------\n");
+            gui.getTf().append("----------------------------------FIM ANÁLISE SINTÁTICA-------------------------------\n");
+            gui.getTf().append("---------------------------------------------------------------------------------------------------\n\n");
+            //mostra o código objeto
+        }
     }
 }

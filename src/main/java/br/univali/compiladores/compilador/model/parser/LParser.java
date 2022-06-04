@@ -5,11 +5,14 @@ import br.univali.compiladores.compilador.model.recovery.First;
 import br.univali.compiladores.compilador.model.recovery.RecoverySet;
 import br.univali.compiladores.compilador.model.recovery.ParseEOFException;
 import br.univali.compiladores.compilador.view.WindowER;
+import br.univali.compiladores.compilador.model.Compile.SemanticActions;
 
 public class LParser implements LParserConstants {
     private Compile compile;
     private int lexErrorCount;
     private int synErrorCount;
+    private SemanticActions semanticActions;
+
 
     //para o AS
     private boolean debug_recovery = true;
@@ -53,7 +56,7 @@ public class LParser implements LParserConstants {
                 System.out.println("    Ignoring token: " + im(tok.kind));
             getNextToken();
             tok = getToken(1);
-            if (tok.kind == EOF && ! g.contains(EOF))
+            if (tok.kind == EOF && !g.contains(EOF))
                 eof = true;
         }
         if(tok != lastError)
@@ -62,13 +65,12 @@ public class LParser implements LParserConstants {
          synErrorCount++;
          lastError = tok;
         }
-
+        compile.printNotRecognized(g, e, met);
 
         //System.out.println(e.getMessage());
         //synErrorCount++;
         if (eof) throw  new ParseEOFException("EOF found prematurely");
     }
-
 
     public int getLexErrorCount() {
         return lexErrorCount;
@@ -78,9 +80,9 @@ public class LParser implements LParserConstants {
         return synErrorCount;
     }
 
-
     public void setLexicalAnalysis(WindowER gui){
         compile = new Compile(gui);
+        semanticActions = new SemanticActions();
     }
 
   final public void parseSyntactical() throws ParseException, ParseEOFException {
@@ -95,9 +97,13 @@ public class LParser implements LParserConstants {
   final public void readProgram() throws ParseException, ParseEOFException {
     trace_call("readProgram");
     try {
-RecoverySet g = new RecoverySet(EOF);
-      Program(g);
-      jj_consume_token(0);
+    RecoverySet g = new RecoverySet(EOF);
+      try {
+        Program(g);
+        jj_consume_token(0);
+      } catch (ParseException e) {
+        consumeUntil(g, e, "read program");
+      }
     } finally {
       trace_return("readProgram");
     }
@@ -106,36 +112,27 @@ RecoverySet g = new RecoverySet(EOF);
   final public void Program(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("Program");
     try {
-RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET).union(g),
-            f2 = new RecoverySet(RESERVED_WORD_BODY).union(f1),
-            f3 = First.DeclarationConstantsAndVariables.union(f2);
+    RecoverySet f1 = First.Comment.union(g),
+            f2 = First.ProgramBody.union(f1);
       try {
         jj_consume_token(RESERVED_WORD_DO);
         jj_consume_token(RESERVED_WORD_THIS);
         jj_consume_token(IDENTIFIER);
         jj_consume_token(ESP_SYMBOL_L_BRACKET);
         jj_consume_token(ESP_SYMBOL_R_BRACKET);
-        DeclarationEnumeratedType(f3);
-        DeclarationConstantsAndVariables(f2);
-        jj_consume_token(RESERVED_WORD_BODY);
-        jj_consume_token(ESP_SYMBOL_L_BRACKET);
-        CommandList(f1);
-        jj_consume_token(ESP_SYMBOL_R_BRACKET);
-        Description(g);
-        jj_consume_token(0);
+        Declaration(f2);
+        ProgramBody(f1);
+        Comment(g);
       } catch (ParseException e) {
-    compile.printNotRecognized(e, "declaração do programa");
-    consumeUntil(g, e, "program declaration");
+        consumeUntil(g, e, "program declaration");
       }
     } finally {
       trace_return("Program");
     }
   }
 
-//REVER MENSAGENS PARA O CONSUME UNTILL A PARTIR DAQUI
-//bloco description
-  final public void Description(RecoverySet g) throws ParseException, ParseEOFException {
-    trace_call("Description");
+  final public void Comment(RecoverySet g) throws ParseException, ParseEOFException {
+    trace_call("Comment");
     try {
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -148,11 +145,81 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET).union(g),
           ;
         }
       } catch (ParseException e) {
-        compile.printNotRecognized(e, "declaração da descrição");
-        consumeUntil(g, e, "description statement");
+        consumeUntil(g, e, "Comment");
       }
     } finally {
-      trace_return("Description");
+      trace_return("Comment");
+    }
+  }
+
+  final public void Declaration(RecoverySet g) throws ParseException, ParseEOFException {
+    trace_call("Declaration");
+    try {
+      try {
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case RESERVED_WORD_DECLARATION:
+          jj_consume_token(RESERVED_WORD_DECLARATION);
+          DeclarationL(g);
+          break;
+        default:
+          jj_la1[1] = jj_gen;
+          ;
+        }
+      } catch (ParseException e) {
+        consumeUntil(g, e, "declaration");
+      }
+    } finally {
+      trace_return("Declaration");
+    }
+  }
+
+  final public void DeclarationL(RecoverySet g) throws ParseException, ParseEOFException {
+    trace_call("DeclarationL");
+    try {
+ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET).union(g);
+      try {
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case RESERVED_WORD_TYPE:
+          jj_consume_token(RESERVED_WORD_TYPE);
+          jj_consume_token(ESP_SYMBOL_L_BRACKET);
+          DeclarationEnumeratedType(f1);
+          jj_consume_token(ESP_SYMBOL_R_BRACKET);
+          DeclarationLL(g);
+          break;
+        case RESERVED_WORD_CONSTANT:
+          DeclarationConstantsAndVariables(g);
+          break;
+        default:
+          jj_la1[2] = jj_gen;
+          jj_consume_token(-1);
+          throw new ParseException();
+        }
+      } catch (ParseException e) {
+        consumeUntil(g, e, "Declaration L");
+      }
+    } finally {
+      trace_return("DeclarationL");
+    }
+  }
+
+  final public void DeclarationLL(RecoverySet g) throws ParseException, ParseEOFException {
+    trace_call("DeclarationLL");
+    try {
+      try {
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case RESERVED_WORD_DECLARATION:
+          jj_consume_token(RESERVED_WORD_DECLARATION);
+          DeclarationConstantsAndVariables(g);
+          break;
+        default:
+          jj_la1[3] = jj_gen;
+          ;
+        }
+      } catch (ParseException e) {
+        consumeUntil(g, e, "Declaration LL");
+      }
+    } finally {
+      trace_return("DeclarationLL");
     }
   }
 
@@ -160,48 +227,48 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET).union(g),
   final public void DeclarationEnumeratedType(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("DeclarationEnumeratedType");
     try {
- RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
+ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_DOT).union(g);
       try {
-        if (jj_2_1(2)) {
-          jj_consume_token(RESERVED_WORD_DECLARATION);
-          jj_consume_token(RESERVED_WORD_TYPE);
-          jj_consume_token(ESP_SYMBOL_L_BRACKET);
-          IdentifierEnumTypeDeclarationList(f1);
-          jj_consume_token(ESP_SYMBOL_R_BRACKET);
-        } else {
-          ;
-        }
+        jj_consume_token(IDENTIFIER);
+        jj_consume_token(RESERVED_WORD_IS);
+        IdentifierEnumTypeDeclarationList(f1);
+        jj_consume_token(ESP_SYMBOL_DOT);
+        DeclarationEnumeratedTypeL(g);
       } catch (ParseException e) {
-        compile.printNotRecognized(e, "declaração de tipo enumerado");
-        consumeUntil(g, e, "enumerated type declaration");
+        consumeUntil(g, e, "Declaration Enumerated Type");
       }
     } finally {
       trace_return("DeclarationEnumeratedType");
     }
   }
 
+  final public void DeclarationEnumeratedTypeL(RecoverySet g) throws ParseException, ParseEOFException {
+    trace_call("DeclarationEnumeratedTypeL");
+    try {
+      try {
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case IDENTIFIER:
+          DeclarationEnumeratedType(g);
+          break;
+        default:
+          jj_la1[4] = jj_gen;
+          ;
+        }
+      } catch (ParseException e) {
+        consumeUntil(g, e, "Declaration Enumerated Type L");
+      }
+    } finally {
+      trace_return("DeclarationEnumeratedTypeL");
+    }
+  }
+
   final public void IdentifierEnumTypeDeclarationList(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("IdentifierEnumTypeDeclarationList");
     try {
-RecoverySet f1 = new RecoverySet(ESP_SYMBOL_DOT);
       try {
-        label_1:
-        while (true) {
-          jj_consume_token(IDENTIFIER);
-          jj_consume_token(RESERVED_WORD_IS);
-          IdentifierList(f1);
-          jj_consume_token(ESP_SYMBOL_DOT);
-          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-          case IDENTIFIER:
-            ;
-            break;
-          default:
-            jj_la1[1] = jj_gen;
-            break label_1;
-          }
-        }
+        jj_consume_token(IDENTIFIER);
+        IdentifierEnumTypeDeclarationListL(g);
       } catch (ParseException e) {
-        compile.printNotRecognized(e, "declaração de lista de identificador de tipo enumerado");
         consumeUntil(g, e, "Identifier Enum Type Declaration List");
       }
     } finally {
@@ -209,54 +276,39 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_DOT);
     }
   }
 
-  final public void IdentifierList(RecoverySet g) throws ParseException, ParseEOFException {
-    trace_call("IdentifierList");
+  final public void IdentifierEnumTypeDeclarationListL(RecoverySet g) throws ParseException, ParseEOFException {
+    trace_call("IdentifierEnumTypeDeclarationListL");
     try {
       try {
-        jj_consume_token(IDENTIFIER);
-        label_2:
-        while (true) {
-          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-          case ESP_SYMBOL_COMA:
-            ;
-            break;
-          default:
-            jj_la1[2] = jj_gen;
-            break label_2;
-          }
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case ESP_SYMBOL_COMA:
           jj_consume_token(ESP_SYMBOL_COMA);
-          jj_consume_token(IDENTIFIER);
+          IdentifierEnumTypeDeclarationList(g);
+          break;
+        default:
+          jj_la1[5] = jj_gen;
+          ;
         }
       } catch (ParseException e) {
-        compile.printNotRecognized(e, "lista de identificadores");
-        consumeUntil(g, e, "identifier list");
+        consumeUntil(g, e, "Identifier Enum Type Declaration List L");
       }
     } finally {
-      trace_return("IdentifierList");
+      trace_return("IdentifierEnumTypeDeclarationListL");
     }
   }
 
   final public void DeclarationConstantsAndVariables(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("DeclarationConstantsAndVariables");
     try {
- RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
+    RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET).union(g);
       try {
-        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case RESERVED_WORD_DECLARATION:
-          jj_consume_token(RESERVED_WORD_DECLARATION);
-          jj_consume_token(RESERVED_WORD_CONSTANT);
-          jj_consume_token(RESERVED_WORD_AND);
-          jj_consume_token(RESERVED_WORD_VARIABLE);
-          jj_consume_token(ESP_SYMBOL_L_BRACKET);
-          OrderConstantsAndVariables(f1);
-          jj_consume_token(ESP_SYMBOL_R_BRACKET);
-          break;
-        default:
-          jj_la1[3] = jj_gen;
-          ;
-        }
+        jj_consume_token(RESERVED_WORD_CONSTANT);
+        jj_consume_token(RESERVED_WORD_AND);
+        jj_consume_token(RESERVED_WORD_VARIABLE);
+        jj_consume_token(ESP_SYMBOL_L_BRACKET);
+        ConstantsAndVariables(f1);
+        jj_consume_token(ESP_SYMBOL_R_BRACKET);
       } catch (ParseException e) {
-          compile.printNotRecognized(e, "declaração de constantes e variáveis");
         consumeUntil(g, e, "declaration constants and varibles");
       }
     } finally {
@@ -264,55 +316,34 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_DOT);
     }
   }
 
-  final public void OrderConstantsAndVariables(RecoverySet g) throws ParseException, ParseEOFException {
-    trace_call("OrderConstantsAndVariables");
+  final public void ConstantsAndVariables(RecoverySet g) throws ParseException, ParseEOFException {
+    trace_call("ConstantsAndVariables");
     try {
       try {
         jj_consume_token(RESERVED_WORD_AS);
-        ConstantAndVariablesInitiation(g);
+        ConstantAndVariablesL(g);
       } catch (ParseException e) {
-          compile.printNotRecognized(e, "ordenação de constantes e variáveis");
-        consumeUntil(g, e, "order constant and variables");
+        consumeUntil(g, e, "Constants And Variables");
       }
     } finally {
-      trace_return("OrderConstantsAndVariables");
+      trace_return("ConstantsAndVariables");
     }
   }
 
-  final public void ConstantAndVariablesInitiation(RecoverySet g) throws ParseException, ParseEOFException {
-    trace_call("ConstantAndVariablesInitiation");
+  final public void ConstantAndVariablesL(RecoverySet g) throws ParseException, ParseEOFException {
+    trace_call("ConstantAndVariablesL");
     try {
- RecoverySet f1 = First.AsVariables.union(g),
-             f2 = First.AsConstants.union(g);
+ RecoverySet f1 = First.VariablesLL.union(g),
+             f2 = First.ConstantsLL.union(g);
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case RESERVED_WORD_CONSTANT:
-          jj_consume_token(RESERVED_WORD_CONSTANT);
-          AsConstants(f1);
-          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-          case RESERVED_WORD_AS:
-            jj_consume_token(RESERVED_WORD_AS);
-            jj_consume_token(RESERVED_WORD_VARIABLE);
-            AsVariables(g);
-            break;
-          default:
-            jj_la1[4] = jj_gen;
-            ;
-          }
+          ConstantsDeclaration(f1);
+          VariablesLL(g);
           break;
         case RESERVED_WORD_VARIABLE:
-          jj_consume_token(RESERVED_WORD_VARIABLE);
-          AsVariables(f2);
-          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-          case RESERVED_WORD_AS:
-            jj_consume_token(RESERVED_WORD_AS);
-            jj_consume_token(RESERVED_WORD_CONSTANT);
-            AsConstants(g);
-            break;
-          default:
-            jj_la1[5] = jj_gen;
-            ;
-          }
+          VariablesDeclaration(f2);
+          ConstantsLL(g);
           break;
         default:
           jj_la1[6] = jj_gen;
@@ -320,209 +351,234 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_DOT);
           throw new ParseException();
         }
       } catch (ParseException e) {
-        compile.printNotRecognized(e, "inicialização de constantes e variáveis");
-        consumeUntil(g, e, "constants and varibles");
+        consumeUntil(g, e, "Constant And Variables L");
       }
     } finally {
-      trace_return("ConstantAndVariablesInitiation");
+      trace_return("ConstantAndVariablesL");
     }
   }
 
 // Constants Declaration sub block
-  final public void AsConstants(RecoverySet g) throws ParseException, ParseEOFException {
-    trace_call("AsConstants");
+  final public void ConstantsDeclaration(RecoverySet g) throws ParseException, ParseEOFException {
+    trace_call("ConstantsDeclaration");
+    try {
+      try {
+        jj_consume_token(RESERVED_WORD_CONSTANT);
+        Constants(g);
+      } catch (ParseException e) {
+        consumeUntil(g, e, "Constants Declaration");
+      }
+    } finally {
+      trace_return("ConstantsDeclaration");
+    }
+  }
+
+  final public void Constants(RecoverySet g) throws ParseException, ParseEOFException {
+    trace_call("Constants");
+    try {
+  RecoverySet f1 = new RecoverySet(RESERVED_WORD_IS).union(g),
+             f2 = new RecoverySet(ESP_SYMBOL_EQUAL).union(g),
+             f3 = new RecoverySet(ESP_SYMBOL_DOT).union(g);
+      try {
+        IdentifierConstantsList(f1);
+        jj_consume_token(RESERVED_WORD_IS);
+        Type(f2);
+        jj_consume_token(ESP_SYMBOL_ASSIGNE);
+        Value(f3);
+        jj_consume_token(ESP_SYMBOL_DOT);
+        ConstantsL(g);
+      } catch (ParseException e) {
+        consumeUntil(g, e, "Constants");
+      }
+    } finally {
+      trace_return("Constants");
+    }
+  }
+
+  final public void ConstantsL(RecoverySet g) throws ParseException, ParseEOFException {
+    trace_call("ConstantsL");
     try {
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case IDENTIFIER:
-          ConstantsList(g);
+          Constants(g);
           break;
         default:
           jj_la1[7] = jj_gen;
           ;
         }
       } catch (ParseException e) {
-            compile.printNotRecognized(e, "constantes");
-            consumeUntil(g, e, "Constants");
+        consumeUntil(g, e, "Constants L");
       }
     } finally {
-      trace_return("AsConstants");
+      trace_return("ConstantsL");
     }
   }
 
-  final public void ConstantsList(RecoverySet g) throws ParseException, ParseEOFException {
-    trace_call("ConstantsList");
-    try {
- RecoverySet f1 = new RecoverySet(RESERVED_WORD_IS),
-             f2 = new RecoverySet(ESP_SYMBOL_DOT);
-      try {
-        label_3:
-        while (true) {
-          IdentifierList(f1);
-          jj_consume_token(RESERVED_WORD_IS);
-          ConstTypeValueCombo(f2);
-          jj_consume_token(ESP_SYMBOL_DOT);
-          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-          case IDENTIFIER:
-            ;
-            break;
-          default:
-            jj_la1[8] = jj_gen;
-            break label_3;
-          }
-        }
-      } catch (ParseException e) {
-            compile.printNotRecognized(e, "lista de constantes");
-            consumeUntil(g, e, "constants list");
-      }
-    } finally {
-      trace_return("ConstantsList");
-    }
-  }
-
-  final public void ConstTypeValueCombo(RecoverySet g) throws ParseException, ParseEOFException {
-    trace_call("ConstTypeValueCombo");
+  final public void ConstantsLL(RecoverySet g) throws ParseException, ParseEOFException {
+    trace_call("ConstantsLL");
     try {
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case RESERVED_WORD_INTEGER:
-          jj_consume_token(RESERVED_WORD_INTEGER);
-          jj_consume_token(ESP_SYMBOL_ASSIGNE);
-          jj_consume_token(CONST_INT);
-          break;
-        case RESERVED_WORD_REAL:
-          jj_consume_token(RESERVED_WORD_REAL);
-          jj_consume_token(ESP_SYMBOL_ASSIGNE);
-          jj_consume_token(CONST_REAL);
-          break;
-        case RESERVED_WORD_STRING:
-          jj_consume_token(RESERVED_WORD_STRING);
-          jj_consume_token(ESP_SYMBOL_ASSIGNE);
-          jj_consume_token(CONST_LITERAL);
-          break;
-        case RESERVED_WORD_LOGIC:
-          jj_consume_token(RESERVED_WORD_LOGIC);
-          jj_consume_token(ESP_SYMBOL_ASSIGNE);
-          TypeAndValueLogicConstants(g);
+        case RESERVED_WORD_AS:
+          jj_consume_token(RESERVED_WORD_AS);
+          ConstantsDeclaration(g);
           break;
         default:
-          jj_la1[9] = jj_gen;
-          jj_consume_token(-1);
-          throw new ParseException();
+          jj_la1[8] = jj_gen;
+          ;
         }
       } catch (ParseException e) {
-        compile.printNotRecognized(e, "tipo e valor de constantes");
-        consumeUntil(g, e, "type constants");
+        consumeUntil(g, e, "Constants LL");
       }
     } finally {
-      trace_return("ConstTypeValueCombo");
+      trace_return("ConstantsLL");
     }
   }
 
-  final public void TypeAndValueLogicConstants(RecoverySet g) throws ParseException, ParseEOFException {
-    trace_call("TypeAndValueLogicConstants");
+  final public void VariablesDeclaration(RecoverySet g) throws ParseException, ParseEOFException {
+    trace_call("VariablesDeclaration");
     try {
       try {
-        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case RESERVED_WORD_TRUE:
-          jj_consume_token(RESERVED_WORD_TRUE);
-          break;
-        case RESERVED_WORD_UNTRUE:
-          jj_consume_token(RESERVED_WORD_UNTRUE);
-          break;
-        default:
-          jj_la1[10] = jj_gen;
-          jj_consume_token(-1);
-          throw new ParseException();
-        }
+        jj_consume_token(RESERVED_WORD_VARIABLE);
+        Variables(g);
       } catch (ParseException e) {
-        compile.printNotRecognized(e, "tipo e valor de constantes lógicas");
-        consumeUntil(g, e, "logical operators");
+        consumeUntil(g, e, "Variables Declaration");
       }
     } finally {
-      trace_return("TypeAndValueLogicConstants");
+      trace_return("VariablesDeclaration");
     }
   }
 
-//Variables declaration sub block
-  final public void AsVariables(RecoverySet g) throws ParseException, ParseEOFException {
-    trace_call("AsVariables");
+  final public void Variables(RecoverySet g) throws ParseException, ParseEOFException {
+    trace_call("Variables");
+    try {
+ RecoverySet f1 = new RecoverySet(RESERVED_WORD_IS).union(g),
+             f2 = new RecoverySet(ESP_SYMBOL_DOT).union(g);
+      try {
+        VariablesIdentifiersList(f1);
+        jj_consume_token(RESERVED_WORD_IS);
+        Type(f2);
+        jj_consume_token(ESP_SYMBOL_DOT);
+        VariablesL(g);
+      } catch (ParseException e) {
+        consumeUntil(g, e, "Variables");
+      }
+    } finally {
+      trace_return("Variables");
+    }
+  }
+
+  final public void VariablesL(RecoverySet g) throws ParseException, ParseEOFException {
+    trace_call("VariablesL");
     try {
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case IDENTIFIER:
-          VariablesList(g);
+          Variables(g);
+          break;
+        default:
+          jj_la1[9] = jj_gen;
+          ;
+        }
+      } catch (ParseException e) {
+        consumeUntil(g, e, "Variables L");
+      }
+    } finally {
+      trace_return("VariablesL");
+    }
+  }
+
+  final public void VariablesLL(RecoverySet g) throws ParseException, ParseEOFException {
+    trace_call("VariablesLL");
+    try {
+      try {
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case RESERVED_WORD_AS:
+          jj_consume_token(RESERVED_WORD_AS);
+          VariablesDeclaration(g);
+          break;
+        default:
+          jj_la1[10] = jj_gen;
+          ;
+        }
+      } catch (ParseException e) {
+        consumeUntil(g, e, "Variables LL");
+      }
+    } finally {
+      trace_return("VariablesLL");
+    }
+  }
+
+  final public void IdentifierConstantsList(RecoverySet g) throws ParseException, ParseEOFException {
+    trace_call("IdentifierConstantsList");
+    try {
+      try {
+        jj_consume_token(IDENTIFIER);
+        IdentifierConstantsListL(g);
+      } catch (ParseException e) {
+        consumeUntil(g, e, "Identifier Constants List");
+      }
+    } finally {
+      trace_return("IdentifierConstantsList");
+    }
+  }
+
+  final public void IdentifierConstantsListL(RecoverySet g) throws ParseException, ParseEOFException {
+    trace_call("IdentifierConstantsListL");
+    try {
+      try {
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case ESP_SYMBOL_COMA:
+          jj_consume_token(ESP_SYMBOL_COMA);
+          IdentifierConstantsList(g);
           break;
         default:
           jj_la1[11] = jj_gen;
           ;
         }
       } catch (ParseException e) {
-        compile.printNotRecognized(e, "variáveis");
-        consumeUntil(g, e, "Varibles");
+        consumeUntil(g, e, "Identifier Constants List L");
       }
     } finally {
-      trace_return("AsVariables");
+      trace_return("IdentifierConstantsListL");
     }
   }
 
-  final public void VariablesList(RecoverySet g) throws ParseException, ParseEOFException {
-    trace_call("VariablesList");
+  final public void VariablesIdentifiersList(RecoverySet g) throws ParseException, ParseEOFException {
+    trace_call("VariablesIdentifiersList");
     try {
-  RecoverySet f1 = new RecoverySet(RESERVED_WORD_IS),
-              f2 = new RecoverySet(ESP_SYMBOL_DOT);
-      try {
-        label_4:
-        while (true) {
-          IdentifierVariablesList(f1);
-          jj_consume_token(RESERVED_WORD_IS);
-          VariablesTypes(f2);
-          jj_consume_token(ESP_SYMBOL_DOT);
-          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-          case IDENTIFIER:
-            ;
-            break;
-          default:
-            jj_la1[12] = jj_gen;
-            break label_4;
-          }
-        }
-      } catch (ParseException e) {
-     compile.printNotRecognized(e, "lista de variáveis");
- consumeUntil(g, e, "List Of Variable Identifiers");
-      }
-    } finally {
-      trace_return("VariablesList");
-    }
-  }
-
-  final public void IdentifierVariablesList(RecoverySet g) throws ParseException, ParseEOFException {
-    trace_call("IdentifierVariablesList");
-    try {
- RecoverySet f1 = First.Index.union(g);
+ RecoverySet f1 = First.VariablesIdentifiersListL.union(g);
       try {
         jj_consume_token(IDENTIFIER);
         Index(f1);
-        label_5:
-        while (true) {
-          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-          case ESP_SYMBOL_COMA:
-            ;
-            break;
-          default:
-            jj_la1[13] = jj_gen;
-            break label_5;
-          }
-          jj_consume_token(ESP_SYMBOL_COMA);
-          jj_consume_token(IDENTIFIER);
-          Index(f1);
-        }
+        VariablesIdentifiersListL(g);
       } catch (ParseException e) {
-     compile.printNotRecognized(e, "lista de identificadores de variáveis");
- consumeUntil(g, e, "Identifier Variables List");
+        consumeUntil(g, e, "Variables Identifiers List");
       }
     } finally {
-      trace_return("IdentifierVariablesList");
+      trace_return("VariablesIdentifiersList");
+    }
+  }
+
+  final public void VariablesIdentifiersListL(RecoverySet g) throws ParseException, ParseEOFException {
+    trace_call("VariablesIdentifiersListL");
+    try {
+      try {
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case ESP_SYMBOL_COMA:
+          jj_consume_token(ESP_SYMBOL_COMA);
+          VariablesIdentifiersList(g);
+          break;
+        default:
+          jj_la1[12] = jj_gen;
+          ;
+        }
+      } catch (ParseException e) {
+        consumeUntil(g, e, "Variables Identifiers List L");
+      }
+    } finally {
+      trace_return("VariablesIdentifiersListL");
     }
   }
 
@@ -537,11 +593,10 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_DOT);
           jj_consume_token(ESP_SYMBOL_R_BRACE);
           break;
         default:
-          jj_la1[14] = jj_gen;
+          jj_la1[13] = jj_gen;
           ;
         }
       } catch (ParseException e) {
-        compile.printNotRecognized(e, "índice");
         consumeUntil(g, e, "index");
       }
     } finally {
@@ -549,8 +604,8 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_DOT);
     }
   }
 
-  final public void VariablesTypes(RecoverySet g) throws ParseException, ParseEOFException {
-    trace_call("VariablesTypes");
+  final public void Type(RecoverySet g) throws ParseException, ParseEOFException {
+    trace_call("Type");
     try {
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -566,35 +621,152 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_DOT);
         case RESERVED_WORD_LOGIC:
           jj_consume_token(RESERVED_WORD_LOGIC);
           break;
+        case IDENTIFIER:
+          jj_consume_token(IDENTIFIER);
+          break;
         default:
-          jj_la1[15] = jj_gen;
-          DeclarationEnumeratedType(g);
+          jj_la1[14] = jj_gen;
+          jj_consume_token(-1);
+          throw new ParseException();
         }
       } catch (ParseException e) {
-        compile.printNotRecognized(e, "tipos de variáveis");
-        consumeUntil(g, e, "Variables Types");
+        consumeUntil(g, e, "type");
       }
     } finally {
-      trace_return("VariablesTypes");
+      trace_return("Type");
     }
   }
 
-//====================================================================================
+  final public void Value(RecoverySet g) throws ParseException, ParseEOFException {
+    trace_call("Value");
+    try {
+      try {
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case CONST_INT:
+          jj_consume_token(CONST_INT);
+          break;
+        case CONST_REAL:
+          jj_consume_token(CONST_REAL);
+          break;
+        case CONST_LITERAL:
+          jj_consume_token(CONST_LITERAL);
+          break;
+        default:
+          jj_la1[15] = jj_gen;
+          jj_consume_token(-1);
+          throw new ParseException();
+        }
+      } catch (ParseException e) {
+        consumeUntil(g, e, "value");
+      }
+    } finally {
+      trace_return("Value");
+    }
+  }
+
+  final public void ProgramBody(RecoverySet g) throws ParseException, ParseEOFException {
+    trace_call("ProgramBody");
+    try {
+ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET).union(g);
+      try {
+        jj_consume_token(RESERVED_WORD_BODY);
+        jj_consume_token(ESP_SYMBOL_L_BRACKET);
+        CommandList(f1);
+        jj_consume_token(ESP_SYMBOL_R_BRACKET);
+      } catch (ParseException e) {
+        consumeUntil(g, e, "Program Body");
+      }
+    } finally {
+      trace_return("ProgramBody");
+    }
+  }
+
+  final public void CommandList(RecoverySet g) throws ParseException, ParseEOFException {
+    trace_call("CommandList");
+    try {
+ RecoverySet f1 = First.CommandListL.union(g);
+      try {
+        Command(f1);
+        CommandListL(g);
+      } catch (ParseException e) {
+        consumeUntil(g, e, "command list");
+      }
+    } finally {
+      trace_return("CommandList");
+    }
+  }
+
+  final public void CommandListL(RecoverySet g) throws ParseException, ParseEOFException {
+    trace_call("CommandListL");
+    try {
+      try {
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case RESERVED_WORD_DESIGNATE:
+        case RESERVED_WORD_READ:
+        case RESERVED_WORD_WRITE:
+        case RESERVED_WORD_REPEAT:
+        case RESERVED_WORD_AVALIATE:
+          CommandList(g);
+          break;
+        default:
+          jj_la1[16] = jj_gen;
+          ;
+        }
+      } catch (ParseException e) {
+        consumeUntil(g, e, "command list L");
+      }
+    } finally {
+      trace_return("CommandListL");
+    }
+  }
+
+  final public void Command(RecoverySet g) throws ParseException, ParseEOFException {
+    trace_call("Command");
+    try {
+      try {
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case RESERVED_WORD_DESIGNATE:
+          CmdAssignment(g);
+          break;
+        case RESERVED_WORD_READ:
+          CmdDataInput(g);
+          break;
+        case RESERVED_WORD_WRITE:
+          CmdDataOutput(g);
+          break;
+        case RESERVED_WORD_AVALIATE:
+          CmdSelection(g);
+          break;
+        case RESERVED_WORD_REPEAT:
+          CmdRepetition(g);
+          break;
+        default:
+          jj_la1[17] = jj_gen;
+          jj_consume_token(-1);
+          throw new ParseException();
+        }
+      } catch (ParseException e) {
+        consumeUntil(g, e, "command");
+      }
+    } finally {
+      trace_return("Command");
+    }
+  }
+
 //Assignmeent block
   final public void CmdAssignment(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("CmdAssignment");
     try {
- RecoverySet f1 = new RecoverySet(RESERVED_WORD_AS),
-             f2 = new RecoverySet(ESP_SYMBOL_DOT);
+ RecoverySet f1 = new RecoverySet(RESERVED_WORD_AS).union(g),
+             f2 = new RecoverySet(ESP_SYMBOL_DOT).union(g);
       try {
         jj_consume_token(RESERVED_WORD_DESIGNATE);
         jj_consume_token(RESERVED_WORD_THIS);
-        IdentifierVariablesList(f1);
+        VariablesIdentifiersList(f1);
         jj_consume_token(RESERVED_WORD_AS);
         Expression(f2);
         jj_consume_token(ESP_SYMBOL_DOT);
       } catch (ParseException e) {
-        compile.printNotRecognized(e, "declaração de comando de atribuição");
         consumeUntil(g, e, "Command Assignment declaration");
       }
     } finally {
@@ -602,16 +774,278 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_DOT);
     }
   }
 
+//Data input block
+  final public void CmdDataInput(RecoverySet g) throws ParseException, ParseEOFException {
+    trace_call("CmdDataInput");
+    try {
+ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET).union(g);
+      try {
+        jj_consume_token(RESERVED_WORD_READ);
+        jj_consume_token(RESERVED_WORD_THIS);
+        jj_consume_token(ESP_SYMBOL_L_BRACKET);
+        VariablesIdentifiersList(f1);
+        jj_consume_token(ESP_SYMBOL_R_BRACKET);
+        jj_consume_token(ESP_SYMBOL_DOT);
+      } catch (ParseException e) {
+        consumeUntil(g, e, "Command Input Data Declaration");
+      }
+    } finally {
+      trace_return("CmdDataInput");
+    }
+  }
+
+//Data output block
+  final public void CmdDataOutput(RecoverySet g) throws ParseException, ParseEOFException {
+    trace_call("CmdDataOutput");
+    try {
+      try {
+        jj_consume_token(RESERVED_WORD_WRITE);
+        CmdDataOutputL(g);
+      } catch (ParseException e) {
+        consumeUntil(g, e, "Command Output Data Declaration");
+      }
+    } finally {
+      trace_return("CmdDataOutput");
+    }
+  }
+
+  final public void CmdDataOutputL(RecoverySet g) throws ParseException, ParseEOFException {
+    trace_call("CmdDataOutputL");
+    try {
+ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET).union(g);
+      try {
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case RESERVED_WORD_ALL:
+          jj_consume_token(RESERVED_WORD_ALL);
+          jj_consume_token(RESERVED_WORD_THIS);
+          jj_consume_token(ESP_SYMBOL_L_BRACKET);
+          IndentifierAndOrContantList(f1);
+          jj_consume_token(ESP_SYMBOL_R_BRACKET);
+          jj_consume_token(ESP_SYMBOL_DOT);
+          break;
+        case RESERVED_WORD_THIS:
+          jj_consume_token(RESERVED_WORD_THIS);
+          jj_consume_token(ESP_SYMBOL_L_BRACKET);
+          IndentifierAndOrContantList(f1);
+          jj_consume_token(ESP_SYMBOL_R_BRACKET);
+          jj_consume_token(ESP_SYMBOL_DOT);
+          break;
+        default:
+          jj_la1[18] = jj_gen;
+          jj_consume_token(-1);
+          throw new ParseException();
+        }
+      } catch (ParseException e) {
+        consumeUntil(g, e, "Command Output Data Declaration L");
+      }
+    } finally {
+      trace_return("CmdDataOutputL");
+    }
+  }
+
+  final public void IndentifierAndOrContantList(RecoverySet g) throws ParseException, ParseEOFException {
+    trace_call("IndentifierAndOrContantList");
+    try {
+ RecoverySet f1 = First.IndentifierAndOrContantListL.union(g);
+      try {
+        Item(f1);
+        IndentifierAndOrContantListL(g);
+      } catch (ParseException e) {
+        consumeUntil(g, e, "Indentifier And Or Contant List");
+      }
+    } finally {
+      trace_return("IndentifierAndOrContantList");
+    }
+  }
+
+  final public void IndentifierAndOrContantListL(RecoverySet g) throws ParseException, ParseEOFException {
+    trace_call("IndentifierAndOrContantListL");
+    try {
+      try {
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case ESP_SYMBOL_COMA:
+          jj_consume_token(ESP_SYMBOL_COMA);
+          IndentifierAndOrContantList(g);
+          break;
+        default:
+          jj_la1[19] = jj_gen;
+          ;
+        }
+      } catch (ParseException e) {
+        consumeUntil(g, e, "Indentifier And Or Contant List L");
+      }
+    } finally {
+      trace_return("IndentifierAndOrContantListL");
+    }
+  }
+
+  final public void Item(RecoverySet g) throws ParseException, ParseEOFException {
+    trace_call("Item");
+    try {
+      try {
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case IDENTIFIER:
+          jj_consume_token(IDENTIFIER);
+          Index(g);
+          break;
+        case CONST_INT:
+          jj_consume_token(CONST_INT);
+          break;
+        case CONST_REAL:
+          jj_consume_token(CONST_REAL);
+          break;
+        case CONST_LITERAL:
+          jj_consume_token(CONST_LITERAL);
+          break;
+        default:
+          jj_la1[20] = jj_gen;
+          jj_consume_token(-1);
+          throw new ParseException();
+        }
+      } catch (ParseException e) {
+        consumeUntil(g, e, "item");
+      }
+    } finally {
+      trace_return("Item");
+    }
+  }
+
+//Selection command block
+  final public void CmdSelection(RecoverySet g) throws ParseException, ParseEOFException {
+    trace_call("CmdSelection");
+    try {
+    RecoverySet f1 = First.CmdSelectionL.union(g);
+      try {
+        jj_consume_token(RESERVED_WORD_AVALIATE);
+        jj_consume_token(RESERVED_WORD_THIS);
+        Expression(f1);
+        CmdSelectionL(g);
+      } catch (ParseException e) {
+        consumeUntil(g, e, "Command Select Declaration");
+      }
+    } finally {
+      trace_return("CmdSelection");
+    }
+  }
+
+  final public void CmdSelectionL(RecoverySet g) throws ParseException, ParseEOFException {
+    trace_call("CmdSelectionL");
+    try {
+    RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET).union(g),
+                f2 = new RecoverySet(ESP_SYMBOL_DOT).union(g);
+      try {
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case RESERVED_WORD_TRUE:
+          jj_consume_token(RESERVED_WORD_TRUE);
+          jj_consume_token(RESERVED_WORD_RESULT);
+          jj_consume_token(ESP_SYMBOL_L_BRACKET);
+          CommandList(f1);
+          jj_consume_token(ESP_SYMBOL_R_BRACKET);
+          False(f2);
+          jj_consume_token(ESP_SYMBOL_DOT);
+          break;
+        case RESERVED_WORD_UNTRUE:
+          jj_consume_token(RESERVED_WORD_UNTRUE);
+          jj_consume_token(RESERVED_WORD_RESULT);
+          jj_consume_token(ESP_SYMBOL_L_BRACKET);
+          CommandList(f1);
+          jj_consume_token(ESP_SYMBOL_R_BRACKET);
+          True(f2);
+          jj_consume_token(ESP_SYMBOL_DOT);
+          break;
+        default:
+          jj_la1[21] = jj_gen;
+          jj_consume_token(-1);
+          throw new ParseException();
+        }
+      } catch (ParseException e) {
+        consumeUntil(g, e, "Command Select Declaration L");
+      }
+    } finally {
+      trace_return("CmdSelectionL");
+    }
+  }
+
+  final public void True(RecoverySet g) throws ParseException, ParseEOFException {
+    trace_call("True");
+    try {
+    RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET).union(g);
+      try {
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case RESERVED_WORD_TRUE:
+          jj_consume_token(RESERVED_WORD_TRUE);
+          jj_consume_token(RESERVED_WORD_RESULT);
+          jj_consume_token(ESP_SYMBOL_L_BRACKET);
+          CommandList(f1);
+          jj_consume_token(ESP_SYMBOL_R_BRACKET);
+          break;
+        default:
+          jj_la1[22] = jj_gen;
+          ;
+        }
+      } catch (ParseException e) {
+        consumeUntil(g, e, "true");
+      }
+    } finally {
+      trace_return("True");
+    }
+  }
+
+  final public void False(RecoverySet g) throws ParseException, ParseEOFException {
+    trace_call("False");
+    try {
+    RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET).union(g);
+      try {
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case RESERVED_WORD_UNTRUE:
+          jj_consume_token(RESERVED_WORD_UNTRUE);
+          jj_consume_token(RESERVED_WORD_RESULT);
+          jj_consume_token(ESP_SYMBOL_L_BRACKET);
+          CommandList(f1);
+          jj_consume_token(ESP_SYMBOL_R_BRACKET);
+          break;
+        default:
+          jj_la1[23] = jj_gen;
+          ;
+        }
+      } catch (ParseException e) {
+        consumeUntil(g, e, "false");
+      }
+    } finally {
+      trace_return("False");
+    }
+  }
+
+  final public void CmdRepetition(RecoverySet g) throws ParseException, ParseEOFException {
+    trace_call("CmdRepetition");
+    try {
+RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET).union(g),
+            f2 = new RecoverySet(ESP_SYMBOL_R_BRACKET).union(g);
+      try {
+        jj_consume_token(RESERVED_WORD_REPEAT);
+        jj_consume_token(RESERVED_WORD_THIS);
+        Expression(f1);
+        jj_consume_token(ESP_SYMBOL_L_BRACKET);
+        CommandList(f2);
+        jj_consume_token(ESP_SYMBOL_R_BRACKET);
+        jj_consume_token(ESP_SYMBOL_DOT);
+      } catch (ParseException e) {
+        consumeUntil(g, e, "Command Repetition Declaration");
+      }
+    } finally {
+      trace_return("CmdRepetition");
+    }
+  }
+
   final public void Expression(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("Expression");
     try {
-RecoverySet f1 = First.ExpressionL.union(g);
+    RecoverySet f1 = First.ExpressionL.union(g);
       try {
         ArithmeticOrLogicalExpression(f1);
         ExpressionL(g);
       } catch (ParseException e) {
-          compile.printNotRecognized(e, "expressão");
-          consumeUntil(g, e, "expression");
+        consumeUntil(g, e, "expression");
       }
     } finally {
       trace_return("Expression");
@@ -655,18 +1089,17 @@ RecoverySet f1 = First.ExpressionL.union(g);
             ArithmeticOrLogicalExpression(g);
             break;
           default:
-            jj_la1[16] = jj_gen;
+            jj_la1[24] = jj_gen;
             jj_consume_token(-1);
             throw new ParseException();
           }
           break;
         default:
-          jj_la1[17] = jj_gen;
+          jj_la1[25] = jj_gen;
           ;
         }
       } catch (ParseException e) {
-        compile.printNotRecognized(e, "comparação de operadores");
-        consumeUntil(g, e, "comparative operators");
+        consumeUntil(g, e, "expressionL");
       }
     } finally {
       trace_return("ExpressionL");
@@ -676,13 +1109,12 @@ RecoverySet f1 = First.ExpressionL.union(g);
   final public void ArithmeticOrLogicalExpression(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("ArithmeticOrLogicalExpression");
     try {
-RecoverySet f1 = First.LowestPriority.union(g);
+    RecoverySet f1 = First.LowestPriority.union(g);
       try {
         SecondTerm(f1);
         LowestPriority(g);
       } catch (ParseException e) {
-    compile.printNotRecognized(e, "expressão aritmética ou lógica");
-consumeUntil(g, e, "arithmetical or logical expression");
+        consumeUntil(g, e, "arithmetical or logical expression");
       }
     } finally {
       trace_return("ArithmeticOrLogicalExpression");
@@ -715,18 +1147,17 @@ consumeUntil(g, e, "arithmetical or logical expression");
             LowestPriority(g);
             break;
           default:
-            jj_la1[18] = jj_gen;
+            jj_la1[26] = jj_gen;
             jj_consume_token(-1);
             throw new ParseException();
           }
           break;
         default:
-          jj_la1[19] = jj_gen;
+          jj_la1[27] = jj_gen;
           ;
         }
       } catch (ParseException e) {
-    compile.printNotRecognized(e, "menor prioridade de expressões");
-    consumeUntil(g, e, "low priority expression values");
+        consumeUntil(g, e, "low priority expression values");
       }
     } finally {
       trace_return("LowestPriority");
@@ -741,8 +1172,7 @@ consumeUntil(g, e, "arithmetical or logical expression");
         FirstTerm(f1);
         MediumPriority(g);
       } catch (ParseException e) {
-    compile.printNotRecognized(e, "segundo termo de expressões");
-    consumeUntil(g, e, "expression second term");
+        consumeUntil(g, e, "expression second term");
       }
     } finally {
       trace_return("SecondTerm");
@@ -787,18 +1217,17 @@ consumeUntil(g, e, "arithmetical or logical expression");
             MediumPriority(g);
             break;
           default:
-            jj_la1[20] = jj_gen;
+            jj_la1[28] = jj_gen;
             jj_consume_token(-1);
             throw new ParseException();
           }
           break;
         default:
-          jj_la1[21] = jj_gen;
+          jj_la1[29] = jj_gen;
           ;
         }
       } catch (ParseException e) {
-    compile.printNotRecognized(e, "média prioridade de expressões");
-    consumeUntil(g, e, "medium priority expression values");
+        consumeUntil(g, e, "medium priority expression values");
       }
     } finally {
       trace_return("MediumPriority");
@@ -813,8 +1242,7 @@ consumeUntil(g, e, "arithmetical or logical expression");
         Element(f1);
         HighestPriority(g);
       } catch (ParseException e) {
-        compile.printNotRecognized(e, "primeiro termo de expressões");
-    consumeUntil(g, e, "expression first term");
+        consumeUntil(g, e, "expression first term");
       }
     } finally {
       trace_return("FirstTerm");
@@ -833,12 +1261,11 @@ consumeUntil(g, e, "arithmetical or logical expression");
           HighestPriority(g);
           break;
         default:
-          jj_la1[22] = jj_gen;
+          jj_la1[30] = jj_gen;
           ;
         }
       } catch (ParseException e) {
-    compile.printNotRecognized(e, "alta prioridade de expressões");
-    consumeUntil(g, e, "high priority expression values");
+        consumeUntil(g, e, "high priority expression values");
       }
     } finally {
       trace_return("HighestPriority");
@@ -848,7 +1275,7 @@ consumeUntil(g, e, "arithmetical or logical expression");
   final public void Element(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("Element");
     try {
- RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_PARENTHESIS);
+ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_PARENTHESIS).union(g);
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case IDENTIFIER:
@@ -875,242 +1302,11 @@ consumeUntil(g, e, "arithmetical or logical expression");
           Expression(f1);
           jj_consume_token(ESP_SYMBOL_R_PARENTHESIS);
           break;
-        case ESP_SYMBOL_DIFFERENT:
-          jj_consume_token(ESP_SYMBOL_DIFFERENT);
+        case ESP_SYMBOL_NOT:
+          jj_consume_token(ESP_SYMBOL_NOT);
           jj_consume_token(ESP_SYMBOL_L_PARENTHESIS);
           Expression(f1);
           jj_consume_token(ESP_SYMBOL_R_PARENTHESIS);
-          break;
-        default:
-          jj_la1[23] = jj_gen;
-          jj_consume_token(-1);
-          throw new ParseException();
-        }
-      } catch (ParseException e) {
-    compile.printNotRecognized(e, "elemento");
-    consumeUntil(g, e, "Element");
-      }
-    } finally {
-      trace_return("Element");
-    }
-  }
-
-//index is located at Variables declaration sub block/
-//====================================================================================
-//Data input block
-  final public void CmdDataInput(RecoverySet g) throws ParseException, ParseEOFException {
-    trace_call("CmdDataInput");
-    try {
- RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
-      try {
-        jj_consume_token(RESERVED_WORD_READ);
-        jj_consume_token(RESERVED_WORD_THIS);
-        jj_consume_token(ESP_SYMBOL_L_BRACKET);
-        IdentifierVariablesList(f1);
-        jj_consume_token(ESP_SYMBOL_R_BRACKET);
-        jj_consume_token(ESP_SYMBOL_DOT);
-      } catch (ParseException e) {
-    compile.printNotRecognized(e, "declaração de comando de entrada de dados");
-    consumeUntil(g, e, "Command Input Data Declaration");
-      }
-    } finally {
-      trace_return("CmdDataInput");
-    }
-  }
-
-//====================================================================================
-//Data output block
-  final public void CmdDataOutput(RecoverySet g) throws ParseException, ParseEOFException {
-    trace_call("CmdDataOutput");
-    try {
-      try {
-        jj_consume_token(RESERVED_WORD_WRITE);
-        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case RESERVED_WORD_THIS:
-          This(g);
-          break;
-        case RESERVED_WORD_ALL:
-          AllThis(g);
-          break;
-        default:
-          jj_la1[24] = jj_gen;
-          jj_consume_token(-1);
-          throw new ParseException();
-        }
-      } catch (ParseException e) {
-    compile.printNotRecognized(e, "declaração de comando de saída de dados");
-    consumeUntil(g, e, "Command Output Data Declaration");
-      }
-    } finally {
-      trace_return("CmdDataOutput");
-    }
-  }
-
-  final public void This(RecoverySet g) throws ParseException, ParseEOFException {
-    trace_call("This");
-    try {
-RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
-      try {
-        jj_consume_token(RESERVED_WORD_THIS);
-        jj_consume_token(ESP_SYMBOL_L_BRACKET);
-        IdentifiersAndOrConstantsList(f1);
-        jj_consume_token(ESP_SYMBOL_R_BRACKET);
-        jj_consume_token(ESP_SYMBOL_DOT);
-      } catch (ParseException e) {
-    compile.printNotRecognized(e, "saída de dados this");
-    consumeUntil(g, e, "output this");
-      }
-    } finally {
-      trace_return("This");
-    }
-  }
-
-  final public void AllThis(RecoverySet g) throws ParseException, ParseEOFException {
-    trace_call("AllThis");
-    try {
-      try {
-        jj_consume_token(RESERVED_WORD_ALL);
-        This(g);
-      } catch (ParseException e) {
-    compile.printNotRecognized(e, "saída de dados all this");
-    consumeUntil(g, e, "output all this");
-      }
-    } finally {
-      trace_return("AllThis");
-    }
-  }
-
-  final public void IdentifiersAndOrConstantsList(RecoverySet g) throws ParseException, ParseEOFException {
-    trace_call("IdentifiersAndOrConstantsList");
-    try {
- RecoverySet f1 = First.OutPutConstants.union(g);
-      try {
-        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case IDENTIFIER:
-          if (jj_2_2(3)) {
-            IdentifierVariablesList(g);
-          } else {
-            switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-            case IDENTIFIER:
-              IdentifierList(g);
-              break;
-            default:
-              jj_la1[25] = jj_gen;
-              jj_consume_token(-1);
-              throw new ParseException();
-            }
-          }
-          break;
-        case CONST_INT:
-        case CONST_REAL:
-        case CONST_LITERAL:
-          OutPutConstants(f1);
-          label_6:
-          while (true) {
-            switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-            case ESP_SYMBOL_COMA:
-              ;
-              break;
-            default:
-              jj_la1[26] = jj_gen;
-              break label_6;
-            }
-            jj_consume_token(ESP_SYMBOL_COMA);
-            OutPutConstants(f1);
-          }
-          break;
-        default:
-          jj_la1[27] = jj_gen;
-          jj_consume_token(-1);
-          throw new ParseException();
-        }
-      } catch (ParseException e) {
-        compile.printNotRecognized(e, "lista de constantes e/ou identificadores");
-    consumeUntil(g, e, "output");
-      }
-    } finally {
-      trace_return("IdentifiersAndOrConstantsList");
-    }
-  }
-
-  final public void OutPutConstants(RecoverySet g) throws ParseException, ParseEOFException {
-    trace_call("OutPutConstants");
-    try {
-      try {
-        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case CONST_LITERAL:
-          jj_consume_token(CONST_LITERAL);
-          break;
-        case CONST_INT:
-          jj_consume_token(CONST_INT);
-          break;
-        case CONST_REAL:
-          jj_consume_token(CONST_REAL);
-          break;
-        default:
-          jj_la1[28] = jj_gen;
-          jj_consume_token(-1);
-          throw new ParseException();
-        }
-      } catch (ParseException e) {
-    compile.printNotRecognized(e, "saída de dados de constantes");
-    consumeUntil(g, e, "output");
-      }
-    } finally {
-      trace_return("OutPutConstants");
-    }
-  }
-
-//====================================================================================
-//Selection command block
-  final public void CmdSelection(RecoverySet g) throws ParseException, ParseEOFException {
-    trace_call("CmdSelection");
-    try {
-RecoverySet f1 = new RecoverySet(ESP_SYMBOL_DOT),
-            f2 = First.Evaluate.union(f1);
-      try {
-        jj_consume_token(RESERVED_WORD_AVALIATE);
-        jj_consume_token(RESERVED_WORD_THIS);
-        Expression(f2);
-        Evaluate(f1);
-        jj_consume_token(ESP_SYMBOL_DOT);
-      } catch (ParseException e) {
-    compile.printNotRecognized(e, "declaração de comando de seleção");
-    consumeUntil(g, e, "Command Select Declaration");
-      }
-    } finally {
-      trace_return("CmdSelection");
-    }
-  }
-
-  final public void Evaluate(RecoverySet g) throws ParseException, ParseEOFException {
-    trace_call("Evaluate");
-    try {
- RecoverySet f1 = First.EvaluateUntrue.union(g),
-                        f2 = First.EvaluateTrue.union(g);
-      try {
-        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case RESERVED_WORD_TRUE:
-          EvaluateTrue(f1);
-          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-          case RESERVED_WORD_UNTRUE:
-            EvaluateUntrue(g);
-            break;
-          default:
-            jj_la1[29] = jj_gen;
-            ;
-          }
-          break;
-        case RESERVED_WORD_UNTRUE:
-          EvaluateUntrue(f2);
-          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-          case RESERVED_WORD_TRUE:
-            EvaluateTrue(g);
-            break;
-          default:
-            jj_la1[30] = jj_gen;
-            ;
-          }
           break;
         default:
           jj_la1[31] = jj_gen;
@@ -1118,199 +1314,17 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_DOT),
           throw new ParseException();
         }
       } catch (ParseException e) {
-    compile.printNotRecognized(e, "avaliação");
-    consumeUntil(g, e, "Evaluate");
+        consumeUntil(g, e, "Element");
       }
     } finally {
-      trace_return("Evaluate");
-    }
-  }
-
-  final public void EvaluateTrue(RecoverySet g) throws ParseException, ParseEOFException {
-    trace_call("EvaluateTrue");
-    try {
-RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
-      try {
-        jj_consume_token(RESERVED_WORD_TRUE);
-        jj_consume_token(RESERVED_WORD_RESULT);
-        jj_consume_token(ESP_SYMBOL_L_BRACKET);
-        CommandList(f1);
-        jj_consume_token(ESP_SYMBOL_R_BRACKET);
-      } catch (ParseException e) {
-    compile.printNotRecognized(e, "declaração da seleção: true");
-    consumeUntil(g, e, "selection statement: true");
-      }
-    } finally {
-      trace_return("EvaluateTrue");
-    }
-  }
-
-  final public void EvaluateUntrue(RecoverySet g) throws ParseException, ParseEOFException {
-    trace_call("EvaluateUntrue");
-    try {
-RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
-      try {
-        jj_consume_token(RESERVED_WORD_UNTRUE);
-        jj_consume_token(RESERVED_WORD_RESULT);
-        jj_consume_token(ESP_SYMBOL_L_BRACKET);
-        CommandList(f1);
-        jj_consume_token(ESP_SYMBOL_R_BRACKET);
-      } catch (ParseException e) {
-        compile.printNotRecognized(e, "declaração da seleção: untrue");
-    consumeUntil(g, e, "selection statement: untrue");
-      }
-    } finally {
-      trace_return("EvaluateUntrue");
-    }
-  }
-
-  final public void CommandList(RecoverySet g) throws ParseException, ParseEOFException {
-    trace_call("CommandList");
-    try {
- RecoverySet f1 = First.Command.union(g);
-      try {
-        label_7:
-        while (true) {
-          Command(f1);
-          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-          case RESERVED_WORD_DESIGNATE:
-          case RESERVED_WORD_READ:
-          case RESERVED_WORD_WRITE:
-          case RESERVED_WORD_REPEAT:
-          case RESERVED_WORD_AVALIATE:
-            ;
-            break;
-          default:
-            jj_la1[32] = jj_gen;
-            break label_7;
-          }
-        }
-      } catch (ParseException e) {
-    compile.printNotRecognized(e, "lista de comandos");
-    consumeUntil(g, e, "command list");
-      }
-    } finally {
-      trace_return("CommandList");
-    }
-  }
-
-  final public void Command(RecoverySet g) throws ParseException, ParseEOFException {
-    trace_call("Command");
-    try {
-      try {
-        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case RESERVED_WORD_DESIGNATE:
-          CmdAssignment(g);
-          break;
-        case RESERVED_WORD_READ:
-          CmdDataInput(g);
-          break;
-        case RESERVED_WORD_WRITE:
-          CmdDataOutput(g);
-          break;
-        case RESERVED_WORD_AVALIATE:
-          CmdSelection(g);
-          break;
-        case RESERVED_WORD_REPEAT:
-          CmdRepetition(g);
-          break;
-        default:
-          jj_la1[33] = jj_gen;
-          jj_consume_token(-1);
-          throw new ParseException();
-        }
-      } catch (ParseException e) {
-    compile.printNotRecognized(e, "declaração de comando");
-    consumeUntil(g, e, "command");
-      }
-    } finally {
-      trace_return("Command");
-    }
-  }
-
-  final public void CmdRepetition(RecoverySet g) throws ParseException, ParseEOFException {
-    trace_call("CmdRepetition");
-    try {
-RecoverySet f2 = new RecoverySet(ESP_SYMBOL_DOT);
-RecoverySet f1 = First.EvaluateRep.union(f2);
-      try {
-        jj_consume_token(RESERVED_WORD_REPEAT);
-        jj_consume_token(RESERVED_WORD_THIS);
-        Expression(f1);
-        EvaluateRep(f2);
-        jj_consume_token(ESP_SYMBOL_DOT);
-      } catch (ParseException e) {
-        compile.printNotRecognized(e, "declaração de comando de repetição");
-    consumeUntil(g, e, "Command Repetition Declaration");
-      }
-    } finally {
-      trace_return("CmdRepetition");
-    }
-  }
-
-  final public void EvaluateRep(RecoverySet g) throws ParseException, ParseEOFException {
-    trace_call("EvaluateRep");
-    try {
-      try {
-        if (jj_2_3(2)) {
-          EvaluateRepTrue(g);
-        } else {
-          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-          case ESP_SYMBOL_L_BRACKET:
-            EvaluateRepUntrue(g);
-            break;
-          default:
-            jj_la1[34] = jj_gen;
-            jj_consume_token(-1);
-            throw new ParseException();
-          }
-        }
-      } catch (ParseException e) {
-    compile.printNotRecognized(e, "avaliação de condição de repetição");
-    consumeUntil(g, e, "Evaluate Repetition Condition");
-      }
-    } finally {
-      trace_return("EvaluateRep");
-    }
-  }
-
-  final public void EvaluateRepTrue(RecoverySet g) throws ParseException, ParseEOFException {
-    trace_call("EvaluateRepTrue");
-    try {
-RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
-      try {
-        jj_consume_token(ESP_SYMBOL_L_BRACKET);
-        CommandList(f1);
-        jj_consume_token(ESP_SYMBOL_R_BRACKET);
-      } catch (ParseException e) {
-        compile.printNotRecognized(e, "avaliação de repetição: condição satisfeita");
-    consumeUntil(g, e, "repetition evaluation: condition satisfied");
-      }
-    } finally {
-      trace_return("EvaluateRepTrue");
-    }
-  }
-
-  final public void EvaluateRepUntrue(RecoverySet g) throws ParseException, ParseEOFException {
-    trace_call("EvaluateRepUntrue");
-    try {
-RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
-      try {
-        jj_consume_token(ESP_SYMBOL_L_BRACKET);
-        jj_consume_token(ESP_SYMBOL_R_BRACKET);
-      } catch (ParseException e) {
-        compile.printNotRecognized(e, "avaliação de repetição: condição não satisfeita");
-    consumeUntil(g, e, "repetition evaluation: condition not satisfied");
-      }
-    } finally {
-      trace_return("EvaluateRepUntrue");
+      trace_return("Element");
     }
   }
 
   final public void parseLexical() throws ParseException {
     trace_call("parseLexical");
     try {
-      label_8:
+      label_1:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case ESP_SYMBOL_L_BRACKET:
@@ -1374,8 +1388,8 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
           ;
           break;
         default:
-          jj_la1[35] = jj_gen;
-          break label_8;
+          jj_la1[32] = jj_gen;
+          break label_1;
         }
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case NONSUPPORTED_BLOCK_COMMENT:
@@ -1459,7 +1473,7 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
           nonsupportedIdentifier();
           break;
         default:
-          jj_la1[36] = jj_gen;
+          jj_la1[33] = jj_gen;
           jj_consume_token(-1);
           throw new ParseException();
         }
@@ -1549,11 +1563,11 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
         jj_consume_token(ESP_SYMBOL_NOT);
         break;
       default:
-        jj_la1[37] = jj_gen;
+        jj_la1[34] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
-        //lexicalAnalysis.printRecognizedToken(token.image, "Simbolo Especial", token.kind, token.beginLine, token.beginColumn);
+
     } finally {
       trace_return("specialSymbol");
     }
@@ -1636,11 +1650,11 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
         jj_consume_token(RESERVED_WORD_UNTRUE);
         break;
       default:
-        jj_la1[38] = jj_gen;
+        jj_la1[35] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
-        //lexicalAnalysis.printRecognizedToken(token.image, "Palavra Reservada", token.kind, token.beginLine, token.beginColumn);
+
     } finally {
       trace_return("reservedWord");
     }
@@ -1650,7 +1664,7 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
     trace_call("constInt");
     try {
       jj_consume_token(CONST_INT);
-        //lexicalAnalysis.printRecognizedToken(token.image, "Constante Inteira", token.kind, token.beginLine, token.beginColumn);
+
     } finally {
       trace_return("constInt");
     }
@@ -1660,7 +1674,7 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
     trace_call("constReal");
     try {
       jj_consume_token(CONST_REAL);
-        //lexicalAnalysis.printRecognizedToken(token.image, "Constante Real", token.kind, token.beginLine, token.beginColumn);
+
     } finally {
       trace_return("constReal");
     }
@@ -1670,7 +1684,7 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
     trace_call("constLiteral");
     try {
       jj_consume_token(CONST_LITERAL);
-        //lexicalAnalysis.printRecognizedToken(token.image, "Constante Literal", token.kind, token.beginLine, token.beginColumn);
+
     } finally {
       trace_return("constLiteral");
     }
@@ -1680,7 +1694,7 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
     trace_call("identifier");
     try {
       jj_consume_token(IDENTIFIER);
-        //lexicalAnalysis.printRecognizedToken(token.image, "Identificador", token.kind, token.beginLine, token.beginColumn);
+
     } finally {
       trace_return("identifier");
     }
@@ -1742,173 +1756,6 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
     }
   }
 
-  private boolean jj_2_1(int xla) {
-    jj_la = xla; jj_lastpos = jj_scanpos = token;
-    try { return !jj_3_1(); }
-    catch(LookaheadSuccess ls) { return true; }
-    finally { jj_save(0, xla); }
-  }
-
-  private boolean jj_2_2(int xla) {
-    jj_la = xla; jj_lastpos = jj_scanpos = token;
-    try { return !jj_3_2(); }
-    catch(LookaheadSuccess ls) { return true; }
-    finally { jj_save(1, xla); }
-  }
-
-  private boolean jj_2_3(int xla) {
-    jj_la = xla; jj_lastpos = jj_scanpos = token;
-    try { return !jj_3_3(); }
-    catch(LookaheadSuccess ls) { return true; }
-    finally { jj_save(2, xla); }
-  }
-
-  private boolean jj_3R_19() {
-    if (jj_3R_24()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_18() {
-    if (jj_3R_23()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_24() {
-    if (!jj_rescan) trace_call("CmdDataOutput(LOOKING AHEAD...)");
-    if (jj_scan_token(RESERVED_WORD_WRITE)) { if (!jj_rescan) trace_return("CmdDataOutput(LOOKAHEAD FAILED)"); return true; }
-    { if (!jj_rescan) trace_return("CmdDataOutput(LOOKAHEAD SUCCEEDED)"); return false; }
-  }
-
-  private boolean jj_3R_10() {
-    if (!jj_rescan) trace_call("EvaluateRepTrue(LOOKING AHEAD...)");
-    if (jj_scan_token(ESP_SYMBOL_L_BRACKET)) { if (!jj_rescan) trace_return("EvaluateRepTrue(LOOKAHEAD FAILED)"); return true; }
-    if (jj_3R_13()) { if (!jj_rescan) trace_return("EvaluateRepTrue(LOOKAHEAD FAILED)"); return true; }
-    { if (!jj_rescan) trace_return("EvaluateRepTrue(LOOKAHEAD SUCCEEDED)"); return false; }
-  }
-
-  private boolean jj_3R_17() {
-    if (jj_3R_22()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_16() {
-    if (!jj_rescan) trace_call("Command(LOOKING AHEAD...)");
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_17()) {
-    jj_scanpos = xsp;
-    if (jj_3R_18()) {
-    jj_scanpos = xsp;
-    if (jj_3R_19()) {
-    jj_scanpos = xsp;
-    if (jj_3R_20()) {
-    jj_scanpos = xsp;
-    if (jj_3R_21()) { if (!jj_rescan) trace_return("Command(LOOKAHEAD FAILED)"); return true; }
-    }
-    }
-    }
-    }
-    { if (!jj_rescan) trace_return("Command(LOOKAHEAD SUCCEEDED)"); return false; }
-  }
-
-  private boolean jj_3R_12() {
-    if (jj_scan_token(ESP_SYMBOL_COMA)) return true;
-    if (jj_scan_token(IDENTIFIER)) return true;
-    return false;
-  }
-
-  private boolean jj_3_2() {
-    if (jj_3R_9()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_15() {
-    if (jj_3R_16()) return true;
-    return false;
-  }
-
-  private boolean jj_3_3() {
-    if (jj_3R_10()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_13() {
-    if (!jj_rescan) trace_call("CommandList(LOOKING AHEAD...)");
-    Token xsp;
-    if (jj_3R_15()) { if (!jj_rescan) trace_return("CommandList(LOOKAHEAD FAILED)"); return true; }
-    while (true) {
-      xsp = jj_scanpos;
-      if (jj_3R_15()) { jj_scanpos = xsp; break; }
-    }
-    { if (!jj_rescan) trace_return("CommandList(LOOKAHEAD SUCCEEDED)"); return false; }
-  }
-
-  private boolean jj_3_1() {
-    if (jj_scan_token(RESERVED_WORD_DECLARATION)) return true;
-    if (jj_scan_token(RESERVED_WORD_TYPE)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_23() {
-    if (!jj_rescan) trace_call("CmdDataInput(LOOKING AHEAD...)");
-    if (jj_scan_token(RESERVED_WORD_READ)) { if (!jj_rescan) trace_return("CmdDataInput(LOOKAHEAD FAILED)"); return true; }
-    { if (!jj_rescan) trace_return("CmdDataInput(LOOKAHEAD SUCCEEDED)"); return false; }
-  }
-
-  private boolean jj_3R_14() {
-    if (jj_scan_token(ESP_SYMBOL_L_BRACE)) return true;
-    if (jj_scan_token(CONST_INT)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_11() {
-    if (!jj_rescan) trace_call("Index(LOOKING AHEAD...)");
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_14()) jj_scanpos = xsp;
-    { if (!jj_rescan) trace_return("Index(LOOKAHEAD SUCCEEDED)"); return false; }
-  }
-
-  private boolean jj_3R_25() {
-    if (!jj_rescan) trace_call("CmdSelection(LOOKING AHEAD...)");
-    if (jj_scan_token(RESERVED_WORD_AVALIATE)) { if (!jj_rescan) trace_return("CmdSelection(LOOKAHEAD FAILED)"); return true; }
-    { if (!jj_rescan) trace_return("CmdSelection(LOOKAHEAD SUCCEEDED)"); return false; }
-  }
-
-  private boolean jj_3R_26() {
-    if (!jj_rescan) trace_call("CmdRepetition(LOOKING AHEAD...)");
-    if (jj_scan_token(RESERVED_WORD_REPEAT)) { if (!jj_rescan) trace_return("CmdRepetition(LOOKAHEAD FAILED)"); return true; }
-    { if (!jj_rescan) trace_return("CmdRepetition(LOOKAHEAD SUCCEEDED)"); return false; }
-  }
-
-  private boolean jj_3R_9() {
-    if (!jj_rescan) trace_call("IdentifierVariablesList(LOOKING AHEAD...)");
-    if (jj_scan_token(IDENTIFIER)) { if (!jj_rescan) trace_return("IdentifierVariablesList(LOOKAHEAD FAILED)"); return true; }
-    if (jj_3R_11()) { if (!jj_rescan) trace_return("IdentifierVariablesList(LOOKAHEAD FAILED)"); return true; }
-    Token xsp;
-    while (true) {
-      xsp = jj_scanpos;
-      if (jj_3R_12()) { jj_scanpos = xsp; break; }
-    }
-    { if (!jj_rescan) trace_return("IdentifierVariablesList(LOOKAHEAD SUCCEEDED)"); return false; }
-  }
-
-  private boolean jj_3R_22() {
-    if (!jj_rescan) trace_call("CmdAssignment(LOOKING AHEAD...)");
-    if (jj_scan_token(RESERVED_WORD_DESIGNATE)) { if (!jj_rescan) trace_return("CmdAssignment(LOOKAHEAD FAILED)"); return true; }
-    { if (!jj_rescan) trace_return("CmdAssignment(LOOKAHEAD SUCCEEDED)"); return false; }
-  }
-
-  private boolean jj_3R_21() {
-    if (jj_3R_26()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_20() {
-    if (jj_3R_25()) return true;
-    return false;
-  }
-
   /** Generated Token Manager. */
   public LParserTokenManager token_source;
   SimpleCharStream jj_input_stream;
@@ -1917,13 +1764,8 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
   /** Next token. */
   public Token jj_nt;
   private int jj_ntk;
-  private Token jj_scanpos, jj_lastpos;
-  private int jj_la;
-  /** Whether we are looking ahead. */
-  private boolean jj_lookingAhead = false;
-  private boolean jj_semLA;
   private int jj_gen;
-  final private int[] jj_la1 = new int[39];
+  final private int[] jj_la1 = new int[36];
   static private int[] jj_la1_0;
   static private int[] jj_la1_1;
   static private int[] jj_la1_2;
@@ -1933,17 +1775,14 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
       jj_la1_init_2();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x0,0x0,0x4000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x4000,0x800,0x0,0x1f800000,0x1f800000,0x40030000,0x40030000,0x206c0000,0x206c0000,0x100000,0x1000200,0x0,0x0,0x4000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x80,0xffffff80,0xffffff80,0xffffff80,0x0,};
+      jj_la1_0 = new int[] {0x0,0x0,0x0,0x0,0x0,0x4000,0x0,0x0,0x0,0x0,0x0,0x4000,0x4000,0x800,0x0,0x0,0x0,0x0,0x0,0x4000,0x0,0x0,0x0,0x0,0x1f800000,0x1f800000,0x40030000,0x40030000,0x206c0000,0x206c0000,0x100000,0x80000200,0xffffff80,0xffffff80,0xffffff80,0x0,};
    }
    private static void jj_la1_init_1() {
-      jj_la1_1 = new int[] {0x8,0x0,0x0,0x10,0x400,0x400,0x280,0x0,0x0,0x7800,0xc00000,0x0,0x0,0x0,0x0,0x7800,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0xe0c00000,0x40002,0x0,0x0,0xe0000000,0xe0000000,0x800000,0x400000,0xc00000,0x1b8000,0x1b8000,0x0,0xe0ffffff,0xe0ffffff,0x0,0xffffff,};
+      jj_la1_1 = new int[] {0x8,0x10,0xa0,0x10,0x0,0x0,0x280,0x0,0x400,0x0,0x400,0x0,0x0,0x0,0x7800,0xe0000000,0x1b8000,0x1b8000,0x40002,0x0,0xe0000000,0xc00000,0x400000,0x800000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0xe0c00000,0xe0ffffff,0xe0ffffff,0x0,0xffffff,};
    }
    private static void jj_la1_init_2() {
-      jj_la1_2 = new int[] {0x0,0x1,0x0,0x0,0x0,0x0,0x0,0x1,0x1,0x0,0x0,0x1,0x1,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1,0x0,0x1,0x0,0x1,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x3f,0x3f,0x0,0x0,};
+      jj_la1_2 = new int[] {0x0,0x0,0x0,0x0,0x1,0x0,0x0,0x1,0x0,0x1,0x0,0x0,0x0,0x0,0x1,0x0,0x0,0x0,0x0,0x0,0x1,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1,0x3f,0x3f,0x0,0x0,};
    }
-  final private JJCalls[] jj_2_rtns = new JJCalls[3];
-  private boolean jj_rescan = false;
-  private int jj_gc = 0;
 
   /** Constructor with InputStream. */
   public LParser(java.io.InputStream stream) {
@@ -1956,8 +1795,7 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 39; i++) jj_la1[i] = -1;
-    for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
+    for (int i = 0; i < 36; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -1971,8 +1809,7 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 39; i++) jj_la1[i] = -1;
-    for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
+    for (int i = 0; i < 36; i++) jj_la1[i] = -1;
   }
 
   /** Constructor. */
@@ -1982,8 +1819,7 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 39; i++) jj_la1[i] = -1;
-    for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
+    for (int i = 0; i < 36; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -1993,8 +1829,7 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 39; i++) jj_la1[i] = -1;
-    for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
+    for (int i = 0; i < 36; i++) jj_la1[i] = -1;
   }
 
   /** Constructor with generated Token Manager. */
@@ -2003,8 +1838,7 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 39; i++) jj_la1[i] = -1;
-    for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
+    for (int i = 0; i < 36; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -2013,8 +1847,7 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 39; i++) jj_la1[i] = -1;
-    for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
+    for (int i = 0; i < 36; i++) jj_la1[i] = -1;
   }
 
   private Token jj_consume_token(int kind) throws ParseException {
@@ -2024,47 +1857,12 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
     jj_ntk = -1;
     if (token.kind == kind) {
       jj_gen++;
-      if (++jj_gc > 100) {
-        jj_gc = 0;
-        for (int i = 0; i < jj_2_rtns.length; i++) {
-          JJCalls c = jj_2_rtns[i];
-          while (c != null) {
-            if (c.gen < jj_gen) c.first = null;
-            c = c.next;
-          }
-        }
-      }
       trace_token(token, "");
       return token;
     }
     token = oldToken;
     jj_kind = kind;
     throw generateParseException();
-  }
-
-  static private final class LookaheadSuccess extends java.lang.Error { }
-  final private LookaheadSuccess jj_ls = new LookaheadSuccess();
-  private boolean jj_scan_token(int kind) {
-    if (jj_scanpos == jj_lastpos) {
-      jj_la--;
-      if (jj_scanpos.next == null) {
-        jj_lastpos = jj_scanpos = jj_scanpos.next = token_source.getNextToken();
-      } else {
-        jj_lastpos = jj_scanpos = jj_scanpos.next;
-      }
-    } else {
-      jj_scanpos = jj_scanpos.next;
-    }
-    if (jj_rescan) {
-      int i = 0; Token tok = token;
-      while (tok != null && tok != jj_scanpos) { i++; tok = tok.next; }
-      if (tok != null) jj_add_error_token(kind, i);
-    } else {
-      trace_scan(jj_scanpos, kind);
-    }
-    if (jj_scanpos.kind != kind) return true;
-    if (jj_la == 0 && jj_scanpos == jj_lastpos) throw jj_ls;
-    return false;
   }
 
 
@@ -2080,7 +1878,7 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
 
 /** Get the specific Token. */
   final public Token getToken(int index) {
-    Token t = jj_lookingAhead ? jj_scanpos : token;
+    Token t = token;
     for (int i = 0; i < index; i++) {
       if (t.next != null) t = t.next;
       else t = t.next = token_source.getNextToken();
@@ -2098,36 +1896,6 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
   private java.util.List jj_expentries = new java.util.ArrayList();
   private int[] jj_expentry;
   private int jj_kind = -1;
-  private int[] jj_lasttokens = new int[100];
-  private int jj_endpos;
-
-  private void jj_add_error_token(int kind, int pos) {
-    if (pos >= 100) return;
-    if (pos == jj_endpos + 1) {
-      jj_lasttokens[jj_endpos++] = kind;
-    } else if (jj_endpos != 0) {
-      jj_expentry = new int[jj_endpos];
-      for (int i = 0; i < jj_endpos; i++) {
-        jj_expentry[i] = jj_lasttokens[i];
-      }
-      boolean exists = false;
-      for (java.util.Iterator it = jj_expentries.iterator(); it.hasNext();) {
-        int[] oldentry = (int[])(it.next());
-        if (oldentry.length == jj_expentry.length) {
-          exists = true;
-          for (int i = 0; i < jj_expentry.length; i++) {
-            if (oldentry[i] != jj_expentry[i]) {
-              exists = false;
-              break;
-            }
-          }
-          if (exists) break;
-        }
-      }
-      if (!exists) jj_expentries.add(jj_expentry);
-      if (pos != 0) jj_lasttokens[(jj_endpos = pos) - 1] = kind;
-    }
-  }
 
   /** Generate ParseException. */
   public ParseException generateParseException() {
@@ -2137,7 +1905,7 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 39; i++) {
+    for (int i = 0; i < 36; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {
@@ -2159,9 +1927,6 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
         jj_expentries.add(jj_expentry);
       }
     }
-    jj_endpos = 0;
-    jj_rescan_token();
-    jj_add_error_token(0, 0);
     int[][] exptokseq = new int[jj_expentries.size()][];
     for (int i = 0; i < jj_expentries.size(); i++) {
       exptokseq[i] = (int[])jj_expentries.get(i);
@@ -2218,43 +1983,6 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
       }
       System.out.println(" at line " + t1.beginLine + " column " + t1.beginColumn + ">; Expected token: <" + tokenImage[t2] + ">");
     }
-  }
-
-  private void jj_rescan_token() {
-    jj_rescan = true;
-    for (int i = 0; i < 3; i++) {
-    try {
-      JJCalls p = jj_2_rtns[i];
-      do {
-        if (p.gen > jj_gen) {
-          jj_la = p.arg; jj_lastpos = jj_scanpos = p.first;
-          switch (i) {
-            case 0: jj_3_1(); break;
-            case 1: jj_3_2(); break;
-            case 2: jj_3_3(); break;
-          }
-        }
-        p = p.next;
-      } while (p != null);
-      } catch(LookaheadSuccess ls) { }
-    }
-    jj_rescan = false;
-  }
-
-  private void jj_save(int index, int xla) {
-    JJCalls p = jj_2_rtns[index];
-    while (p.gen > jj_gen) {
-      if (p.next == null) { p = p.next = new JJCalls(); break; }
-      p = p.next;
-    }
-    p.gen = jj_gen + xla - jj_la; p.first = token; p.arg = xla;
-  }
-
-  static final class JJCalls {
-    int gen;
-    Token first;
-    int arg;
-    JJCalls next;
   }
 
 }
