@@ -15,9 +15,8 @@ import java.awt.event.WindowListener;
 
 public class WindowVM extends JFrame {
 
-    private JTextArea tf, ta;
+    private JTextPane textPane;
     private JPanel jpanel;
-    private static final long serialVersionUID = 1L;
     private StyledDocument doc;
 
     public WindowVM() {
@@ -32,8 +31,8 @@ public class WindowVM extends JFrame {
 
     private void setWindow() {
         Dimension size = getPreferredSize();
-        size.width = 550;
-        size.height = 400;
+        size.width = 1000;
+        size.height = 700;
         setPreferredSize(size);
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         setSize(size);
@@ -44,8 +43,8 @@ public class WindowVM extends JFrame {
     }
 
     private void createEditionArea(){
-        JTextPane textPane = new JTextPane();
-        textPane.setForeground(Color.BLUE);
+        textPane = new JTextPane();
+        textPane.setForeground(Color.WHITE);
         textPane.setBackground(Color.BLACK);
         textPane.setEditable(true);
         textPane.setFont(textPane.getFont().deriveFont(16.0f));

@@ -1,5 +1,6 @@
 package br.univali.compiladores.compilador.model.Compile;
 
+import br.univali.compiladores.compilador.controller.WindowCOController;
 import br.univali.compiladores.compilador.model.parser.LParser;
 import br.univali.compiladores.compilador.model.parser.ParseException;
 import br.univali.compiladores.compilador.model.parser.TokenMgrError;
@@ -106,6 +107,7 @@ public class Compile {
                 gui.getTf().append("----------------------------------FIM ANÁLISE SINTÁTICA-------------------------------\n");
                 gui.getTf().append("---------------------------------------------------------------------------------------------------\n\n");
                 //runSemanticVerification();
+                new WindowCOController();
                 //mostrar erros semânticos
             }
         } catch (ParseException | ParseEOFException ex) {
