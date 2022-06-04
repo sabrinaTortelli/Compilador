@@ -1,6 +1,7 @@
 package br.univali.compiladores.compilador.view;
 
 import br.univali.compiladores.compilador.controller.MenuController;
+import br.univali.compiladores.compilador.controller.WindowVMController;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -350,6 +351,9 @@ public class WindowER extends JFrame implements ActionListener, DocumentListener
                 break;
             case "Compile":
                 menuController.compile();
+                break;
+            case "Execute":
+                new WindowVMController();
                 break;
             default:
                 System.out.println(command);
