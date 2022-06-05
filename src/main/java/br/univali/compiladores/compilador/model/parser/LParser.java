@@ -103,7 +103,7 @@ public class LParser implements LParserConstants {
         jj_consume_token(0);
         semanticActions.trigger2();
       } catch (ParseException e) {
-        consumeUntil(g, e, "read program");
+        consumeUntil(g, e, "na declaração do programa");
       }
     } finally {
       trace_return("readProgram");
@@ -127,7 +127,7 @@ public class LParser implements LParserConstants {
         ProgramBody(f1);
         Comment(g);
       } catch (ParseException e) {
-        consumeUntil(g, e, "program declaration");
+        consumeUntil(g, e, "na declaração do programa");
       }
     } finally {
       trace_return("Program");
@@ -148,7 +148,7 @@ public class LParser implements LParserConstants {
           ;
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "Comment");
+        consumeUntil(g, e, "na declaração do comentário");
       }
     } finally {
       trace_return("Comment");
@@ -169,7 +169,7 @@ public class LParser implements LParserConstants {
           ;
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "declaration");
+        consumeUntil(g, e, "na declaração de constantes, variáveis e tipos enumerados");
       }
     } finally {
       trace_return("Declaration");
@@ -198,7 +198,7 @@ public class LParser implements LParserConstants {
           throw new ParseException();
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "Declaration L");
+        consumeUntil(g, e, "na declaração de constantes, variáveis e tipos enumerados");
       }
     } finally {
       trace_return("DeclarationL");
@@ -219,7 +219,7 @@ public class LParser implements LParserConstants {
           ;
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "Declaration LL");
+        consumeUntil(g, e, "na declaração de constantes, variáveis e tipos enumerados");
       }
     } finally {
       trace_return("DeclarationLL");
@@ -240,7 +240,7 @@ public class LParser implements LParserConstants {
         jj_consume_token(ESP_SYMBOL_DOT);
         DeclarationEnumeratedTypeL(g);
       } catch (ParseException e) {
-        consumeUntil(g, e, "Declaration Enumerated Type");
+        consumeUntil(g, e,  "na declaração de tipos enumerados");
       }
     } finally {
       trace_return("DeclarationEnumeratedType");
@@ -260,7 +260,7 @@ public class LParser implements LParserConstants {
           ;
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "Declaration Enumerated Type L");
+        consumeUntil(g, e,  "na declaração de tipos enumerados");
       }
     } finally {
       trace_return("DeclarationEnumeratedTypeL");
@@ -276,7 +276,7 @@ public class LParser implements LParserConstants {
         semanticActions.trigger4(t1);
         IdentifierEnumTypeDeclarationListL(g);
       } catch (ParseException e) {
-        consumeUntil(g, e, "Identifier Enum Type Declaration List");
+        consumeUntil(g, e,"na declaração de tipos enumerados");
       }
     } finally {
       trace_return("IdentifierEnumTypeDeclarationList");
@@ -297,7 +297,7 @@ public class LParser implements LParserConstants {
           ;
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "Identifier Enum Type Declaration List L");
+        consumeUntil(g, e, "na declaração de tipos enumerados");
       }
     } finally {
       trace_return("IdentifierEnumTypeDeclarationListL");
@@ -316,7 +316,7 @@ public class LParser implements LParserConstants {
         ConstantsAndVariables(f1);
         jj_consume_token(ESP_SYMBOL_R_BRACKET);
       } catch (ParseException e) {
-        consumeUntil(g, e, "declaration constants and varibles");
+        consumeUntil(g, e, "na declaração de constantes e variáveis");
       }
     } finally {
       trace_return("DeclarationConstantsAndVariables");
@@ -330,7 +330,7 @@ public class LParser implements LParserConstants {
         jj_consume_token(RESERVED_WORD_AS);
         ConstantAndVariablesL(g);
       } catch (ParseException e) {
-        consumeUntil(g, e, "Constants And Variables");
+        consumeUntil(g, e, "na declaração de constantes e variáveis");
       }
     } finally {
       trace_return("ConstantsAndVariables");
@@ -358,7 +358,7 @@ public class LParser implements LParserConstants {
           throw new ParseException();
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "Constant And Variables L");
+        consumeUntil(g, e, "na declaração de constantes e variáveis");
       }
     } finally {
       trace_return("ConstantAndVariablesL");
@@ -374,7 +374,7 @@ public class LParser implements LParserConstants {
         semanticActions.trigger5("as constant");
         Constants(g);
       } catch (ParseException e) {
-        consumeUntil(g, e, "Constants Declaration");
+        consumeUntil(g, e,"na declaração de constantes");
       }
     } finally {
       trace_return("ConstantsDeclaration");
@@ -399,7 +399,7 @@ public class LParser implements LParserConstants {
         jj_consume_token(ESP_SYMBOL_DOT);
         ConstantsL(g);
       } catch (ParseException e) {
-        consumeUntil(g, e, "Constants");
+        consumeUntil(g, e, "na declaração de constantes");
       }
     } finally {
       trace_return("Constants");
@@ -419,7 +419,7 @@ public class LParser implements LParserConstants {
           ;
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "Constants L");
+        consumeUntil(g, e, "na declaração de constantes");
       }
     } finally {
       trace_return("ConstantsL");
@@ -440,7 +440,7 @@ public class LParser implements LParserConstants {
           ;
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "Constants LL");
+        consumeUntil(g, e, "na declaração de constantes");
       }
     } finally {
       trace_return("ConstantsLL");
@@ -455,7 +455,7 @@ public class LParser implements LParserConstants {
         semanticActions.trigger8("as variable");
         Variables(g);
       } catch (ParseException e) {
-        consumeUntil(g, e, "Variables Declaration");
+        consumeUntil(g, e, "na declaração de variáveis");
       }
     } finally {
       trace_return("VariablesDeclaration");
@@ -476,7 +476,7 @@ public class LParser implements LParserConstants {
         jj_consume_token(ESP_SYMBOL_DOT);
         VariablesL(g);
       } catch (ParseException e) {
-        consumeUntil(g, e, "Variables");
+        consumeUntil(g, e, "na declaração de variáveis");
       }
     } finally {
       trace_return("Variables");
@@ -496,7 +496,7 @@ public class LParser implements LParserConstants {
           ;
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "Variables L");
+        consumeUntil(g, e, "na declaração de variáveis");
       }
     } finally {
       trace_return("VariablesL");
@@ -517,7 +517,7 @@ public class LParser implements LParserConstants {
           ;
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "Variables LL");
+        consumeUntil(g, e, "na declaração de variáveis");
       }
     } finally {
       trace_return("VariablesLL");
@@ -533,7 +533,7 @@ public class LParser implements LParserConstants {
         semanticActions.trigger9(t1);
         IdentifierConstantsListL(g);
       } catch (ParseException e) {
-        consumeUntil(g, e, "Identifier Constants List");
+        consumeUntil(g, e,  "na declaração de identificadores de constantes");
       }
     } finally {
       trace_return("IdentifierConstantsList");
@@ -554,7 +554,7 @@ public class LParser implements LParserConstants {
           ;
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "Identifier Constants List L");
+        consumeUntil(g, e, "na declaração de identificadores de constantes");
       }
     } finally {
       trace_return("IdentifierConstantsListL");
@@ -574,7 +574,7 @@ public class LParser implements LParserConstants {
         semanticActions.trigger11(t1, t2);
         VariablesIdentifiersListL(g);
       } catch (ParseException e) {
-        consumeUntil(g, e, "Variables Identifiers List");
+        consumeUntil(g, e, "na declaração de identificadores de variáveis");
       }
     } finally {
       trace_return("VariablesIdentifiersList");
@@ -595,7 +595,7 @@ public class LParser implements LParserConstants {
           ;
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "Variables Identifiers List L");
+        consumeUntil(g, e,"na declaração de identificadores de variáveis");
       }
     } finally {
       trace_return("VariablesIdentifiersListL");
@@ -620,7 +620,7 @@ public class LParser implements LParserConstants {
         }
           {if (true) return t1;}
       } catch (ParseException e) {
-        consumeUntil(g, e, "index");
+        consumeUntil(g, e,  "na declaração do índice");
       }
     throw new Error("Missing return statement in function");
     } finally {
@@ -661,7 +661,7 @@ public class LParser implements LParserConstants {
         }
         return t1;
       } catch (ParseException e) {
-        consumeUntil(g, e, "type");
+        consumeUntil(g, e, "na declaração do tipo");
       }
     throw new Error("Missing return statement in function");
     } finally {
@@ -691,7 +691,7 @@ public class LParser implements LParserConstants {
         }
         return t1;
       } catch (ParseException e) {
-        consumeUntil(g, e, "value");
+        consumeUntil(g, e, "na declaração do valor");
       }
     throw new Error("Missing return statement in function");
     } finally {
@@ -709,7 +709,7 @@ public class LParser implements LParserConstants {
         CommandList(f1);
         jj_consume_token(ESP_SYMBOL_R_BRACKET);
       } catch (ParseException e) {
-        consumeUntil(g, e, "Program Body");
+        consumeUntil(g, e, "na declaração do corpo do programa");
       }
     } finally {
       trace_return("ProgramBody");
@@ -724,7 +724,7 @@ public class LParser implements LParserConstants {
         Command(f1);
         CommandListL(g);
       } catch (ParseException e) {
-        consumeUntil(g, e, "command list");
+        consumeUntil(g, e,"na declaração da lista de comandos");
       }
     } finally {
       trace_return("CommandList");
@@ -748,7 +748,7 @@ public class LParser implements LParserConstants {
           ;
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "command list L");
+        consumeUntil(g, e,"na declaração da lista de comandos");
       }
     } finally {
       trace_return("CommandListL");
@@ -781,7 +781,7 @@ public class LParser implements LParserConstants {
           throw new ParseException();
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "command");
+        consumeUntil(g, e, "na declaração do comando");
       }
     } finally {
       trace_return("Command");
@@ -804,7 +804,7 @@ public class LParser implements LParserConstants {
         semanticActions.trigger19();
         jj_consume_token(ESP_SYMBOL_DOT);
       } catch (ParseException e) {
-        consumeUntil(g, e, "Command Assignment declaration");
+        consumeUntil(g, e, "na declaração do comando de atribuição");
       }
     } finally {
       trace_return("CmdAssignment");
@@ -825,7 +825,7 @@ public class LParser implements LParserConstants {
         jj_consume_token(ESP_SYMBOL_R_BRACKET);
         jj_consume_token(ESP_SYMBOL_DOT);
       } catch (ParseException e) {
-        consumeUntil(g, e, "Command Input Data Declaration");
+        consumeUntil(g, e, "na declaração do comando da entrada de dados");
       }
     } finally {
       trace_return("CmdDataInput");
@@ -840,7 +840,7 @@ public class LParser implements LParserConstants {
         jj_consume_token(RESERVED_WORD_WRITE);
         CmdDataOutputL(g);
       } catch (ParseException e) {
-        consumeUntil(g, e, "Command Output Data Declaration");
+        consumeUntil(g, e, "na declaração do comando da saída de dados");
       }
     } finally {
       trace_return("CmdDataOutput");
@@ -876,7 +876,7 @@ public class LParser implements LParserConstants {
           throw new ParseException();
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "Command Output Data Declaration L");
+        consumeUntil(g, e, "na declaração do comando da saída de dados");
       }
     } finally {
       trace_return("CmdDataOutputL");
@@ -893,7 +893,7 @@ public class LParser implements LParserConstants {
         semanticActions.trigger23(t1);
         IndentifierAndOrContantListL(g);
       } catch (ParseException e) {
-        consumeUntil(g, e, "Indentifier And Or Contant List");
+        consumeUntil(g, e,"na declaração de constantes e/ou variáveis");
       }
     } finally {
       trace_return("IndentifierAndOrContantList");
@@ -914,7 +914,7 @@ public class LParser implements LParserConstants {
           ;
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "Indentifier And Or Contant List L");
+        consumeUntil(g, e,"na declaração de constantes e/ou variáveis");
       }
     } finally {
       trace_return("IndentifierAndOrContantListL");
@@ -952,7 +952,7 @@ public class LParser implements LParserConstants {
         }
         return t1;
       } catch (ParseException e) {
-        consumeUntil(g, e, "item");
+        consumeUntil(g, e, "na declaração de constantes e/ou variáveis");
       }
     throw new Error("Missing return statement in function");
     } finally {
@@ -972,7 +972,7 @@ public class LParser implements LParserConstants {
         CmdSelectionL(g);
         semanticActions.trigger29();
       } catch (ParseException e) {
-        consumeUntil(g, e, "Command Select Declaration");
+        consumeUntil(g, e,"na declaração do comando de seleção");
       }
     } finally {
       trace_return("CmdSelection");
@@ -1012,7 +1012,7 @@ public class LParser implements LParserConstants {
           throw new ParseException();
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "Command Select Declaration L");
+        consumeUntil(g, e, "na declaração do comando de seleção");
       }
     } finally {
       trace_return("CmdSelectionL");
@@ -1039,7 +1039,7 @@ public class LParser implements LParserConstants {
           ;
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "true");
+        consumeUntil(g, e, "na declaração do comando de seleção");
       }
     } finally {
       trace_return("True");
@@ -1066,7 +1066,7 @@ public class LParser implements LParserConstants {
           ;
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "false");
+        consumeUntil(g, e, "na declaração do comando de seleção");
       }
     } finally {
       trace_return("False");
@@ -1090,7 +1090,7 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET).union(g),
         semanticActions.trigger35();
         jj_consume_token(ESP_SYMBOL_DOT);
       } catch (ParseException e) {
-        consumeUntil(g, e, "Command Repetition Declaration");
+        consumeUntil(g, e, "na declaração do comando de repetição");
       }
     } finally {
       trace_return("CmdRepetition");
@@ -1105,7 +1105,7 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET).union(g),
         ArithmeticOrLogicalExpression(f1);
         ExpressionL(g);
       } catch (ParseException e) {
-        consumeUntil(g, e, "expression");
+        consumeUntil(g, e,  "na declaração da expressão");
       }
     } finally {
       trace_return("Expression");
@@ -1166,7 +1166,7 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET).union(g),
           ;
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "expressionL");
+        consumeUntil(g, e,  "na declaração da expressão");
       }
     } finally {
       trace_return("ExpressionL");
@@ -1181,7 +1181,7 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET).union(g),
         SecondTerm(f1);
         LowestPriority(g);
       } catch (ParseException e) {
-        consumeUntil(g, e, "arithmetical or logical expression");
+        consumeUntil(g, e, "na declaração da expressão");
       }
     } finally {
       trace_return("ArithmeticOrLogicalExpression");
@@ -1228,7 +1228,7 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET).union(g),
           ;
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "low priority expression values");
+        consumeUntil(g, e,  "na declaração da expressão");
       }
     } finally {
       trace_return("LowestPriority");
@@ -1243,7 +1243,7 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET).union(g),
         FirstTerm(f1);
         MediumPriority(g);
       } catch (ParseException e) {
-        consumeUntil(g, e, "expression second term");
+        consumeUntil(g, e, "na declaração da expressão");
       }
     } finally {
       trace_return("SecondTerm");
@@ -1304,7 +1304,7 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET).union(g),
           ;
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "medium priority expression values");
+        consumeUntil(g, e, "na declaração da expressão");
       }
     } finally {
       trace_return("MediumPriority");
@@ -1319,7 +1319,7 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET).union(g),
         Element(f1);
         HighestPriority(g);
       } catch (ParseException e) {
-        consumeUntil(g, e, "expression first term");
+        consumeUntil(g, e, "na declaração da expressão");
       }
     } finally {
       trace_return("FirstTerm");
@@ -1344,7 +1344,7 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET).union(g),
           ;
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "high priority expression values");
+        consumeUntil(g, e, "na declaração da expressão");
       }
     } finally {
       trace_return("HighestPriority");
@@ -1402,7 +1402,7 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET).union(g),
           throw new ParseException();
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "Element");
+        consumeUntil(g, e, "na declaração da expressão");
       }
     } finally {
       trace_return("Element");

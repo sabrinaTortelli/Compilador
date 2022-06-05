@@ -47,7 +47,7 @@ public class WindowCO extends JFrame {
         jpanel = new JPanel();
         jpanel.setLayout(new GridLayout(1, 1));
         getContentPane().add(jpanel);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
     }
 
     private void createEditionArea(){
