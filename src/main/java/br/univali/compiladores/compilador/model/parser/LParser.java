@@ -101,6 +101,7 @@ public class LParser implements LParserConstants {
       try {
         Program(g);
         jj_consume_token(0);
+        semanticActions.trigger2();
       } catch (ParseException e) {
         consumeUntil(g, e, "read program");
       }
@@ -112,12 +113,14 @@ public class LParser implements LParserConstants {
   final public void Program(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("Program");
     try {
+    Token t1 = null;
     RecoverySet f1 = First.Comment.union(g),
             f2 = First.ProgramBody.union(f1);
       try {
         jj_consume_token(RESERVED_WORD_DO);
         jj_consume_token(RESERVED_WORD_THIS);
-        jj_consume_token(IDENTIFIER);
+        t1 = jj_consume_token(IDENTIFIER);
+        semanticActions.trigger1(t1);
         jj_consume_token(ESP_SYMBOL_L_BRACKET);
         jj_consume_token(ESP_SYMBOL_R_BRACKET);
         Declaration(f2);
@@ -227,9 +230,11 @@ public class LParser implements LParserConstants {
   final public void DeclarationEnumeratedType(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("DeclarationEnumeratedType");
     try {
+ Token t1 = null;
  RecoverySet f1 = new RecoverySet(ESP_SYMBOL_DOT).union(g);
       try {
-        jj_consume_token(IDENTIFIER);
+        t1 = jj_consume_token(IDENTIFIER);
+        semanticActions.trigger3(t1);
         jj_consume_token(RESERVED_WORD_IS);
         IdentifierEnumTypeDeclarationList(f1);
         jj_consume_token(ESP_SYMBOL_DOT);
@@ -265,8 +270,10 @@ public class LParser implements LParserConstants {
   final public void IdentifierEnumTypeDeclarationList(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("IdentifierEnumTypeDeclarationList");
     try {
+  Token t1 = null;
       try {
-        jj_consume_token(IDENTIFIER);
+        t1 = jj_consume_token(IDENTIFIER);
+        semanticActions.trigger4(t1);
         IdentifierEnumTypeDeclarationListL(g);
       } catch (ParseException e) {
         consumeUntil(g, e, "Identifier Enum Type Declaration List");
@@ -364,6 +371,7 @@ public class LParser implements LParserConstants {
     try {
       try {
         jj_consume_token(RESERVED_WORD_CONSTANT);
+        semanticActions.trigger5("as constant");
         Constants(g);
       } catch (ParseException e) {
         consumeUntil(g, e, "Constants Declaration");
@@ -376,15 +384,18 @@ public class LParser implements LParserConstants {
   final public void Constants(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("Constants");
     try {
+ Token t1, t2 =null;
   RecoverySet f1 = new RecoverySet(RESERVED_WORD_IS).union(g),
              f2 = new RecoverySet(ESP_SYMBOL_EQUAL).union(g),
              f3 = new RecoverySet(ESP_SYMBOL_DOT).union(g);
       try {
         IdentifierConstantsList(f1);
         jj_consume_token(RESERVED_WORD_IS);
-        Type(f2);
+        t2 = Type(f2);
+        semanticActions.trigger6(t2);
         jj_consume_token(ESP_SYMBOL_ASSIGNE);
-        Value(f3);
+        t1 = Value(f3);
+        semanticActions.trigger7(t1);
         jj_consume_token(ESP_SYMBOL_DOT);
         ConstantsL(g);
       } catch (ParseException e) {
@@ -441,6 +452,7 @@ public class LParser implements LParserConstants {
     try {
       try {
         jj_consume_token(RESERVED_WORD_VARIABLE);
+        semanticActions.trigger8("as variable");
         Variables(g);
       } catch (ParseException e) {
         consumeUntil(g, e, "Variables Declaration");
@@ -453,12 +465,14 @@ public class LParser implements LParserConstants {
   final public void Variables(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("Variables");
     try {
+ Token t1=null;
  RecoverySet f1 = new RecoverySet(RESERVED_WORD_IS).union(g),
              f2 = new RecoverySet(ESP_SYMBOL_DOT).union(g);
       try {
         VariablesIdentifiersList(f1);
         jj_consume_token(RESERVED_WORD_IS);
-        Type(f2);
+        t1 = Type(f2);
+        semanticActions.trigger6(t1);
         jj_consume_token(ESP_SYMBOL_DOT);
         VariablesL(g);
       } catch (ParseException e) {
@@ -513,8 +527,10 @@ public class LParser implements LParserConstants {
   final public void IdentifierConstantsList(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("IdentifierConstantsList");
     try {
+ Token t1=null;
       try {
-        jj_consume_token(IDENTIFIER);
+        t1 = jj_consume_token(IDENTIFIER);
+        semanticActions.trigger9(t1);
         IdentifierConstantsListL(g);
       } catch (ParseException e) {
         consumeUntil(g, e, "Identifier Constants List");
@@ -548,10 +564,14 @@ public class LParser implements LParserConstants {
   final public void VariablesIdentifiersList(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("VariablesIdentifiersList");
     try {
+ Token t1=null;
+ Token t2 = null;
  RecoverySet f1 = First.VariablesIdentifiersListL.union(g);
       try {
-        jj_consume_token(IDENTIFIER);
-        Index(f1);
+        t1 = jj_consume_token(IDENTIFIER);
+        semanticActions.trigger10(t1);
+        t2 = Index(f1);
+        semanticActions.trigger11(t1, t2);
         VariablesIdentifiersListL(g);
       } catch (ParseException e) {
         consumeUntil(g, e, "Variables Identifiers List");
@@ -582,83 +602,98 @@ public class LParser implements LParserConstants {
     }
   }
 
-  final public void Index(RecoverySet g) throws ParseException, ParseEOFException {
+  final public Token Index(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("Index");
     try {
+ Token t1=null;
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case ESP_SYMBOL_L_BRACE:
           jj_consume_token(ESP_SYMBOL_L_BRACE);
-          jj_consume_token(CONST_INT);
+          t1 = jj_consume_token(CONST_INT);
+          semanticActions.trigger12(t1);
           jj_consume_token(ESP_SYMBOL_R_BRACE);
           break;
         default:
           jj_la1[13] = jj_gen;
           ;
         }
+          {if (true) return t1;}
       } catch (ParseException e) {
         consumeUntil(g, e, "index");
       }
+    throw new Error("Missing return statement in function");
     } finally {
       trace_return("Index");
     }
   }
 
-  final public void Type(RecoverySet g) throws ParseException, ParseEOFException {
+  final public Token Type(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("Type");
     try {
+ Token t1 = null;
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case RESERVED_WORD_INTEGER:
-          jj_consume_token(RESERVED_WORD_INTEGER);
+          t1 = jj_consume_token(RESERVED_WORD_INTEGER);
+          semanticActions.trigger13();
           break;
         case RESERVED_WORD_REAL:
-          jj_consume_token(RESERVED_WORD_REAL);
+          t1 = jj_consume_token(RESERVED_WORD_REAL);
+          semanticActions.trigger14();
           break;
         case RESERVED_WORD_STRING:
-          jj_consume_token(RESERVED_WORD_STRING);
+          t1 = jj_consume_token(RESERVED_WORD_STRING);
+          semanticActions.trigger15();
           break;
         case RESERVED_WORD_LOGIC:
-          jj_consume_token(RESERVED_WORD_LOGIC);
+          t1 = jj_consume_token(RESERVED_WORD_LOGIC);
+          semanticActions.trigger16();
           break;
         case IDENTIFIER:
-          jj_consume_token(IDENTIFIER);
+          t1 = jj_consume_token(IDENTIFIER);
+          semanticActions.trigger17();
           break;
         default:
           jj_la1[14] = jj_gen;
           jj_consume_token(-1);
           throw new ParseException();
         }
+        return t1;
       } catch (ParseException e) {
         consumeUntil(g, e, "type");
       }
+    throw new Error("Missing return statement in function");
     } finally {
       trace_return("Type");
     }
   }
 
-  final public void Value(RecoverySet g) throws ParseException, ParseEOFException {
+  final public Token Value(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("Value");
     try {
+ Token t1 = null;
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case CONST_INT:
-          jj_consume_token(CONST_INT);
+          t1 = jj_consume_token(CONST_INT);
           break;
         case CONST_REAL:
-          jj_consume_token(CONST_REAL);
+          t1 = jj_consume_token(CONST_REAL);
           break;
         case CONST_LITERAL:
-          jj_consume_token(CONST_LITERAL);
+          t1 = jj_consume_token(CONST_LITERAL);
           break;
         default:
           jj_la1[15] = jj_gen;
           jj_consume_token(-1);
           throw new ParseException();
         }
+        return t1;
       } catch (ParseException e) {
         consumeUntil(g, e, "value");
       }
+    throw new Error("Missing return statement in function");
     } finally {
       trace_return("Value");
     }
@@ -762,9 +797,11 @@ public class LParser implements LParserConstants {
       try {
         jj_consume_token(RESERVED_WORD_DESIGNATE);
         jj_consume_token(RESERVED_WORD_THIS);
+        semanticActions.trigger18("atribuicao");
         VariablesIdentifiersList(f1);
         jj_consume_token(RESERVED_WORD_AS);
         Expression(f2);
+        semanticActions.trigger19();
         jj_consume_token(ESP_SYMBOL_DOT);
       } catch (ParseException e) {
         consumeUntil(g, e, "Command Assignment declaration");
@@ -782,6 +819,7 @@ public class LParser implements LParserConstants {
       try {
         jj_consume_token(RESERVED_WORD_READ);
         jj_consume_token(RESERVED_WORD_THIS);
+        semanticActions.trigger20("entrada dados");
         jj_consume_token(ESP_SYMBOL_L_BRACKET);
         VariablesIdentifiersList(f1);
         jj_consume_token(ESP_SYMBOL_R_BRACKET);
@@ -818,6 +856,7 @@ public class LParser implements LParserConstants {
         case RESERVED_WORD_ALL:
           jj_consume_token(RESERVED_WORD_ALL);
           jj_consume_token(RESERVED_WORD_THIS);
+          semanticActions.trigger21("write all this");
           jj_consume_token(ESP_SYMBOL_L_BRACKET);
           IndentifierAndOrContantList(f1);
           jj_consume_token(ESP_SYMBOL_R_BRACKET);
@@ -825,6 +864,7 @@ public class LParser implements LParserConstants {
           break;
         case RESERVED_WORD_THIS:
           jj_consume_token(RESERVED_WORD_THIS);
+          semanticActions.trigger22("write this");
           jj_consume_token(ESP_SYMBOL_L_BRACKET);
           IndentifierAndOrContantList(f1);
           jj_consume_token(ESP_SYMBOL_R_BRACKET);
@@ -846,9 +886,11 @@ public class LParser implements LParserConstants {
   final public void IndentifierAndOrContantList(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("IndentifierAndOrContantList");
     try {
+ Token t1= null;
  RecoverySet f1 = First.IndentifierAndOrContantListL.union(g);
       try {
-        Item(f1);
+        t1 = Item(f1);
+        semanticActions.trigger23(t1);
         IndentifierAndOrContantListL(g);
       } catch (ParseException e) {
         consumeUntil(g, e, "Indentifier And Or Contant List");
@@ -879,32 +921,40 @@ public class LParser implements LParserConstants {
     }
   }
 
-  final public void Item(RecoverySet g) throws ParseException, ParseEOFException {
+  final public Token Item(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("Item");
     try {
+ Token t1 = null;
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case IDENTIFIER:
-          jj_consume_token(IDENTIFIER);
+          t1 = jj_consume_token(IDENTIFIER);
+          semanticActions.trigger24(t1);
           Index(g);
+          semanticActions.trigger25(t1);
           break;
         case CONST_INT:
-          jj_consume_token(CONST_INT);
+          t1 = jj_consume_token(CONST_INT);
+          semanticActions.trigger26(t1);
           break;
         case CONST_REAL:
-          jj_consume_token(CONST_REAL);
+          t1 = jj_consume_token(CONST_REAL);
+          semanticActions.trigger27(t1);
           break;
         case CONST_LITERAL:
-          jj_consume_token(CONST_LITERAL);
+          t1 = jj_consume_token(CONST_LITERAL);
+          semanticActions.trigger28(t1);
           break;
         default:
           jj_la1[20] = jj_gen;
           jj_consume_token(-1);
           throw new ParseException();
         }
+        return t1;
       } catch (ParseException e) {
         consumeUntil(g, e, "item");
       }
+    throw new Error("Missing return statement in function");
     } finally {
       trace_return("Item");
     }
@@ -920,6 +970,7 @@ public class LParser implements LParserConstants {
         jj_consume_token(RESERVED_WORD_THIS);
         Expression(f1);
         CmdSelectionL(g);
+        semanticActions.trigger29();
       } catch (ParseException e) {
         consumeUntil(g, e, "Command Select Declaration");
       }
@@ -938,6 +989,7 @@ public class LParser implements LParserConstants {
         case RESERVED_WORD_TRUE:
           jj_consume_token(RESERVED_WORD_TRUE);
           jj_consume_token(RESERVED_WORD_RESULT);
+          semanticActions.trigger30();
           jj_consume_token(ESP_SYMBOL_L_BRACKET);
           CommandList(f1);
           jj_consume_token(ESP_SYMBOL_R_BRACKET);
@@ -947,6 +999,7 @@ public class LParser implements LParserConstants {
         case RESERVED_WORD_UNTRUE:
           jj_consume_token(RESERVED_WORD_UNTRUE);
           jj_consume_token(RESERVED_WORD_RESULT);
+          semanticActions.trigger31();
           jj_consume_token(ESP_SYMBOL_L_BRACKET);
           CommandList(f1);
           jj_consume_token(ESP_SYMBOL_R_BRACKET);
@@ -969,12 +1022,14 @@ public class LParser implements LParserConstants {
   final public void True(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("True");
     try {
+ Token t1=null;
     RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET).union(g);
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case RESERVED_WORD_TRUE:
-          jj_consume_token(RESERVED_WORD_TRUE);
+          t1 = jj_consume_token(RESERVED_WORD_TRUE);
           jj_consume_token(RESERVED_WORD_RESULT);
+          semanticActions.trigger32(t1);
           jj_consume_token(ESP_SYMBOL_L_BRACKET);
           CommandList(f1);
           jj_consume_token(ESP_SYMBOL_R_BRACKET);
@@ -994,12 +1049,14 @@ public class LParser implements LParserConstants {
   final public void False(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("False");
     try {
+ Token t1=null;
     RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET).union(g);
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case RESERVED_WORD_UNTRUE:
-          jj_consume_token(RESERVED_WORD_UNTRUE);
+          t1 = jj_consume_token(RESERVED_WORD_UNTRUE);
           jj_consume_token(RESERVED_WORD_RESULT);
+          semanticActions.trigger32(t1);
           jj_consume_token(ESP_SYMBOL_L_BRACKET);
           CommandList(f1);
           jj_consume_token(ESP_SYMBOL_R_BRACKET);
@@ -1024,10 +1081,13 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET).union(g),
       try {
         jj_consume_token(RESERVED_WORD_REPEAT);
         jj_consume_token(RESERVED_WORD_THIS);
+        semanticActions.trigger33();
         Expression(f1);
+        semanticActions.trigger34();
         jj_consume_token(ESP_SYMBOL_L_BRACKET);
         CommandList(f2);
         jj_consume_token(ESP_SYMBOL_R_BRACKET);
+        semanticActions.trigger35();
         jj_consume_token(ESP_SYMBOL_DOT);
       } catch (ParseException e) {
         consumeUntil(g, e, "Command Repetition Declaration");
@@ -1055,6 +1115,7 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET).union(g),
   final public void ExpressionL(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("ExpressionL");
     try {
+ Token t1,t2,t3,t4,t5,t6 = null;
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case ESP_SYMBOL_EQUAL:
@@ -1065,28 +1126,34 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET).union(g),
         case ESP_SYMBOL_LESSERREQUAL:
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case ESP_SYMBOL_EQUAL:
-            jj_consume_token(ESP_SYMBOL_EQUAL);
+            t1 = jj_consume_token(ESP_SYMBOL_EQUAL);
             ArithmeticOrLogicalExpression(g);
+            semanticActions.trigger36(t1);
             break;
           case ESP_SYMBOL_DIFFERENT:
-            jj_consume_token(ESP_SYMBOL_DIFFERENT);
+            t2 = jj_consume_token(ESP_SYMBOL_DIFFERENT);
             ArithmeticOrLogicalExpression(g);
+            semanticActions.trigger37(t2);
             break;
           case ESP_SYMBOL_GREATER:
-            jj_consume_token(ESP_SYMBOL_GREATER);
+            t3 = jj_consume_token(ESP_SYMBOL_GREATER);
             ArithmeticOrLogicalExpression(g);
+            semanticActions.trigger38(t3);
             break;
           case ESP_SYMBOL_LESSER:
-            jj_consume_token(ESP_SYMBOL_LESSER);
+            t4 = jj_consume_token(ESP_SYMBOL_LESSER);
             ArithmeticOrLogicalExpression(g);
+            semanticActions.trigger39(t4);
             break;
           case ESP_SYMBOL_LESSERREQUAL:
-            jj_consume_token(ESP_SYMBOL_LESSERREQUAL);
+            t5 = jj_consume_token(ESP_SYMBOL_LESSERREQUAL);
             ArithmeticOrLogicalExpression(g);
+            semanticActions.trigger40(t5);
             break;
           case ESP_SYMBOL_GREATEREQUAL:
-            jj_consume_token(ESP_SYMBOL_GREATEREQUAL);
+            t6 = jj_consume_token(ESP_SYMBOL_GREATEREQUAL);
             ArithmeticOrLogicalExpression(g);
+            semanticActions.trigger41(t6);
             break;
           default:
             jj_la1[24] = jj_gen;
@@ -1124,6 +1191,7 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET).union(g),
   final public void LowestPriority(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("LowestPriority");
     try {
+ Token t1, t2, t3 = null;
  RecoverySet f1 = First.LowestPriority.union(g);
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -1132,19 +1200,22 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET).union(g),
         case ESP_SYMBOL_OR:
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case ESP_SYMBOL_PLUS:
-            jj_consume_token(ESP_SYMBOL_PLUS);
+            t1 = jj_consume_token(ESP_SYMBOL_PLUS);
             SecondTerm(f1);
             LowestPriority(g);
+            semanticActions.trigger42(t1);
             break;
           case ESP_SYMBOL_MINUS:
-            jj_consume_token(ESP_SYMBOL_MINUS);
+            t2 = jj_consume_token(ESP_SYMBOL_MINUS);
             SecondTerm(f1);
             LowestPriority(g);
+            semanticActions.trigger43(t2);
             break;
           case ESP_SYMBOL_OR:
-            jj_consume_token(ESP_SYMBOL_OR);
+            t3 = jj_consume_token(ESP_SYMBOL_OR);
             SecondTerm(f1);
             LowestPriority(g);
+            semanticActions.trigger44(t3);
             break;
           default:
             jj_la1[26] = jj_gen;
@@ -1182,6 +1253,7 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET).union(g),
   final public void MediumPriority(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("MediumPriority");
     try {
+ Token t1, t2, t3, t4, t5=null;
  RecoverySet f1 = First.MediumPriority.union(g);
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -1192,29 +1264,34 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET).union(g),
         case ESP_SYMBOL_AND:
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case ESP_SYMBOL_STAR:
-            jj_consume_token(ESP_SYMBOL_STAR);
+            t1 = jj_consume_token(ESP_SYMBOL_STAR);
             FirstTerm(f1);
             MediumPriority(g);
+            semanticActions.trigger45(t1);
             break;
           case ESP_SYMBOL_DIVISION_REAL:
-            jj_consume_token(ESP_SYMBOL_DIVISION_REAL);
+            t2 = jj_consume_token(ESP_SYMBOL_DIVISION_REAL);
             FirstTerm(f1);
             MediumPriority(g);
+            semanticActions.trigger46(t2);
             break;
           case ESP_SYMBOL_DIVISION_INT:
-            jj_consume_token(ESP_SYMBOL_DIVISION_INT);
+            t3 = jj_consume_token(ESP_SYMBOL_DIVISION_INT);
             FirstTerm(f1);
             MediumPriority(g);
+            semanticActions.trigger47(t3);
             break;
           case ESP_SYMBOL_MOD:
-            jj_consume_token(ESP_SYMBOL_MOD);
+            t4 = jj_consume_token(ESP_SYMBOL_MOD);
             FirstTerm(f1);
             MediumPriority(g);
+            semanticActions.trigger48(t4);
             break;
           case ESP_SYMBOL_AND:
-            jj_consume_token(ESP_SYMBOL_AND);
+            t5 = jj_consume_token(ESP_SYMBOL_AND);
             FirstTerm(f1);
             MediumPriority(g);
+            semanticActions.trigger49(t5);
             break;
           default:
             jj_la1[28] = jj_gen;
@@ -1252,13 +1329,15 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET).union(g),
   final public void HighestPriority(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("HighestPriority");
     try {
+ Token t1= null;
  RecoverySet f1 = First.HighestPriority.union(g);
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case ESP_SYMBOL_POWER:
-          jj_consume_token(ESP_SYMBOL_POWER);
+          t1 = jj_consume_token(ESP_SYMBOL_POWER);
           Element(f1);
           HighestPriority(g);
+          semanticActions.trigger50(t1);
           break;
         default:
           jj_la1[30] = jj_gen;
@@ -1275,27 +1354,35 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET).union(g),
   final public void Element(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("Element");
     try {
+ Token t1, t2, t3, t4 = null;
  RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_PARENTHESIS).union(g);
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case IDENTIFIER:
-          jj_consume_token(IDENTIFIER);
+          t1 = jj_consume_token(IDENTIFIER);
+          semanticActions.trigger24(t1);
           Index(g);
+          semanticActions.trigger51(t1);
           break;
         case CONST_INT:
-          jj_consume_token(CONST_INT);
+          t2 = jj_consume_token(CONST_INT);
+          semanticActions.trigger26(t2);
           break;
         case CONST_REAL:
-          jj_consume_token(CONST_REAL);
+          t3 = jj_consume_token(CONST_REAL);
+          semanticActions.trigger27(t3);
           break;
         case CONST_LITERAL:
-          jj_consume_token(CONST_LITERAL);
+          t4 = jj_consume_token(CONST_LITERAL);
+          semanticActions.trigger28(t4);
           break;
         case RESERVED_WORD_TRUE:
           jj_consume_token(RESERVED_WORD_TRUE);
+          semanticActions.trigger52();
           break;
         case RESERVED_WORD_UNTRUE:
           jj_consume_token(RESERVED_WORD_UNTRUE);
+          semanticActions.trigger53();
           break;
         case ESP_SYMBOL_L_PARENTHESIS:
           jj_consume_token(ESP_SYMBOL_L_PARENTHESIS);
@@ -1307,6 +1394,7 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET).union(g),
           jj_consume_token(ESP_SYMBOL_L_PARENTHESIS);
           Expression(f1);
           jj_consume_token(ESP_SYMBOL_R_PARENTHESIS);
+          semanticActions.trigger54();
           break;
         default:
           jj_la1[31] = jj_gen;
