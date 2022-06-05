@@ -119,10 +119,10 @@ public class Compile {
     }
 
     public void printNotRecognized(RecoverySet g, ParseException e, String met) {
+        String type = msgErrorSintatic(e);
         gui.getTf().append("----------------------------------------ERRO SINTÁTICO----------------------------------\n\n" +
-                "Erro sintático encontrado em " + met + "\n" +
-                "Encontrado \"" + e.currentToken.next + "\" que é um token do tipo " + e.tokenImage[e.currentToken.next.kind] +
-                " mas era esperado um token do tipo \"" + e.tokenImage[e.expectedTokenSequences[0][0]] + "\"\n"+
+                "Erro sintático encontrado " + met + "\n" +
+                "Encontrado \"" + e.currentToken.next + "\", mas era esperado " + type + "\n" +
                 "Linha: " + e.currentToken.next.beginLine + "\n" +
                 "Coluna: " + e.currentToken.next.beginColumn + "\n\n");
     }
@@ -142,5 +142,40 @@ public class Compile {
             gui.getTf().append("---------------------------------------------------------------------------------------------------\n\n");
             //mostra o código objeto
         }
+    }
+
+    public String msgErrorSintatic(ParseException e){
+        String expected = e.tokenImage[e.expectedTokenSequences[0][0]];
+        String type = "";
+        //expected += getExpectedType(tokenImage[tok.kind]);
+        if(expected.startsWith("<RESERVED_WORD")){
+            type = "uma palavra reservada";
+        } else {
+            switch (expected) {
+                case "<SYMBOL>":
+                    type = "um símbolo";
+                    break;
+                case "<IDENTIFIER>":
+                    type = "um identificador";
+                    break;
+                case "<INTEGER>":
+                    type = "uma constante inteira";
+                    break;
+                case "<REAL>":
+                    type = "uma constante real";
+                    break;
+                case "<LITERAL>":
+                    type = "uma constante literal";
+                    break;
+                case "<EOF>":
+                    type = "o final do programa";
+                    break;
+                default:
+                    System.out.println("Token esperado" + expected);
+                    type = expected;
+                    break;
+            }
+        }
+        return type;
     }
 }
