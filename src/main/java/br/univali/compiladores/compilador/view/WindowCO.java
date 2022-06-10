@@ -1,6 +1,7 @@
 package br.univali.compiladores.compilador.view;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
@@ -12,21 +13,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.util.ArrayList;
 
 public class WindowCO extends JFrame {
 
     private JPanel jpanel;
-    JTable table;
-    JScrollPane scrollPane;
-
-    Object [][] dados = {
-            {" ", " ", " "},
-            {" ", " ", " "},
-            {" ", " ", " "}
-    };
-
-    String [] colunas = {"N° Instrução", "Código", "Parâmetro"};
-
+    private JTextArea tf, cn;
 
     public WindowCO() {
         super("Código Objeto");
@@ -35,7 +27,6 @@ public class WindowCO extends JFrame {
 
     private void initComponents() {
         setWindow();
-        createEditionArea();
     }
 
     private void setWindow() {
@@ -45,14 +36,22 @@ public class WindowCO extends JFrame {
         setPreferredSize(size);
         setSize(size);
         jpanel = new JPanel();
-        jpanel.setLayout(new GridLayout(1, 1));
+        jpanel.setLayout(new GridLayout(5,3,5,5));
+        for (int i = 1; i <= 15; i++) {
+            jpanel.add(createMessagesArea());
+        }
         getContentPane().add(jpanel);
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
     }
 
-    private void createEditionArea(){
-        table = new JTable(dados, colunas);
-        scrollPane = new JScrollPane(table);
-        jpanel.add(scrollPane);
+    private JTextArea createMessagesArea(){
+        //Área de texto 2
+        tf = new JTextArea();
+        tf.setLineWrap(true);
+        tf.setEditable(false);
+        tf.setForeground(Color.BLACK);
+        Border border = BorderFactory.createTitledBorder("Teste");
+        tf.setBorder(border);
+        return tf;
     }
 }
