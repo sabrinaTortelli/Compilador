@@ -107,6 +107,7 @@ public class Compile {
                 gui.getTf().append("----------------------------------FIM ANÁLISE SINTÁTICA-------------------------------\n");
                 gui.getTf().append("---------------------------------------------------------------------------------------------------\n\n");
                 //runSemanticVerification();
+                System.out.println(parser.getSemanticActions().getInstructionList());
                 new WindowCOController();
                 //mostrar erros semânticos
             }
@@ -145,27 +146,29 @@ public class Compile {
     }
 
     public String msgErrorSintatic(ParseException e){
+//        for (int i = 0; i < e.tokenImage[e.expectedTokenSequences.length]; i++) {
+//            for (int j = 0; j < e.tokenImage[e.expectedTokenSequences[i]].length(); j++) {
+//                expected.append(tokenImage[expectedTokenSequences[i][j]]).append(' ');
+//            }
+//        }
         String expected = e.tokenImage[e.expectedTokenSequences[0][0]];
         String type = "";
         //expected += getExpectedType(tokenImage[tok.kind]);
         if(expected.startsWith("<RESERVED_WORD")){
-            type = "uma palavra reservada";
+            type = "a palavra reservada " + expected.substring(15,expected.length()-1);
         } else {
             switch (expected) {
-                case "<SYMBOL>":
-                    type = "um símbolo";
+                case "<CONST_INT>":
+                    type = "um valor inteiro";
+                    break;
+                case "<CONST_REAL>":
+                    type = "um valor real";
+                    break;
+                case "<CONST_LITERAL>":
+                    type = "uma letra, palavra ou frase";
                     break;
                 case "<IDENTIFIER>":
                     type = "um identificador";
-                    break;
-                case "<INTEGER>":
-                    type = "uma constante inteira";
-                    break;
-                case "<REAL>":
-                    type = "uma constante real";
-                    break;
-                case "<LITERAL>":
-                    type = "uma constante literal";
                     break;
                 case "<EOF>":
                     type = "o final do programa";
