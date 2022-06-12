@@ -80,6 +80,10 @@ public class LParser implements LParserConstants {
         return synErrorCount;
     }
 
+    public SemanticActions getSemanticActions() {
+        return semanticActions;
+    }
+
     public void setLexicalAnalysis(WindowER gui){
         compile = new Compile(gui);
         semanticActions = new SemanticActions();
@@ -101,36 +105,56 @@ public class LParser implements LParserConstants {
       try {
         Program(g);
         jj_consume_token(0);
-        semanticActions.trigger2();
+                          semanticActions.trigger2();
       } catch (ParseException e) {
-        consumeUntil(g, e, "na declaração do programa");
+        consumeUntil(g, e, "na declaracao do programa");
       }
     } finally {
       trace_return("readProgram");
     }
   }
 
-  final public void Program(RecoverySet g) throws ParseException, ParseEOFException {
+  final public void Program(RecoverySet parentRecoverySet) throws ParseException, ParseEOFException {
     trace_call("Program");
     try {
+RecoverySet firstOfDeclaration = new RecoverySet(RESERVED_WORD_DECLARATION);
+            RecoverySet firstOfBodyProgram = new RecoverySet(RESERVED_WORD_BODY);
+            RecoverySet firstOfComment = new RecoverySet(RESERVED_WORD_DESCRIPTION);
+
+            RecoverySet programNameRecoverySet = new RecoverySet().union(firstOfDeclaration).union(firstOfBodyProgram).
+                                                    union(firstOfComment).union(parentRecoverySet);
+            RecoverySet declarationRecoverySet = new RecoverySet().union(firstOfBodyProgram).union(firstOfComment).
+                                                    union(parentRecoverySet);
+            RecoverySet programBodyRecoverySet = new RecoverySet().union(firstOfComment).union(parentRecoverySet);
+      try {
+        ProgramName(programNameRecoverySet);
+        Declaration(declarationRecoverySet);
+        ProgramBody(programBodyRecoverySet);
+        Comment(parentRecoverySet);
+      } catch (ParseException e) {
+        consumeUntil(parentRecoverySet, e, "na declaracao do programa");
+      }
+    } finally {
+      trace_return("Program");
+    }
+  }
+
+  final public void ProgramName(RecoverySet g) throws ParseException, ParseEOFException {
+    trace_call("ProgramName");
+    try {
     Token t1 = null;
-    RecoverySet f1 = First.Comment.union(g),
-            f2 = First.ProgramBody.union(f1);
       try {
         jj_consume_token(RESERVED_WORD_DO);
         jj_consume_token(RESERVED_WORD_THIS);
         t1 = jj_consume_token(IDENTIFIER);
-        semanticActions.trigger1(t1);
+                                                                  semanticActions.trigger1(t1);
         jj_consume_token(ESP_SYMBOL_L_BRACKET);
         jj_consume_token(ESP_SYMBOL_R_BRACKET);
-        Declaration(f2);
-        ProgramBody(f1);
-        Comment(g);
       } catch (ParseException e) {
-        consumeUntil(g, e, "na declaração do programa");
+        consumeUntil(g, e, "na declaracao do nome do programa");
       }
     } finally {
-      trace_return("Program");
+      trace_return("ProgramName");
     }
   }
 
@@ -148,7 +172,7 @@ public class LParser implements LParserConstants {
           ;
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "na declaração do comentário");
+        consumeUntil(g, e, "na declaracao do comentario");
       }
     } finally {
       trace_return("Comment");
@@ -158,18 +182,19 @@ public class LParser implements LParserConstants {
   final public void Declaration(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("Declaration");
     try {
+ RecoverySet f1 = First.DeclarationL.union(g);
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case RESERVED_WORD_DECLARATION:
           jj_consume_token(RESERVED_WORD_DECLARATION);
-          DeclarationL(g);
+          DeclarationL(f1);
           break;
         default:
           jj_la1[1] = jj_gen;
           ;
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "na declaração de constantes, variáveis e tipos enumerados");
+        consumeUntil(g, e, "na declaracao de constantes, variaveis e tipos enumerados");
       }
     } finally {
       trace_return("Declaration");
@@ -198,7 +223,7 @@ public class LParser implements LParserConstants {
           throw new ParseException();
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "na declaração de constantes, variáveis e tipos enumerados");
+        consumeUntil(g, e, "na declaracao de constantes, variaveis e tipos enumerados");
       }
     } finally {
       trace_return("DeclarationL");
@@ -208,18 +233,19 @@ public class LParser implements LParserConstants {
   final public void DeclarationLL(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("DeclarationLL");
     try {
+ RecoverySet f1 = First.DeclarationConstantsAndVariables.union(g);
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case RESERVED_WORD_DECLARATION:
           jj_consume_token(RESERVED_WORD_DECLARATION);
-          DeclarationConstantsAndVariables(g);
+          DeclarationConstantsAndVariables(f1);
           break;
         default:
           jj_la1[3] = jj_gen;
           ;
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "na declaração de constantes, variáveis e tipos enumerados");
+        consumeUntil(g, e, "na declaracao de constantes, variaveis e tipos enumerados");
       }
     } finally {
       trace_return("DeclarationLL");
@@ -231,16 +257,16 @@ public class LParser implements LParserConstants {
     trace_call("DeclarationEnumeratedType");
     try {
  Token t1 = null;
- RecoverySet f1 = new RecoverySet(ESP_SYMBOL_DOT).union(g);
+ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_DOT);
       try {
         t1 = jj_consume_token(IDENTIFIER);
-        semanticActions.trigger3(t1);
+                           semanticActions.trigger3(t1);
         jj_consume_token(RESERVED_WORD_IS);
         IdentifierEnumTypeDeclarationList(f1);
         jj_consume_token(ESP_SYMBOL_DOT);
         DeclarationEnumeratedTypeL(g);
       } catch (ParseException e) {
-        consumeUntil(g, e,  "na declaração de tipos enumerados");
+        consumeUntil(g, e,  "na declaracao de tipos enumerados");
       }
     } finally {
       trace_return("DeclarationEnumeratedType");
@@ -250,17 +276,18 @@ public class LParser implements LParserConstants {
   final public void DeclarationEnumeratedTypeL(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("DeclarationEnumeratedTypeL");
     try {
+ RecoverySet f1 = First.DeclarationEnumeratedType.union(g);
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case IDENTIFIER:
-          DeclarationEnumeratedType(g);
+          DeclarationEnumeratedType(f1);
           break;
         default:
           jj_la1[4] = jj_gen;
           ;
         }
       } catch (ParseException e) {
-        consumeUntil(g, e,  "na declaração de tipos enumerados");
+        consumeUntil(g, e,  "na declaracao de tipos enumerados");
       }
     } finally {
       trace_return("DeclarationEnumeratedTypeL");
@@ -273,10 +300,10 @@ public class LParser implements LParserConstants {
   Token t1 = null;
       try {
         t1 = jj_consume_token(IDENTIFIER);
-        semanticActions.trigger4(t1);
+                          semanticActions.trigger4(t1);
         IdentifierEnumTypeDeclarationListL(g);
       } catch (ParseException e) {
-        consumeUntil(g, e,"na declaração de tipos enumerados");
+        consumeUntil(g, e,  "na declaraco de tipos enumerados");
       }
     } finally {
       trace_return("IdentifierEnumTypeDeclarationList");
@@ -286,18 +313,19 @@ public class LParser implements LParserConstants {
   final public void IdentifierEnumTypeDeclarationListL(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("IdentifierEnumTypeDeclarationListL");
     try {
+ RecoverySet f1 = First.IdentifierEnumTypeDeclarationList.union(g);
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case ESP_SYMBOL_COMA:
           jj_consume_token(ESP_SYMBOL_COMA);
-          IdentifierEnumTypeDeclarationList(g);
+          IdentifierEnumTypeDeclarationList(f1);
           break;
         default:
           jj_la1[5] = jj_gen;
           ;
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "na declaração de tipos enumerados");
+        consumeUntil(g, e,  "na declaracao de tipos enumerados");
       }
     } finally {
       trace_return("IdentifierEnumTypeDeclarationListL");
@@ -316,7 +344,7 @@ public class LParser implements LParserConstants {
         ConstantsAndVariables(f1);
         jj_consume_token(ESP_SYMBOL_R_BRACKET);
       } catch (ParseException e) {
-        consumeUntil(g, e, "na declaração de constantes e variáveis");
+        consumeUntil(g, e, "na declaracao de constantes e variaveis");
       }
     } finally {
       trace_return("DeclarationConstantsAndVariables");
@@ -330,7 +358,7 @@ public class LParser implements LParserConstants {
         jj_consume_token(RESERVED_WORD_AS);
         ConstantAndVariablesL(g);
       } catch (ParseException e) {
-        consumeUntil(g, e, "na declaração de constantes e variáveis");
+        consumeUntil(g, e, "na declaracao de constantes e variaveis");
       }
     } finally {
       trace_return("ConstantsAndVariables");
@@ -358,7 +386,7 @@ public class LParser implements LParserConstants {
           throw new ParseException();
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "na declaração de constantes e variáveis");
+        consumeUntil(g, e, "na declaracao de constantes e variaveis");
       }
     } finally {
       trace_return("ConstantAndVariablesL");
@@ -371,10 +399,10 @@ public class LParser implements LParserConstants {
     try {
       try {
         jj_consume_token(RESERVED_WORD_CONSTANT);
-        semanticActions.trigger5("as constant");
+                                   semanticActions.trigger5("as constant");
         Constants(g);
       } catch (ParseException e) {
-        consumeUntil(g, e,"na declaração de constantes");
+        consumeUntil(g, e, "na declaracao de constantes e variaveis");
       }
     } finally {
       trace_return("ConstantsDeclaration");
@@ -385,21 +413,21 @@ public class LParser implements LParserConstants {
     trace_call("Constants");
     try {
  Token t1, t2 =null;
-  RecoverySet f1 = new RecoverySet(RESERVED_WORD_IS).union(g),
-             f2 = new RecoverySet(ESP_SYMBOL_EQUAL).union(g),
-             f3 = new RecoverySet(ESP_SYMBOL_DOT).union(g);
+  RecoverySet f1 = new RecoverySet(RESERVED_WORD_IS),
+             f2 = new RecoverySet(ESP_SYMBOL_ASSIGNE),
+             f3 = new RecoverySet(ESP_SYMBOL_DOT);
       try {
         IdentifierConstantsList(f1);
         jj_consume_token(RESERVED_WORD_IS);
-        t2 = Type(f2);
-        semanticActions.trigger6(t2);
+        Type(f2);
+                                                                  semanticActions.trigger6();
         jj_consume_token(ESP_SYMBOL_ASSIGNE);
-        t1 = Value(f3);
-        semanticActions.trigger7(t1);
+        Value(f3);
+                                          semanticActions.trigger7();
         jj_consume_token(ESP_SYMBOL_DOT);
         ConstantsL(g);
       } catch (ParseException e) {
-        consumeUntil(g, e, "na declaração de constantes");
+        consumeUntil(g, e, "na declaracao de constantes");
       }
     } finally {
       trace_return("Constants");
@@ -409,17 +437,18 @@ public class LParser implements LParserConstants {
   final public void ConstantsL(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("ConstantsL");
     try {
+ RecoverySet f1 = First.Constants.union(g);
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case IDENTIFIER:
-          Constants(g);
+          Constants(f1);
           break;
         default:
           jj_la1[7] = jj_gen;
           ;
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "na declaração de constantes");
+        consumeUntil(g, e, "na declaracao de constantes");
       }
     } finally {
       trace_return("ConstantsL");
@@ -429,18 +458,19 @@ public class LParser implements LParserConstants {
   final public void ConstantsLL(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("ConstantsLL");
     try {
+ RecoverySet f1 = First.ConstantsDeclaration.union(g);
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case RESERVED_WORD_AS:
           jj_consume_token(RESERVED_WORD_AS);
-          ConstantsDeclaration(g);
+          ConstantsDeclaration(f1);
           break;
         default:
           jj_la1[8] = jj_gen;
           ;
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "na declaração de constantes");
+        consumeUntil(g, e, "na declaracao de constantes");
       }
     } finally {
       trace_return("ConstantsLL");
@@ -452,10 +482,10 @@ public class LParser implements LParserConstants {
     try {
       try {
         jj_consume_token(RESERVED_WORD_VARIABLE);
-        semanticActions.trigger8("as variable");
+                                   semanticActions.trigger8("as variable");
         Variables(g);
       } catch (ParseException e) {
-        consumeUntil(g, e, "na declaração de variáveis");
+        consumeUntil(g, e, "na declaracao de variaveis");
       }
     } finally {
       trace_return("VariablesDeclaration");
@@ -466,17 +496,17 @@ public class LParser implements LParserConstants {
     trace_call("Variables");
     try {
  Token t1=null;
- RecoverySet f1 = new RecoverySet(RESERVED_WORD_IS).union(g),
-             f2 = new RecoverySet(ESP_SYMBOL_DOT).union(g);
+ RecoverySet f1 = new RecoverySet(RESERVED_WORD_IS),
+             f2 = new RecoverySet(ESP_SYMBOL_DOT);
       try {
         VariablesIdentifiersList(f1);
         jj_consume_token(RESERVED_WORD_IS);
-        t1 = Type(f2);
-        semanticActions.trigger6(t1);
+        Type(f2);
+                                                                   semanticActions.trigger6();
         jj_consume_token(ESP_SYMBOL_DOT);
         VariablesL(g);
       } catch (ParseException e) {
-        consumeUntil(g, e, "na declaração de variáveis");
+        consumeUntil(g, e, "na declaracao de variaveis");
       }
     } finally {
       trace_return("Variables");
@@ -486,17 +516,18 @@ public class LParser implements LParserConstants {
   final public void VariablesL(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("VariablesL");
     try {
+ RecoverySet f1 = First.Variables.union(g);
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case IDENTIFIER:
-          Variables(g);
+          Variables(f1);
           break;
         default:
           jj_la1[9] = jj_gen;
           ;
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "na declaração de variáveis");
+        consumeUntil(g, e, "na declaracao de variaveis");
       }
     } finally {
       trace_return("VariablesL");
@@ -506,18 +537,19 @@ public class LParser implements LParserConstants {
   final public void VariablesLL(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("VariablesLL");
     try {
+ RecoverySet f1 = First.VariablesDeclaration.union(g);
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case RESERVED_WORD_AS:
           jj_consume_token(RESERVED_WORD_AS);
-          VariablesDeclaration(g);
+          VariablesDeclaration(f1);
           break;
         default:
           jj_la1[10] = jj_gen;
           ;
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "na declaração de variáveis");
+        consumeUntil(g, e, "na declaracao de variaveis");
       }
     } finally {
       trace_return("VariablesLL");
@@ -530,10 +562,10 @@ public class LParser implements LParserConstants {
  Token t1=null;
       try {
         t1 = jj_consume_token(IDENTIFIER);
-        semanticActions.trigger9(t1);
+                          semanticActions.trigger9(t1);
         IdentifierConstantsListL(g);
       } catch (ParseException e) {
-        consumeUntil(g, e,  "na declaração de identificadores de constantes");
+        consumeUntil(g, e, "na declaracao de identificadores de constantes");
       }
     } finally {
       trace_return("IdentifierConstantsList");
@@ -543,18 +575,19 @@ public class LParser implements LParserConstants {
   final public void IdentifierConstantsListL(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("IdentifierConstantsListL");
     try {
+ RecoverySet f1 = First.IdentifierConstantsList.union(g);
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case ESP_SYMBOL_COMA:
           jj_consume_token(ESP_SYMBOL_COMA);
-          IdentifierConstantsList(g);
+          IdentifierConstantsList(f1);
           break;
         default:
           jj_la1[11] = jj_gen;
           ;
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "na declaração de identificadores de constantes");
+        consumeUntil(g, e, "na declaracao de identificadores de constantes");
       }
     } finally {
       trace_return("IdentifierConstantsListL");
@@ -569,12 +602,12 @@ public class LParser implements LParserConstants {
  RecoverySet f1 = First.VariablesIdentifiersListL.union(g);
       try {
         t1 = jj_consume_token(IDENTIFIER);
-        semanticActions.trigger10(t1);
-        t2 = Index(f1);
-        semanticActions.trigger11(t1, t2);
+                          semanticActions.trigger10(t1);
+        Index(f1);
+                                                                       semanticActions.trigger11();
         VariablesIdentifiersListL(g);
       } catch (ParseException e) {
-        consumeUntil(g, e, "na declaração de identificadores de variáveis");
+        consumeUntil(g, e, "na declara\u00c3\u00a7\u00c3\u00a3o de identificadores de vari\u00c3\u00a1veis");
       }
     } finally {
       trace_return("VariablesIdentifiersList");
@@ -584,25 +617,26 @@ public class LParser implements LParserConstants {
   final public void VariablesIdentifiersListL(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("VariablesIdentifiersListL");
     try {
+ RecoverySet f1 = First.VariablesIdentifiersList.union(g);
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case ESP_SYMBOL_COMA:
           jj_consume_token(ESP_SYMBOL_COMA);
-          VariablesIdentifiersList(g);
+          VariablesIdentifiersList(f1);
           break;
         default:
           jj_la1[12] = jj_gen;
           ;
         }
       } catch (ParseException e) {
-        consumeUntil(g, e,"na declaração de identificadores de variáveis");
+        consumeUntil(g, e, "na declaracao de identificadores de variaveis");
       }
     } finally {
       trace_return("VariablesIdentifiersListL");
     }
   }
 
-  final public Token Index(RecoverySet g) throws ParseException, ParseEOFException {
+  final public void Index(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("Index");
     try {
  Token t1=null;
@@ -611,65 +645,61 @@ public class LParser implements LParserConstants {
         case ESP_SYMBOL_L_BRACE:
           jj_consume_token(ESP_SYMBOL_L_BRACE);
           t1 = jj_consume_token(CONST_INT);
-          semanticActions.trigger12(t1);
+                                               semanticActions.trigger12(t1);
           jj_consume_token(ESP_SYMBOL_R_BRACE);
           break;
         default:
           jj_la1[13] = jj_gen;
           ;
         }
-          {if (true) return t1;}
       } catch (ParseException e) {
-        consumeUntil(g, e,  "na declaração do índice");
+        consumeUntil(g, e, "na declaracao do indice");
       }
-    throw new Error("Missing return statement in function");
     } finally {
       trace_return("Index");
     }
   }
 
-  final public Token Type(RecoverySet g) throws ParseException, ParseEOFException {
+  final public void Type(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("Type");
     try {
  Token t1 = null;
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case RESERVED_WORD_INTEGER:
-          t1 = jj_consume_token(RESERVED_WORD_INTEGER);
-          semanticActions.trigger13();
+          jj_consume_token(RESERVED_WORD_INTEGER);
+                                   semanticActions.trigger13();
           break;
         case RESERVED_WORD_REAL:
-          t1 = jj_consume_token(RESERVED_WORD_REAL);
-          semanticActions.trigger14();
+          jj_consume_token(RESERVED_WORD_REAL);
+                               semanticActions.trigger14();
           break;
         case RESERVED_WORD_STRING:
-          t1 = jj_consume_token(RESERVED_WORD_STRING);
-          semanticActions.trigger15();
+          jj_consume_token(RESERVED_WORD_STRING);
+                                 semanticActions.trigger15();
           break;
         case RESERVED_WORD_LOGIC:
           t1 = jj_consume_token(RESERVED_WORD_LOGIC);
-          semanticActions.trigger16();
+                                   semanticActions.trigger16(t1);
           break;
         case IDENTIFIER:
           t1 = jj_consume_token(IDENTIFIER);
-          semanticActions.trigger17();
+                          semanticActions.trigger17(t1);
           break;
         default:
           jj_la1[14] = jj_gen;
           jj_consume_token(-1);
           throw new ParseException();
         }
-        return t1;
       } catch (ParseException e) {
-        consumeUntil(g, e, "na declaração do tipo");
+        consumeUntil(g, e, "na declaracao do tipo");
       }
-    throw new Error("Missing return statement in function");
     } finally {
       trace_return("Type");
     }
   }
 
-  final public Token Value(RecoverySet g) throws ParseException, ParseEOFException {
+  final public void Value(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("Value");
     try {
  Token t1 = null;
@@ -677,23 +707,24 @@ public class LParser implements LParserConstants {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case CONST_INT:
           t1 = jj_consume_token(CONST_INT);
+                          semanticActions.trigger55(t1);
           break;
         case CONST_REAL:
           t1 = jj_consume_token(CONST_REAL);
+                                                                               semanticActions.trigger56(t1);
           break;
         case CONST_LITERAL:
           t1 = jj_consume_token(CONST_LITERAL);
+                               semanticActions.trigger57(t1);
           break;
         default:
           jj_la1[15] = jj_gen;
           jj_consume_token(-1);
           throw new ParseException();
         }
-        return t1;
       } catch (ParseException e) {
-        consumeUntil(g, e, "na declaração do valor");
+        consumeUntil(g, e,  "na declaracao do valor");
       }
-    throw new Error("Missing return statement in function");
     } finally {
       trace_return("Value");
     }
@@ -702,14 +733,19 @@ public class LParser implements LParserConstants {
   final public void ProgramBody(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("ProgramBody");
     try {
- RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET).union(g);
+  RecoverySet f6 = new RecoverySet(RESERVED_WORD_DESIGNATE),
+              f5 = new RecoverySet(RESERVED_WORD_READ).union(f6),
+              f4 = new RecoverySet(RESERVED_WORD_WRITE).union(f5),
+              f3 = new RecoverySet(RESERVED_WORD_AVALIATE).union(f4),
+              f2 = new RecoverySet(RESERVED_WORD_REPEAT).union(f3),
+              f1 = new RecoverySet().union(f2).union(g);
       try {
         jj_consume_token(RESERVED_WORD_BODY);
         jj_consume_token(ESP_SYMBOL_L_BRACKET);
         CommandList(f1);
         jj_consume_token(ESP_SYMBOL_R_BRACKET);
       } catch (ParseException e) {
-        consumeUntil(g, e, "na declaração do corpo do programa");
+        consumeUntil(g, e,  "na declaracao do corpo do programa");
       }
     } finally {
       trace_return("ProgramBody");
@@ -724,7 +760,7 @@ public class LParser implements LParserConstants {
         Command(f1);
         CommandListL(g);
       } catch (ParseException e) {
-        consumeUntil(g, e,"na declaração da lista de comandos");
+        consumeUntil(g, e, "na declaracao da lista de comandos");
       }
     } finally {
       trace_return("CommandList");
@@ -734,6 +770,7 @@ public class LParser implements LParserConstants {
   final public void CommandListL(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("CommandListL");
     try {
+ RecoverySet f1 = First.CommandList.union(g);
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case RESERVED_WORD_DESIGNATE:
@@ -741,14 +778,14 @@ public class LParser implements LParserConstants {
         case RESERVED_WORD_WRITE:
         case RESERVED_WORD_REPEAT:
         case RESERVED_WORD_AVALIATE:
-          CommandList(g);
+          CommandList(f1);
           break;
         default:
           jj_la1[16] = jj_gen;
           ;
         }
       } catch (ParseException e) {
-        consumeUntil(g, e,"na declaração da lista de comandos");
+        consumeUntil(g, e, "na declaracao da lista de comandos");
       }
     } finally {
       trace_return("CommandListL");
@@ -781,7 +818,7 @@ public class LParser implements LParserConstants {
           throw new ParseException();
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "na declaração do comando");
+        consumeUntil(g, e, "na declaracao do comando");
       }
     } finally {
       trace_return("Command");
@@ -792,19 +829,19 @@ public class LParser implements LParserConstants {
   final public void CmdAssignment(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("CmdAssignment");
     try {
- RecoverySet f1 = new RecoverySet(RESERVED_WORD_AS).union(g),
-             f2 = new RecoverySet(ESP_SYMBOL_DOT).union(g);
+ RecoverySet f1 = new RecoverySet(RESERVED_WORD_AS),
+             f2 = new RecoverySet(ESP_SYMBOL_DOT);
       try {
         jj_consume_token(RESERVED_WORD_DESIGNATE);
         jj_consume_token(RESERVED_WORD_THIS);
-        semanticActions.trigger18("atribuicao");
+                                                         semanticActions.trigger18("atribuicao");
         VariablesIdentifiersList(f1);
         jj_consume_token(RESERVED_WORD_AS);
         Expression(f2);
-        semanticActions.trigger19();
+                                                                         semanticActions.trigger19();
         jj_consume_token(ESP_SYMBOL_DOT);
       } catch (ParseException e) {
-        consumeUntil(g, e, "na declaração do comando de atribuição");
+        consumeUntil(g, e, "na declaracao do comando de atribuicao");
       }
     } finally {
       trace_return("CmdAssignment");
@@ -815,17 +852,17 @@ public class LParser implements LParserConstants {
   final public void CmdDataInput(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("CmdDataInput");
     try {
- RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET).union(g);
+ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
       try {
         jj_consume_token(RESERVED_WORD_READ);
         jj_consume_token(RESERVED_WORD_THIS);
-        semanticActions.trigger20("entrada dados");
+                                                    semanticActions.trigger20("entrada dados");
         jj_consume_token(ESP_SYMBOL_L_BRACKET);
         VariablesIdentifiersList(f1);
         jj_consume_token(ESP_SYMBOL_R_BRACKET);
         jj_consume_token(ESP_SYMBOL_DOT);
       } catch (ParseException e) {
-        consumeUntil(g, e, "na declaração do comando da entrada de dados");
+        consumeUntil(g, e, "na declaracao do comando da entrada de dados");
       }
     } finally {
       trace_return("CmdDataInput");
@@ -840,7 +877,7 @@ public class LParser implements LParserConstants {
         jj_consume_token(RESERVED_WORD_WRITE);
         CmdDataOutputL(g);
       } catch (ParseException e) {
-        consumeUntil(g, e, "na declaração do comando da saída de dados");
+        consumeUntil(g, e, "na declaracao do comando da saida de dados");
       }
     } finally {
       trace_return("CmdDataOutput");
@@ -850,13 +887,13 @@ public class LParser implements LParserConstants {
   final public void CmdDataOutputL(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("CmdDataOutputL");
     try {
- RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET).union(g);
+ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case RESERVED_WORD_ALL:
           jj_consume_token(RESERVED_WORD_ALL);
           jj_consume_token(RESERVED_WORD_THIS);
-          semanticActions.trigger21("write all this");
+                                                   semanticActions.trigger21("write all this");
           jj_consume_token(ESP_SYMBOL_L_BRACKET);
           IndentifierAndOrContantList(f1);
           jj_consume_token(ESP_SYMBOL_R_BRACKET);
@@ -864,7 +901,7 @@ public class LParser implements LParserConstants {
           break;
         case RESERVED_WORD_THIS:
           jj_consume_token(RESERVED_WORD_THIS);
-          semanticActions.trigger22("write this");
+                                semanticActions.trigger22("write this");
           jj_consume_token(ESP_SYMBOL_L_BRACKET);
           IndentifierAndOrContantList(f1);
           jj_consume_token(ESP_SYMBOL_R_BRACKET);
@@ -876,7 +913,7 @@ public class LParser implements LParserConstants {
           throw new ParseException();
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "na declaração do comando da saída de dados");
+        consumeUntil(g, e,  "na declaracao do comando da saida de dados");
       }
     } finally {
       trace_return("CmdDataOutputL");
@@ -889,11 +926,11 @@ public class LParser implements LParserConstants {
  Token t1= null;
  RecoverySet f1 = First.IndentifierAndOrContantListL.union(g);
       try {
-        t1 = Item(f1);
-        semanticActions.trigger23(t1);
+        Item(f1);
+                   semanticActions.trigger23();
         IndentifierAndOrContantListL(g);
       } catch (ParseException e) {
-        consumeUntil(g, e,"na declaração de constantes e/ou variáveis");
+        consumeUntil(g, e,"na declaracao de constantes e/ou variaveis");
       }
     } finally {
       trace_return("IndentifierAndOrContantList");
@@ -903,25 +940,26 @@ public class LParser implements LParserConstants {
   final public void IndentifierAndOrContantListL(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("IndentifierAndOrContantListL");
     try {
+ RecoverySet f1 = First.IndentifierAndOrContantList.union(g);
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case ESP_SYMBOL_COMA:
           jj_consume_token(ESP_SYMBOL_COMA);
-          IndentifierAndOrContantList(g);
+          IndentifierAndOrContantList(f1);
           break;
         default:
           jj_la1[19] = jj_gen;
           ;
         }
       } catch (ParseException e) {
-        consumeUntil(g, e,"na declaração de constantes e/ou variáveis");
+        consumeUntil(g, e,"na declaracao de constantes e/ou variaveis");
       }
     } finally {
       trace_return("IndentifierAndOrContantListL");
     }
   }
 
-  final public Token Item(RecoverySet g) throws ParseException, ParseEOFException {
+  final public void Item(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("Item");
     try {
  Token t1 = null;
@@ -929,32 +967,30 @@ public class LParser implements LParserConstants {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case IDENTIFIER:
           t1 = jj_consume_token(IDENTIFIER);
-          semanticActions.trigger24(t1);
+                           semanticActions.trigger24(t1);
           Index(g);
-          semanticActions.trigger25(t1);
+                                                                       semanticActions.trigger25(t1);
           break;
         case CONST_INT:
           t1 = jj_consume_token(CONST_INT);
-          semanticActions.trigger26(t1);
+                          semanticActions.trigger26(t1);
           break;
         case CONST_REAL:
           t1 = jj_consume_token(CONST_REAL);
-          semanticActions.trigger27(t1);
+                           semanticActions.trigger27(t1);
           break;
         case CONST_LITERAL:
           t1 = jj_consume_token(CONST_LITERAL);
-          semanticActions.trigger28(t1);
+                              semanticActions.trigger28(t1);
           break;
         default:
           jj_la1[20] = jj_gen;
           jj_consume_token(-1);
           throw new ParseException();
         }
-        return t1;
       } catch (ParseException e) {
-        consumeUntil(g, e, "na declaração de constantes e/ou variáveis");
+        consumeUntil(g, e, "na declaracao de constantes e/ou variaveis");
       }
-    throw new Error("Missing return statement in function");
     } finally {
       trace_return("Item");
     }
@@ -970,9 +1006,9 @@ public class LParser implements LParserConstants {
         jj_consume_token(RESERVED_WORD_THIS);
         Expression(f1);
         CmdSelectionL(g);
-        semanticActions.trigger29();
+                                                                                        semanticActions.trigger29();
       } catch (ParseException e) {
-        consumeUntil(g, e,"na declaração do comando de seleção");
+        consumeUntil(g, e,"na declaracao do comando de selecao");
       }
     } finally {
       trace_return("CmdSelection");
@@ -982,14 +1018,14 @@ public class LParser implements LParserConstants {
   final public void CmdSelectionL(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("CmdSelectionL");
     try {
-    RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET).union(g),
-                f2 = new RecoverySet(ESP_SYMBOL_DOT).union(g);
+    RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET),
+                f2 = new RecoverySet(ESP_SYMBOL_DOT);
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case RESERVED_WORD_TRUE:
           jj_consume_token(RESERVED_WORD_TRUE);
           jj_consume_token(RESERVED_WORD_RESULT);
-          semanticActions.trigger30();
+                                                      semanticActions.trigger30();
           jj_consume_token(ESP_SYMBOL_L_BRACKET);
           CommandList(f1);
           jj_consume_token(ESP_SYMBOL_R_BRACKET);
@@ -999,7 +1035,7 @@ public class LParser implements LParserConstants {
         case RESERVED_WORD_UNTRUE:
           jj_consume_token(RESERVED_WORD_UNTRUE);
           jj_consume_token(RESERVED_WORD_RESULT);
-          semanticActions.trigger31();
+                                                         semanticActions.trigger31();
           jj_consume_token(ESP_SYMBOL_L_BRACKET);
           CommandList(f1);
           jj_consume_token(ESP_SYMBOL_R_BRACKET);
@@ -1012,7 +1048,7 @@ public class LParser implements LParserConstants {
           throw new ParseException();
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "na declaração do comando de seleção");
+        consumeUntil(g, e,"na declaracao do comando de selecao");
       }
     } finally {
       trace_return("CmdSelectionL");
@@ -1023,13 +1059,13 @@ public class LParser implements LParserConstants {
     trace_call("True");
     try {
  Token t1=null;
-    RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET).union(g);
+    RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case RESERVED_WORD_TRUE:
-          t1 = jj_consume_token(RESERVED_WORD_TRUE);
+          jj_consume_token(RESERVED_WORD_TRUE);
           jj_consume_token(RESERVED_WORD_RESULT);
-          semanticActions.trigger32(t1);
+                                                       semanticActions.trigger32();
           jj_consume_token(ESP_SYMBOL_L_BRACKET);
           CommandList(f1);
           jj_consume_token(ESP_SYMBOL_R_BRACKET);
@@ -1039,7 +1075,7 @@ public class LParser implements LParserConstants {
           ;
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "na declaração do comando de seleção");
+        consumeUntil(g, e, "na declaracao do comando de selecao");
       }
     } finally {
       trace_return("True");
@@ -1050,13 +1086,13 @@ public class LParser implements LParserConstants {
     trace_call("False");
     try {
  Token t1=null;
-    RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET).union(g);
+    RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case RESERVED_WORD_UNTRUE:
-          t1 = jj_consume_token(RESERVED_WORD_UNTRUE);
+          jj_consume_token(RESERVED_WORD_UNTRUE);
           jj_consume_token(RESERVED_WORD_RESULT);
-          semanticActions.trigger32(t1);
+                                                         semanticActions.trigger32();
           jj_consume_token(ESP_SYMBOL_L_BRACKET);
           CommandList(f1);
           jj_consume_token(ESP_SYMBOL_R_BRACKET);
@@ -1066,7 +1102,7 @@ public class LParser implements LParserConstants {
           ;
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "na declaração do comando de seleção");
+        consumeUntil(g, e, "na declaracao do comando de selecao");
       }
     } finally {
       trace_return("False");
@@ -1076,21 +1112,21 @@ public class LParser implements LParserConstants {
   final public void CmdRepetition(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("CmdRepetition");
     try {
-RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET).union(g),
-            f2 = new RecoverySet(ESP_SYMBOL_R_BRACKET).union(g);
+RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET),
+            f2 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
       try {
         jj_consume_token(RESERVED_WORD_REPEAT);
         jj_consume_token(RESERVED_WORD_THIS);
-        semanticActions.trigger33();
+                                                      semanticActions.trigger33();
         Expression(f1);
-        semanticActions.trigger34();
+           semanticActions.trigger34();
         jj_consume_token(ESP_SYMBOL_L_BRACKET);
         CommandList(f2);
         jj_consume_token(ESP_SYMBOL_R_BRACKET);
-        semanticActions.trigger35();
+                                  semanticActions.trigger35();
         jj_consume_token(ESP_SYMBOL_DOT);
       } catch (ParseException e) {
-        consumeUntil(g, e, "na declaração do comando de repetição");
+        consumeUntil(g, e, "na declaracao do comando de repeticao");
       }
     } finally {
       trace_return("CmdRepetition");
@@ -1105,7 +1141,7 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET).union(g),
         ArithmeticOrLogicalExpression(f1);
         ExpressionL(g);
       } catch (ParseException e) {
-        consumeUntil(g, e,  "na declaração da expressão");
+        consumeUntil(g, e, "na declaracao da expressao");
       }
     } finally {
       trace_return("Expression");
@@ -1115,7 +1151,6 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET).union(g),
   final public void ExpressionL(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("ExpressionL");
     try {
- Token t1,t2,t3,t4,t5,t6 = null;
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case ESP_SYMBOL_EQUAL:
@@ -1126,34 +1161,34 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET).union(g),
         case ESP_SYMBOL_LESSERREQUAL:
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case ESP_SYMBOL_EQUAL:
-            t1 = jj_consume_token(ESP_SYMBOL_EQUAL);
+            jj_consume_token(ESP_SYMBOL_EQUAL);
             ArithmeticOrLogicalExpression(g);
-            semanticActions.trigger36(t1);
+                                                                 semanticActions.trigger36();
             break;
           case ESP_SYMBOL_DIFFERENT:
-            t2 = jj_consume_token(ESP_SYMBOL_DIFFERENT);
+            jj_consume_token(ESP_SYMBOL_DIFFERENT);
             ArithmeticOrLogicalExpression(g);
-            semanticActions.trigger37(t2);
+                                                                    semanticActions.trigger37();
             break;
           case ESP_SYMBOL_GREATER:
-            t3 = jj_consume_token(ESP_SYMBOL_GREATER);
+            jj_consume_token(ESP_SYMBOL_GREATER);
             ArithmeticOrLogicalExpression(g);
-            semanticActions.trigger38(t3);
+                                                                   semanticActions.trigger38();
             break;
           case ESP_SYMBOL_LESSER:
-            t4 = jj_consume_token(ESP_SYMBOL_LESSER);
+            jj_consume_token(ESP_SYMBOL_LESSER);
             ArithmeticOrLogicalExpression(g);
-            semanticActions.trigger39(t4);
+                                                                 semanticActions.trigger39();
             break;
           case ESP_SYMBOL_LESSERREQUAL:
-            t5 = jj_consume_token(ESP_SYMBOL_LESSERREQUAL);
+            jj_consume_token(ESP_SYMBOL_LESSERREQUAL);
             ArithmeticOrLogicalExpression(g);
-            semanticActions.trigger40(t5);
+                                                                       semanticActions.trigger40();
             break;
           case ESP_SYMBOL_GREATEREQUAL:
-            t6 = jj_consume_token(ESP_SYMBOL_GREATEREQUAL);
+            jj_consume_token(ESP_SYMBOL_GREATEREQUAL);
             ArithmeticOrLogicalExpression(g);
-            semanticActions.trigger41(t6);
+                                                                       semanticActions.trigger41();
             break;
           default:
             jj_la1[24] = jj_gen;
@@ -1166,7 +1201,7 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET).union(g),
           ;
         }
       } catch (ParseException e) {
-        consumeUntil(g, e,  "na declaração da expressão");
+        consumeUntil(g, e,  "na declaracao da expressao");
       }
     } finally {
       trace_return("ExpressionL");
@@ -1181,7 +1216,7 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET).union(g),
         SecondTerm(f1);
         LowestPriority(g);
       } catch (ParseException e) {
-        consumeUntil(g, e, "na declaração da expressão");
+        consumeUntil(g, e,  "na declaracao da expressao");
       }
     } finally {
       trace_return("ArithmeticOrLogicalExpression");
@@ -1200,22 +1235,22 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET).union(g),
         case ESP_SYMBOL_OR:
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case ESP_SYMBOL_PLUS:
-            t1 = jj_consume_token(ESP_SYMBOL_PLUS);
+            jj_consume_token(ESP_SYMBOL_PLUS);
             SecondTerm(f1);
             LowestPriority(g);
-            semanticActions.trigger42(t1);
+                                                               semanticActions.trigger42();
             break;
           case ESP_SYMBOL_MINUS:
-            t2 = jj_consume_token(ESP_SYMBOL_MINUS);
+            jj_consume_token(ESP_SYMBOL_MINUS);
             SecondTerm(f1);
             LowestPriority(g);
-            semanticActions.trigger43(t2);
+                                                                semanticActions.trigger43();
             break;
           case ESP_SYMBOL_OR:
-            t3 = jj_consume_token(ESP_SYMBOL_OR);
+            jj_consume_token(ESP_SYMBOL_OR);
             SecondTerm(f1);
             LowestPriority(g);
-            semanticActions.trigger44(t3);
+                                                             semanticActions.trigger44();
             break;
           default:
             jj_la1[26] = jj_gen;
@@ -1228,7 +1263,7 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET).union(g),
           ;
         }
       } catch (ParseException e) {
-        consumeUntil(g, e,  "na declaração da expressão");
+        consumeUntil(g, e,  "na declaracao da expressao");
       }
     } finally {
       trace_return("LowestPriority");
@@ -1243,7 +1278,7 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET).union(g),
         FirstTerm(f1);
         MediumPriority(g);
       } catch (ParseException e) {
-        consumeUntil(g, e, "na declaração da expressão");
+        consumeUntil(g, e,  "na declaracao da expressao");
       }
     } finally {
       trace_return("SecondTerm");
@@ -1253,7 +1288,6 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET).union(g),
   final public void MediumPriority(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("MediumPriority");
     try {
- Token t1, t2, t3, t4, t5=null;
  RecoverySet f1 = First.MediumPriority.union(g);
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -1264,34 +1298,34 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET).union(g),
         case ESP_SYMBOL_AND:
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case ESP_SYMBOL_STAR:
-            t1 = jj_consume_token(ESP_SYMBOL_STAR);
+            jj_consume_token(ESP_SYMBOL_STAR);
             FirstTerm(f1);
             MediumPriority(g);
-            semanticActions.trigger45(t1);
+                                                              semanticActions.trigger45();
             break;
           case ESP_SYMBOL_DIVISION_REAL:
-            t2 = jj_consume_token(ESP_SYMBOL_DIVISION_REAL);
+            jj_consume_token(ESP_SYMBOL_DIVISION_REAL);
             FirstTerm(f1);
             MediumPriority(g);
-            semanticActions.trigger46(t2);
+                                                                       semanticActions.trigger46();
             break;
           case ESP_SYMBOL_DIVISION_INT:
-            t3 = jj_consume_token(ESP_SYMBOL_DIVISION_INT);
+            jj_consume_token(ESP_SYMBOL_DIVISION_INT);
             FirstTerm(f1);
             MediumPriority(g);
-            semanticActions.trigger47(t3);
+                                                                      semanticActions.trigger47();
             break;
           case ESP_SYMBOL_MOD:
-            t4 = jj_consume_token(ESP_SYMBOL_MOD);
+            jj_consume_token(ESP_SYMBOL_MOD);
             FirstTerm(f1);
             MediumPriority(g);
-            semanticActions.trigger48(t4);
+                                                             semanticActions.trigger48();
             break;
           case ESP_SYMBOL_AND:
-            t5 = jj_consume_token(ESP_SYMBOL_AND);
+            jj_consume_token(ESP_SYMBOL_AND);
             FirstTerm(f1);
             MediumPriority(g);
-            semanticActions.trigger49(t5);
+                                                             semanticActions.trigger49();
             break;
           default:
             jj_la1[28] = jj_gen;
@@ -1304,7 +1338,7 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET).union(g),
           ;
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "na declaração da expressão");
+        consumeUntil(g, e,  "na declaracao da expressao");
       }
     } finally {
       trace_return("MediumPriority");
@@ -1319,7 +1353,7 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET).union(g),
         Element(f1);
         HighestPriority(g);
       } catch (ParseException e) {
-        consumeUntil(g, e, "na declaração da expressão");
+        consumeUntil(g, e,  "na declaracao da expressao");
       }
     } finally {
       trace_return("FirstTerm");
@@ -1329,22 +1363,21 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET).union(g),
   final public void HighestPriority(RecoverySet g) throws ParseException, ParseEOFException {
     trace_call("HighestPriority");
     try {
- Token t1= null;
  RecoverySet f1 = First.HighestPriority.union(g);
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case ESP_SYMBOL_POWER:
-          t1 = jj_consume_token(ESP_SYMBOL_POWER);
+          jj_consume_token(ESP_SYMBOL_POWER);
           Element(f1);
           HighestPriority(g);
-          semanticActions.trigger50(t1);
+                                                             semanticActions.trigger50();
           break;
         default:
           jj_la1[30] = jj_gen;
           ;
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "na declaração da expressão");
+        consumeUntil(g, e,  "na declaracao da expressao");
       }
     } finally {
       trace_return("HighestPriority");
@@ -1360,29 +1393,29 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET).union(g),
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case IDENTIFIER:
           t1 = jj_consume_token(IDENTIFIER);
-          semanticActions.trigger24(t1);
+                          semanticActions.trigger24(t1);
           Index(g);
-          semanticActions.trigger51(t1);
+                                                                      semanticActions.trigger51(t1);
           break;
         case CONST_INT:
           t2 = jj_consume_token(CONST_INT);
-          semanticActions.trigger26(t2);
+                           semanticActions.trigger26(t2);
           break;
         case CONST_REAL:
           t3 = jj_consume_token(CONST_REAL);
-          semanticActions.trigger27(t3);
+                            semanticActions.trigger27(t3);
           break;
         case CONST_LITERAL:
           t4 = jj_consume_token(CONST_LITERAL);
-          semanticActions.trigger28(t4);
+                                semanticActions.trigger28(t4);
           break;
         case RESERVED_WORD_TRUE:
           jj_consume_token(RESERVED_WORD_TRUE);
-          semanticActions.trigger52();
+                                  semanticActions.trigger52();
           break;
         case RESERVED_WORD_UNTRUE:
           jj_consume_token(RESERVED_WORD_UNTRUE);
-          semanticActions.trigger53();
+                                    semanticActions.trigger53();
           break;
         case ESP_SYMBOL_L_PARENTHESIS:
           jj_consume_token(ESP_SYMBOL_L_PARENTHESIS);
@@ -1394,7 +1427,7 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET).union(g),
           jj_consume_token(ESP_SYMBOL_L_PARENTHESIS);
           Expression(f1);
           jj_consume_token(ESP_SYMBOL_R_PARENTHESIS);
-          semanticActions.trigger54();
+                                                                                                  semanticActions.trigger54();
           break;
         default:
           jj_la1[31] = jj_gen;
@@ -1402,7 +1435,7 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET).union(g),
           throw new ParseException();
         }
       } catch (ParseException e) {
-        consumeUntil(g, e, "na declaração da expressão");
+        consumeUntil(g, e,  "na declaracao da expressao");
       }
     } finally {
       trace_return("Element");

@@ -266,25 +266,48 @@ try{
         Program(g)<EOF> { semanticActions.trigger2(); }
     }
     catch (ParseException e){
-        consumeUntil(g, e, "na declaração do programa");
+        consumeUntil(g, e, "na declaracao do programa");
     }
 }
 
-void Program(RecoverySet g) throws ParseEOFException :
+void Program(RecoverySet parentRecoverySet) throws ParseEOFException :
+{
+RecoverySet firstOfDeclaration = new RecoverySet(RESERVED_WORD_DECLARATION);
+            RecoverySet firstOfBodyProgram = new RecoverySet(RESERVED_WORD_BODY);
+            RecoverySet firstOfComment = new RecoverySet(RESERVED_WORD_DESCRIPTION);
+
+            RecoverySet programNameRecoverySet = new RecoverySet().union(firstOfDeclaration).union(firstOfBodyProgram).
+                                                    union(firstOfComment).union(parentRecoverySet);
+            RecoverySet declarationRecoverySet = new RecoverySet().union(firstOfBodyProgram).union(firstOfComment).
+                                                    union(parentRecoverySet);
+            RecoverySet programBodyRecoverySet = new RecoverySet().union(firstOfComment).union(parentRecoverySet);
+}
+{
+    try{
+        ProgramName(programNameRecoverySet)
+        Declaration(declarationRecoverySet)
+        ProgramBody(programBodyRecoverySet)
+        Comment(parentRecoverySet)
+    }
+    catch (ParseException e){
+        consumeUntil(parentRecoverySet, e, "na declaracao do programa");
+    }
+}
+
+void ProgramName(RecoverySet g) throws ParseEOFException:
 {
     Token t1 = null;
-    RecoverySet f1 = First.Comment.union(g),
-            f2 = First.ProgramBody.union(f1);
 }
 {
     try{
         <RESERVED_WORD_DO> <RESERVED_WORD_THIS> t1=<IDENTIFIER> { semanticActions.trigger1(t1); } <ESP_SYMBOL_L_BRACKET>
-        <ESP_SYMBOL_R_BRACKET> Declaration(f2) ProgramBody(f1) Comment(g)
+        <ESP_SYMBOL_R_BRACKET>
     }
     catch (ParseException e){
-        consumeUntil(g, e, "na declaração do programa");
+        consumeUntil(g, e, "na declaracao do nome do programa");
     }
 }
+
 
 void Comment(RecoverySet g) throws ParseEOFException :
 {
@@ -294,19 +317,20 @@ void Comment(RecoverySet g) throws ParseEOFException :
         [<RESERVED_WORD_DESCRIPTION> <CONST_LITERAL>]
     }
     catch (ParseException e){
-        consumeUntil(g, e, "na declaração do comentário");
+        consumeUntil(g, e, "na declaracao do comentario");
     }
 }
 
 void Declaration(RecoverySet g) throws ParseEOFException :
 {
+ RecoverySet f1 = First.DeclarationL.union(g);
 }
 {
     try{
-        [<RESERVED_WORD_DECLARATION> DeclarationL(g)]
+        [<RESERVED_WORD_DECLARATION> DeclarationL(f1)]
     }
     catch (ParseException e){
-        consumeUntil(g, e, "na declaração de constantes, variáveis e tipos enumerados");
+        consumeUntil(g, e, "na declaracao de constantes, variaveis e tipos enumerados");
     }
 }
 
@@ -320,19 +344,20 @@ void DeclarationL(RecoverySet g) throws ParseEOFException :
         DeclarationConstantsAndVariables(g)
     }
     catch (ParseException e){
-        consumeUntil(g, e, "na declaração de constantes, variáveis e tipos enumerados");
+        consumeUntil(g, e, "na declaracao de constantes, variaveis e tipos enumerados");
     }
 }
 
 void DeclarationLL(RecoverySet g) throws ParseEOFException :
 {
+ RecoverySet f1 = First.DeclarationConstantsAndVariables.union(g);
 }
 {
     try{
-        [<RESERVED_WORD_DECLARATION> DeclarationConstantsAndVariables(g)]
+        [<RESERVED_WORD_DECLARATION> DeclarationConstantsAndVariables(f1)]
     }
     catch (ParseException e){
-        consumeUntil(g, e, "na declaração de constantes, variáveis e tipos enumerados");
+        consumeUntil(g, e, "na declaracao de constantes, variaveis e tipos enumerados");
     }
 }
 
@@ -340,7 +365,7 @@ void DeclarationLL(RecoverySet g) throws ParseEOFException :
 void DeclarationEnumeratedType(RecoverySet g) throws ParseEOFException:
 {
  Token t1 = null;
- RecoverySet f1 = new RecoverySet(ESP_SYMBOL_DOT).union(g);
+ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_DOT);
 }
 {
     try{
@@ -348,19 +373,20 @@ void DeclarationEnumeratedType(RecoverySet g) throws ParseEOFException:
         <ESP_SYMBOL_DOT> DeclarationEnumeratedTypeL(g)
     }
     catch(ParseException e){
-        consumeUntil(g, e,  "na declaração de tipos enumerados");
+        consumeUntil(g, e,  "na declaracao de tipos enumerados");
     }
 }
 
 void DeclarationEnumeratedTypeL(RecoverySet g) throws ParseEOFException:
 {
+ RecoverySet f1 = First.DeclarationEnumeratedType.union(g);
 }
 {
     try{
-        [DeclarationEnumeratedType(g)]
+        [DeclarationEnumeratedType(f1)]
     }
     catch(ParseException e){
-        consumeUntil(g, e,  "na declaração de tipos enumerados");
+        consumeUntil(g, e,  "na declaracao de tipos enumerados");
     }
 }
 
@@ -373,19 +399,20 @@ void IdentifierEnumTypeDeclarationList(RecoverySet g) throws ParseEOFException:
         t1=<IDENTIFIER> { semanticActions.trigger4(t1); } IdentifierEnumTypeDeclarationListL(g)
     }
     catch(ParseException e){
-        consumeUntil(g, e,  "na declaração de tipos enumerados");
+        consumeUntil(g, e,  "na declaraco de tipos enumerados");
     }
 }
 
 void IdentifierEnumTypeDeclarationListL(RecoverySet g) throws ParseEOFException:
 {
+ RecoverySet f1 = First.IdentifierEnumTypeDeclarationList.union(g);
 }
 {
     try{
-        [<ESP_SYMBOL_COMA> IdentifierEnumTypeDeclarationList(g)]
+        [<ESP_SYMBOL_COMA> IdentifierEnumTypeDeclarationList(f1)]
     }
     catch(ParseException e){
-        consumeUntil(g, e,  "na declaração de tipos enumerados");
+        consumeUntil(g, e,  "na declaracao de tipos enumerados");
     }
 }
 
@@ -395,10 +422,11 @@ void DeclarationConstantsAndVariables(RecoverySet g) throws ParseEOFException:
 }
 {
     try{
-        <RESERVED_WORD_CONSTANT> <RESERVED_WORD_AND> <RESERVED_WORD_VARIABLE> <ESP_SYMBOL_L_BRACKET> ConstantsAndVariables(f1) <ESP_SYMBOL_R_BRACKET>
+        <RESERVED_WORD_CONSTANT> <RESERVED_WORD_AND> <RESERVED_WORD_VARIABLE> <ESP_SYMBOL_L_BRACKET>
+         ConstantsAndVariables(f1) <ESP_SYMBOL_R_BRACKET>
     }
     catch(ParseException e){
-        consumeUntil(g, e, "na declaração de constantes e variáveis");
+        consumeUntil(g, e, "na declaracao de constantes e variaveis");
     }
 }
 
@@ -409,7 +437,7 @@ void ConstantsAndVariables(RecoverySet g) throws ParseEOFException:
         <RESERVED_WORD_AS> ConstantAndVariablesL(g)
     }
     catch(ParseException e){
-        consumeUntil(g, e, "na declaração de constantes e variáveis");
+        consumeUntil(g, e, "na declaracao de constantes e variaveis");
     }
 }
 
@@ -423,7 +451,7 @@ void ConstantAndVariablesL(RecoverySet g) throws ParseEOFException:
         ConstantsDeclaration(f1) VariablesLL(g) | VariablesDeclaration(f2) ConstantsLL(g)
     }
     catch(ParseException e){
-        consumeUntil(g, e, "na declaração de constantes e variáveis");
+        consumeUntil(g, e, "na declaracao de constantes e variaveis");
     }
 }
 
@@ -436,48 +464,50 @@ void ConstantsDeclaration(RecoverySet g) throws ParseEOFException:
         <RESERVED_WORD_CONSTANT> { semanticActions.trigger5("as constant"); } Constants(g)
     }
     catch(ParseException e){
-        consumeUntil(g, e, "na declaração de constantes e variáveis");
+        consumeUntil(g, e, "na declaracao de constantes e variaveis");
     }
 }
 
 void Constants(RecoverySet g) throws ParseEOFException:
 {
  Token t1, t2 =null;
-  RecoverySet f1 = new RecoverySet(RESERVED_WORD_IS).union(g),
-             f2 = new RecoverySet(ESP_SYMBOL_EQUAL).union(g),
-             f3 = new RecoverySet(ESP_SYMBOL_DOT).union(g);
+  RecoverySet f1 = new RecoverySet(RESERVED_WORD_IS),
+             f2 = new RecoverySet(ESP_SYMBOL_ASSIGNE),
+             f3 = new RecoverySet(ESP_SYMBOL_DOT);
 }
 {
     try{
-        IdentifierConstantsList(f1) <RESERVED_WORD_IS> t2=Type(f2) { semanticActions.trigger6(t2); }
-         <ESP_SYMBOL_ASSIGNE> t1=Value(f3) { semanticActions.trigger7(t1); } <ESP_SYMBOL_DOT> ConstantsL(g)
+        IdentifierConstantsList(f1) <RESERVED_WORD_IS> Type(f2) { semanticActions.trigger6(); }
+         <ESP_SYMBOL_ASSIGNE> Value(f3) { semanticActions.trigger7(); } <ESP_SYMBOL_DOT> ConstantsL(g)
     }
     catch(ParseException e){
-        consumeUntil(g, e, "na declaração de constantes");
+        consumeUntil(g, e, "na declaracao de constantes");
     }
 }
 
 void ConstantsL(RecoverySet g) throws ParseEOFException:
 {
+ RecoverySet f1 = First.Constants.union(g);
 }
 {
     try{
-        [Constants(g)]
+        [Constants(f1)]
     }
     catch(ParseException e){
-        consumeUntil(g, e, "na declaração de constantes");
+        consumeUntil(g, e, "na declaracao de constantes");
     }
 }
 
 void ConstantsLL(RecoverySet g) throws ParseEOFException:
 {
+ RecoverySet f1 = First.ConstantsDeclaration.union(g);
 }
 {
     try{
-        [<RESERVED_WORD_AS> ConstantsDeclaration(g)]
+        [<RESERVED_WORD_AS> ConstantsDeclaration(f1)]
     }
     catch(ParseException e){
-        consumeUntil(g, e, "na declaração de constantes");
+        consumeUntil(g, e, "na declaracao de constantes");
     }
 }
 
@@ -489,47 +519,49 @@ void VariablesDeclaration(RecoverySet g) throws ParseEOFException:
         <RESERVED_WORD_VARIABLE> { semanticActions.trigger8("as variable"); } Variables(g)
     }
     catch(ParseException e){
-        consumeUntil(g, e, "na declaração de variáveis");
+        consumeUntil(g, e, "na declaracao de variaveis");
     }
 }
 
 void Variables(RecoverySet g) throws ParseEOFException:
 {
  Token t1=null;
- RecoverySet f1 = new RecoverySet(RESERVED_WORD_IS).union(g),
-             f2 = new RecoverySet(ESP_SYMBOL_DOT).union(g);
+ RecoverySet f1 = new RecoverySet(RESERVED_WORD_IS),
+             f2 = new RecoverySet(ESP_SYMBOL_DOT);
 }
 {
     try{
-        VariablesIdentifiersList(f1) <RESERVED_WORD_IS> t1=Type(f2) { semanticActions.trigger6(t1); }
+        VariablesIdentifiersList(f1) <RESERVED_WORD_IS> Type(f2) { semanticActions.trigger6(); }
         <ESP_SYMBOL_DOT> VariablesL(g)
     }
     catch(ParseException e){
-        consumeUntil(g, e, "na declaração de variáveis");
+        consumeUntil(g, e, "na declaracao de variaveis");
     }
 }
 
 void VariablesL(RecoverySet g) throws ParseEOFException:
 {
+ RecoverySet f1 = First.Variables.union(g);
 }
 {
     try{
-        [Variables(g)]
+        [Variables(f1)]
     }
     catch(ParseException e){
-        consumeUntil(g, e, "na declaração de variáveis");
+        consumeUntil(g, e, "na declaracao de variaveis");
     }
 }
 
 void VariablesLL(RecoverySet g) throws ParseEOFException:
 {
+ RecoverySet f1 = First.VariablesDeclaration.union(g);
 }
 {
     try{
-        [<RESERVED_WORD_AS> VariablesDeclaration(g)]
+        [<RESERVED_WORD_AS> VariablesDeclaration(f1)]
     }
     catch(ParseException e){
-        consumeUntil(g, e, "na declaração de variáveis");
+        consumeUntil(g, e, "na declaracao de variaveis");
     }
 }
 
@@ -542,19 +574,20 @@ void IdentifierConstantsList(RecoverySet g) throws ParseEOFException:
         t1=<IDENTIFIER> { semanticActions.trigger9(t1); } IdentifierConstantsListL(g)
     }
     catch(ParseException e){
-        consumeUntil(g, e, "na declaração de identificadores de constantes");
+        consumeUntil(g, e, "na declaracao de identificadores de constantes");
     }
 }
 
 void IdentifierConstantsListL(RecoverySet g) throws ParseEOFException:
 {
+ RecoverySet f1 = First.IdentifierConstantsList.union(g);
 }
 {
     try{
-        [<ESP_SYMBOL_COMA> IdentifierConstantsList(g)]
+        [<ESP_SYMBOL_COMA> IdentifierConstantsList(f1)]
     }
     catch(ParseException e){
-        consumeUntil(g, e, "na declaração de identificadores de constantes");
+        consumeUntil(g, e, "na declaracao de identificadores de constantes");
     }
 }
 
@@ -566,7 +599,8 @@ void VariablesIdentifiersList(RecoverySet g) throws ParseEOFException:
 }
 {
     try{
-        t1=<IDENTIFIER> { semanticActions.trigger10(t1); } t2=Index(f1) { semanticActions.trigger11(t1, t2); } VariablesIdentifiersListL(g)
+        t1=<IDENTIFIER> { semanticActions.trigger10(t1); } Index(f1) { semanticActions.trigger11(); }
+        VariablesIdentifiersListL(g)
     }
     catch(ParseException e){
         consumeUntil(g, e, "na declaração de identificadores de variáveis");
@@ -575,71 +609,76 @@ void VariablesIdentifiersList(RecoverySet g) throws ParseEOFException:
 
 void VariablesIdentifiersListL(RecoverySet g) throws ParseEOFException:
 {
+ RecoverySet f1 = First.VariablesIdentifiersList.union(g);
 }
 {
     try{
-        [<ESP_SYMBOL_COMA> VariablesIdentifiersList(g)]
+        [<ESP_SYMBOL_COMA> VariablesIdentifiersList(f1)]
     }
     catch(ParseException e){
-        consumeUntil(g, e, "na declaração de identificadores de variáveis");
+        consumeUntil(g, e, "na declaracao de identificadores de variaveis");
     }
 }
 
-Token Index(RecoverySet g) throws ParseEOFException:
+void Index(RecoverySet g) throws ParseEOFException:
 {
  Token t1=null;
 }
 {
     try{
         [<ESP_SYMBOL_L_BRACE> t1=<CONST_INT> { semanticActions.trigger12(t1); } <ESP_SYMBOL_R_BRACE>]
-        { return t1; }
     }
     catch(ParseException e){
-        consumeUntil(g, e, "na declaração do índice");
+        consumeUntil(g, e, "na declaracao do indice");
     }
 }
 
-Token Type(RecoverySet g) throws ParseEOFException:
+void Type(RecoverySet g) throws ParseEOFException:
 {
  Token t1 = null;
 }
 {
     try{
-        (t1=<RESERVED_WORD_INTEGER> { semanticActions.trigger13(); } |
-        t1=<RESERVED_WORD_REAL> { semanticActions.trigger14(); } |
-        t1=<RESERVED_WORD_STRING> { semanticActions.trigger15(); } |
-        t1=<RESERVED_WORD_LOGIC> { semanticActions.trigger16(); } |
-        t1=<IDENTIFIER> { semanticActions.trigger17(); })
-        { return t1; }
+        (<RESERVED_WORD_INTEGER> { semanticActions.trigger13(); } |
+        <RESERVED_WORD_REAL> { semanticActions.trigger14(); } |
+        <RESERVED_WORD_STRING> { semanticActions.trigger15(); } |
+        t1=<RESERVED_WORD_LOGIC> { semanticActions.trigger16(t1); } |
+        t1=<IDENTIFIER> { semanticActions.trigger17(t1); })
     }
     catch(ParseException e){
-        consumeUntil(g, e, "na declaração do tipo");
+        consumeUntil(g, e, "na declaracao do tipo");
     }
 }
 
-Token Value(RecoverySet g) throws ParseEOFException:
+void Value(RecoverySet g) throws ParseEOFException:
 {
  Token t1 = null;
  }
 {
     try{
-        (t1=<CONST_INT> | t1=<CONST_REAL> | t1=<CONST_LITERAL>) { return t1;}
+        (t1=<CONST_INT> { semanticActions.trigger55(t1); } | t1=<CONST_REAL> { semanticActions.trigger56(t1); }
+        | t1=<CONST_LITERAL> { semanticActions.trigger57(t1); })
     }
     catch(ParseException e){
-        consumeUntil(g, e,  "na declaração do valor");
+        consumeUntil(g, e,  "na declaracao do valor");
     }
 }
 
 void ProgramBody(RecoverySet g) throws ParseEOFException:
 {
- RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET).union(g);
+  RecoverySet f6 = new RecoverySet(RESERVED_WORD_DESIGNATE),
+              f5 = new RecoverySet(RESERVED_WORD_READ).union(f6),
+              f4 = new RecoverySet(RESERVED_WORD_WRITE).union(f5),
+              f3 = new RecoverySet(RESERVED_WORD_AVALIATE).union(f4),
+              f2 = new RecoverySet(RESERVED_WORD_REPEAT).union(f3),
+              f1 = new RecoverySet().union(f2).union(g);
 }
 {
     try{
         <RESERVED_WORD_BODY> <ESP_SYMBOL_L_BRACKET> CommandList(f1) <ESP_SYMBOL_R_BRACKET>
     }
     catch(ParseException e){
-        consumeUntil(g, e,  "na declaração do corpo do programa");
+        consumeUntil(g, e,  "na declaracao do corpo do programa");
     }
 }
 
@@ -652,18 +691,21 @@ void CommandList(RecoverySet g) throws ParseEOFException:
         Command(f1) CommandListL(g)
     }
     catch(ParseException e){
-        consumeUntil(g, e, "na declaração da lista de comandos");
+        consumeUntil(g, e, "na declaracao da lista de comandos");
     }
 }
 
 void CommandListL(RecoverySet g) throws ParseEOFException:
-{}
+{
+ RecoverySet f1 = First.CommandList.union(g);
+
+}
 {
     try{
-        [CommandList(g)]
+        [CommandList(f1)]
     }
     catch(ParseException e){
-        consumeUntil(g, e, "na declaração da lista de comandos");
+        consumeUntil(g, e, "na declaracao da lista de comandos");
     }
 }
 
@@ -678,15 +720,15 @@ void Command(RecoverySet g) throws ParseEOFException:
         | CmdRepetition(g)
     }
     catch(ParseException e){
-        consumeUntil(g, e, "na declaração do comando");
+        consumeUntil(g, e, "na declaracao do comando");
     }
 }
 
 //Assignmeent block
 void CmdAssignment(RecoverySet g) throws ParseEOFException:
 {
- RecoverySet f1 = new RecoverySet(RESERVED_WORD_AS).union(g),
-             f2 = new RecoverySet(ESP_SYMBOL_DOT).union(g);
+ RecoverySet f1 = new RecoverySet(RESERVED_WORD_AS),
+             f2 = new RecoverySet(ESP_SYMBOL_DOT);
 }
 {
     try{
@@ -695,14 +737,14 @@ void CmdAssignment(RecoverySet g) throws ParseEOFException:
         <ESP_SYMBOL_DOT>
     }
     catch(ParseException e){
-        consumeUntil(g, e, "na declaração do comando de atribuição");
+        consumeUntil(g, e, "na declaracao do comando de atribuicao");
     }
 }
 
 //Data input block
 void CmdDataInput(RecoverySet g) throws ParseEOFException:
 {
- RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET).union(g);
+ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
 }
 {
     try{
@@ -710,7 +752,7 @@ void CmdDataInput(RecoverySet g) throws ParseEOFException:
          VariablesIdentifiersList(f1) <ESP_SYMBOL_R_BRACKET> <ESP_SYMBOL_DOT>
     }
     catch(ParseException e){
-        consumeUntil(g, e, "na declaração do comando da entrada de dados");
+        consumeUntil(g, e, "na declaracao do comando da entrada de dados");
     }
 }
 
@@ -722,13 +764,13 @@ void CmdDataOutput(RecoverySet g) throws ParseEOFException:
         <RESERVED_WORD_WRITE> CmdDataOutputL(g)
     }
     catch(ParseException e){
-        consumeUntil(g, e, "na declaração do comando da saída de dados");
+        consumeUntil(g, e, "na declaracao do comando da saida de dados");
     }
 }
 
 void CmdDataOutputL(RecoverySet g) throws ParseEOFException:
 {
- RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET).union(g);
+ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
 }
 {
     try{
@@ -738,7 +780,7 @@ void CmdDataOutputL(RecoverySet g) throws ParseEOFException:
           <ESP_SYMBOL_R_BRACKET> <ESP_SYMBOL_DOT>
     }
     catch(ParseException e){
-        consumeUntil(g, e,  "na declaração do comando da saída de dados");
+        consumeUntil(g, e,  "na declaracao do comando da saida de dados");
     }
 }
 
@@ -749,36 +791,39 @@ void IndentifierAndOrContantList(RecoverySet g) throws ParseEOFException:
 }
 {
     try{
-        t1=Item(f1) { semanticActions.trigger23(t1); } IndentifierAndOrContantListL(g)
+        Item(f1) { semanticActions.trigger23(); } IndentifierAndOrContantListL(g)
     }
     catch(ParseException e){
-        consumeUntil(g, e,"na declaração de constantes e/ou variáveis");
+        consumeUntil(g, e,"na declaracao de constantes e/ou variaveis");
     }
 }
 
 void IndentifierAndOrContantListL(RecoverySet g) throws ParseEOFException:
-{}
+{
+ RecoverySet f1 = First.IndentifierAndOrContantList.union(g);
+}
 {
     try{
-        [<ESP_SYMBOL_COMA> IndentifierAndOrContantList(g)]
+        [<ESP_SYMBOL_COMA> IndentifierAndOrContantList(f1)]
     }
     catch(ParseException e){
-        consumeUntil(g, e,"na declaração de constantes e/ou variáveis");
+        consumeUntil(g, e,"na declaracao de constantes e/ou variaveis");
     }
 }
 
-Token Item(RecoverySet g) throws ParseEOFException:
+void Item(RecoverySet g) throws ParseEOFException:
 {
  Token t1 = null;
  }
 {
     try{
         (t1=<IDENTIFIER> { semanticActions.trigger24(t1); } Index(g) { semanticActions.trigger25(t1); } |
-        t1=<CONST_INT> { semanticActions.trigger26(t1); } | t1=<CONST_REAL> { semanticActions.trigger27(t1); } |
-        t1=<CONST_LITERAL> { semanticActions.trigger28(t1); }) { return t1;}
+         t1=<CONST_INT> { semanticActions.trigger26(t1); } |
+         t1=<CONST_REAL> { semanticActions.trigger27(t1); } |
+         t1=<CONST_LITERAL> { semanticActions.trigger28(t1); })
     }
     catch(ParseException e){
-        consumeUntil(g, e, "na declaração de constantes e/ou variáveis");
+        consumeUntil(g, e, "na declaracao de constantes e/ou variaveis");
     }
 }
 
@@ -792,14 +837,14 @@ void CmdSelection(RecoverySet g) throws ParseEOFException:
         <RESERVED_WORD_AVALIATE> <RESERVED_WORD_THIS> Expression(f1) CmdSelectionL(g) { semanticActions.trigger29(); }
     }
     catch(ParseException e){
-        consumeUntil(g, e,"na declaração do comando de seleção");
+        consumeUntil(g, e,"na declaracao do comando de selecao");
     }
 }
 
 void CmdSelectionL(RecoverySet g) throws ParseEOFException:
 {
-    RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET).union(g),
-                f2 = new RecoverySet(ESP_SYMBOL_DOT).union(g);
+    RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET),
+                f2 = new RecoverySet(ESP_SYMBOL_DOT);
 }
 {
     try{
@@ -809,44 +854,44 @@ void CmdSelectionL(RecoverySet g) throws ParseEOFException:
          CommandList(f1) <ESP_SYMBOL_R_BRACKET> True(f2) <ESP_SYMBOL_DOT>
     }
     catch(ParseException e){
-        consumeUntil(g, e,"na declaração do comando de seleção");
+        consumeUntil(g, e,"na declaracao do comando de selecao");
     }
 }
 
 void True(RecoverySet g) throws ParseEOFException:
 {
  Token t1=null;
-    RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET).union(g);
+    RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
 }
 {
     try{
-        [t1=<RESERVED_WORD_TRUE> <RESERVED_WORD_RESULT> { semanticActions.trigger32(t1); } <ESP_SYMBOL_L_BRACKET>
+        [<RESERVED_WORD_TRUE> <RESERVED_WORD_RESULT> { semanticActions.trigger32(); } <ESP_SYMBOL_L_BRACKET>
         CommandList(f1) <ESP_SYMBOL_R_BRACKET>]
     }
     catch(ParseException e){
-        consumeUntil(g, e, "na declaração do comando de seleção");
+        consumeUntil(g, e, "na declaracao do comando de selecao");
     }
 }
 
 void False(RecoverySet g) throws ParseEOFException:
 {
  Token t1=null;
-    RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET).union(g);
+    RecoverySet f1 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
 }
 {
     try{
-        [t1=<RESERVED_WORD_UNTRUE> <RESERVED_WORD_RESULT> { semanticActions.trigger32(t1); } <ESP_SYMBOL_L_BRACKET>
+        [<RESERVED_WORD_UNTRUE> <RESERVED_WORD_RESULT> { semanticActions.trigger32(); } <ESP_SYMBOL_L_BRACKET>
         CommandList(f1) <ESP_SYMBOL_R_BRACKET>]
     }
     catch(ParseException e){
-        consumeUntil(g, e, "na declaração do comando de seleção");
+        consumeUntil(g, e, "na declaracao do comando de selecao");
     }
 }
 
 void CmdRepetition(RecoverySet g) throws ParseEOFException:
 {
-RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET).union(g),
-            f2 = new RecoverySet(ESP_SYMBOL_R_BRACKET).union(g);
+RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET),
+            f2 = new RecoverySet(ESP_SYMBOL_R_BRACKET);
 }
 {
     try{
@@ -855,7 +900,7 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET).union(g),
         <ESP_SYMBOL_R_BRACKET>  { semanticActions.trigger35(); } <ESP_SYMBOL_DOT>
     }
     catch(ParseException e){
-        consumeUntil(g, e, "na declaração do comando de repetição");
+        consumeUntil(g, e, "na declaracao do comando de repeticao");
     }
 }
 
@@ -868,25 +913,24 @@ void Expression(RecoverySet g) throws ParseEOFException:
         ArithmeticOrLogicalExpression(f1) ExpressionL(g)
     }
     catch(ParseException e){
-        consumeUntil(g, e, "na declaração da expressão");
+        consumeUntil(g, e, "na declaracao da expressao");
     }
 }
 
 void ExpressionL(RecoverySet g) throws ParseEOFException:
 {
- Token t1,t2,t3,t4,t5,t6 = null;
  }
 {
     try{
-        [(t1=<ESP_SYMBOL_EQUAL>  ArithmeticOrLogicalExpression(g) { semanticActions.trigger36(t1); }
-        | t2=<ESP_SYMBOL_DIFFERENT> ArithmeticOrLogicalExpression(g) { semanticActions.trigger37(t2); }
-        | t3=<ESP_SYMBOL_GREATER>  ArithmeticOrLogicalExpression(g) { semanticActions.trigger38(t3); }
-        | t4=<ESP_SYMBOL_LESSER> ArithmeticOrLogicalExpression(g) { semanticActions.trigger39(t4); }
-        | t5=<ESP_SYMBOL_LESSERREQUAL> ArithmeticOrLogicalExpression(g) { semanticActions.trigger40(t5); }
-        | t6=<ESP_SYMBOL_GREATEREQUAL> ArithmeticOrLogicalExpression(g) { semanticActions.trigger41(t6); } )]
+        [(<ESP_SYMBOL_EQUAL>  ArithmeticOrLogicalExpression(g) { semanticActions.trigger36(); }
+        | <ESP_SYMBOL_DIFFERENT> ArithmeticOrLogicalExpression(g) { semanticActions.trigger37(); }
+        | <ESP_SYMBOL_GREATER>  ArithmeticOrLogicalExpression(g) { semanticActions.trigger38(); }
+        | <ESP_SYMBOL_LESSER> ArithmeticOrLogicalExpression(g) { semanticActions.trigger39(); }
+        | <ESP_SYMBOL_LESSERREQUAL> ArithmeticOrLogicalExpression(g) { semanticActions.trigger40(); }
+        | <ESP_SYMBOL_GREATEREQUAL> ArithmeticOrLogicalExpression(g) { semanticActions.trigger41(); } )]
     }
     catch(ParseException e){
-        consumeUntil(g, e,  "na declaração da expressão");
+        consumeUntil(g, e,  "na declaracao da expressao");
     }
 }
 
@@ -899,7 +943,7 @@ void ArithmeticOrLogicalExpression(RecoverySet g) throws ParseEOFException:
         SecondTerm(f1) LowestPriority(g)
     }
     catch(ParseException e){
-        consumeUntil(g, e,  "na declaração da expressão");
+        consumeUntil(g, e,  "na declaracao da expressao");
     }
 }
 
@@ -910,12 +954,12 @@ void LowestPriority(RecoverySet g) throws ParseEOFException:
 }
 {
     try{
-        [(t1=<ESP_SYMBOL_PLUS> SecondTerm(f1) LowestPriority(g) { semanticActions.trigger42(t1); }
-        | t2=<ESP_SYMBOL_MINUS> SecondTerm(f1) LowestPriority(g) { semanticActions.trigger43(t2); }
-        | t3=<ESP_SYMBOL_OR> SecondTerm(f1) LowestPriority(g) { semanticActions.trigger44(t3); } )]
+        [(<ESP_SYMBOL_PLUS> SecondTerm(f1) LowestPriority(g) { semanticActions.trigger42(); }
+        | <ESP_SYMBOL_MINUS> SecondTerm(f1) LowestPriority(g) { semanticActions.trigger43(); }
+        | <ESP_SYMBOL_OR> SecondTerm(f1) LowestPriority(g) { semanticActions.trigger44(); } )]
     }
     catch(ParseException e){
-        consumeUntil(g, e,  "na declaração da expressão");
+        consumeUntil(g, e,  "na declaracao da expressao");
     }
 }
 
@@ -928,25 +972,24 @@ void SecondTerm(RecoverySet g) throws ParseEOFException:
         FirstTerm(f1) MediumPriority(g)
     }
     catch(ParseException e){
-        consumeUntil(g, e,  "na declaração da expressão");
+        consumeUntil(g, e,  "na declaracao da expressao");
     }
 }
 
 void MediumPriority (RecoverySet g) throws ParseEOFException:
 {
- Token t1, t2, t3, t4, t5=null;
  RecoverySet f1 = First.MediumPriority.union(g);
 }
 {
     try{
-        [(t1=<ESP_SYMBOL_STAR> FirstTerm(f1) MediumPriority(g) { semanticActions.trigger45(t1); }
-        | t2=<ESP_SYMBOL_DIVISION_REAL> FirstTerm(f1) MediumPriority(g) { semanticActions.trigger46(t2); }
-        | t3=<ESP_SYMBOL_DIVISION_INT> FirstTerm(f1) MediumPriority(g) { semanticActions.trigger47(t3); }
-        | t4=<ESP_SYMBOL_MOD> FirstTerm(f1) MediumPriority(g) { semanticActions.trigger48(t4); }
-        | t5=<ESP_SYMBOL_AND> FirstTerm(f1) MediumPriority(g) { semanticActions.trigger49(t5); } )]
+        [(<ESP_SYMBOL_STAR> FirstTerm(f1) MediumPriority(g) { semanticActions.trigger45(); }
+        | <ESP_SYMBOL_DIVISION_REAL> FirstTerm(f1) MediumPriority(g) { semanticActions.trigger46(); }
+        | <ESP_SYMBOL_DIVISION_INT> FirstTerm(f1) MediumPriority(g) { semanticActions.trigger47(); }
+        | <ESP_SYMBOL_MOD> FirstTerm(f1) MediumPriority(g) { semanticActions.trigger48(); }
+        | <ESP_SYMBOL_AND> FirstTerm(f1) MediumPriority(g) { semanticActions.trigger49(); } )]
     }
     catch(ParseException e){
-        consumeUntil(g, e,  "na declaração da expressão");
+        consumeUntil(g, e,  "na declaracao da expressao");
     }
 }
 
@@ -959,21 +1002,20 @@ void FirstTerm(RecoverySet g) throws ParseEOFException:
         Element(f1) HighestPriority(g)
     }
     catch(ParseException e){
-        consumeUntil(g, e,  "na declaração da expressão");
+        consumeUntil(g, e,  "na declaracao da expressao");
     }
 }
 
 void HighestPriority(RecoverySet g) throws ParseEOFException:
 {
- Token t1= null;
  RecoverySet f1 = First.HighestPriority.union(g);
 }
 {
     try{
-        [t1=<ESP_SYMBOL_POWER> Element(f1) HighestPriority(g) { semanticActions.trigger50(t1); }]
+        [<ESP_SYMBOL_POWER> Element(f1) HighestPriority(g) { semanticActions.trigger50(); }]
     }
     catch(ParseException e){
-        consumeUntil(g, e,  "na declaração da expressão");
+        consumeUntil(g, e,  "na declaracao da expressao");
     }
 }
 
@@ -994,7 +1036,7 @@ void Element(RecoverySet g) throws ParseEOFException:
         | <ESP_SYMBOL_NOT> <ESP_SYMBOL_L_PARENTHESIS> Expression(f1) <ESP_SYMBOL_R_PARENTHESIS> { semanticActions.trigger54(); }
     }
     catch(ParseException e){
-        consumeUntil(g, e,  "na declaração da expressão");
+        consumeUntil(g, e,  "na declaracao da expressao");
     }
 }
 
