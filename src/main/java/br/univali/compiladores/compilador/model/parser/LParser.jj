@@ -73,8 +73,10 @@ public class LParser
          System.out.println(e.getMessage());
          synErrorCount++;
          lastError = tok;
+         compile.printNotRecognized(g, e, met);
+        } else if(lastError.kind == EOF){
+            compile.printRecognizedEOF();
         }
-        compile.printNotRecognized(g, e, met);
 
         //System.out.println(e.getMessage());
         //synErrorCount++;

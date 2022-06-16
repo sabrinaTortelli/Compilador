@@ -61,11 +61,13 @@ public class LParser implements LParserConstants {
         }
         if(tok != lastError)
         {
-         System.out.println(e.getMessage());
-         synErrorCount++;
-         lastError = tok;
+            System.out.println(e.getMessage());
+            synErrorCount++;
+            lastError = tok;
+            compile.printNotRecognized(g, e, met);
+        } else if(lastError.kind == EOF){
+            compile.printRecognizedEOF();
         }
-        compile.printNotRecognized(g, e, met);
 
         //System.out.println(e.getMessage());
         //synErrorCount++;
