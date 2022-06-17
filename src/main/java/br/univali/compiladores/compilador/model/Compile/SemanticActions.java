@@ -21,7 +21,7 @@ public class SemanticActions {
     private ArrayList<HelpInstructionTable> instructionList;
     private String printSemanticError;
     private String error;
-    private Hashtable<Token, HelpEnumeratedTypesTable> enumeratedTypesTables;
+    private Hashtable<String, HelpEnumeratedTypesTable> enumeratedTypesTables;
     private HelpEnumeratedTypesTable helpEnumerated;
     private Token value;
     private int constInt;
@@ -30,6 +30,10 @@ public class SemanticActions {
     private Token identifier;
     private ArrayList<Integer> attributesList;
     private Stack<Integer> stackDeviations;
+
+    private ArrayList<String> constantsList;
+
+    private boolean tokenAlredyDeclared;
 
     public String getPrintSemanticError() {
         return printSemanticError;
@@ -55,9 +59,13 @@ public class SemanticActions {
         instructionList = new ArrayList<>();
         printSemanticError = "";
         error = "";
+        helpEnumerated = new HelpEnumeratedTypesTable();
         enumeratedTypesTables = new Hashtable<>();
         attributesList = new ArrayList<>();
         stackDeviations = new Stack<>();
+        indexVariable = false;
+        tokenAlredyDeclared = false;
+        constantsList = new ArrayList<>();
     }
 
     public int getPointer() {
@@ -86,18 +94,20 @@ public class SemanticActions {
         System.out.println("Entrou no trigger 3:" + t1);
         boolean found = false;
         for(int i=0; i< symbolTable.size(); i++) {
-            if (symbolTable.get(i).getToken().image.equals(t1.image) || enumeratedTypesTables.containsKey(t1)) {
+            if (symbolTable.get(i).getToken().image.equals(t1.image) || enumeratedTypesTables.containsKey(t1.image)) {
                 semErrorCount++;
                 error = "identificador já declarado";
                 buildPrintSemanticError(error, t1);
+                tokenAlredyDeclared = true;
                 found = true;
                 break;
             }
         }
         if(!found){
             helpEnumerated = new HelpEnumeratedTypesTable();
-            helpEnumerated.setId(t1);
-            enumeratedTypesTables.put(t1, helpEnumerated);
+            helpEnumerated.setId(t1.image);
+            enumeratedTypesTables.put(t1.image, helpEnumerated);
+            tokenAlredyDeclared = false;
             System.out.println("Table Enumerated Type trigger3: " + enumeratedTypesTables);
         }
     }
@@ -107,8 +117,8 @@ public class SemanticActions {
         System.out.println("Entrou no trigger 4:" + t1);
         boolean found = false;
         for(int i=0; i< symbolTable.size(); i++) {
-            if (symbolTable.get(i).getToken().image.equals(t1.image) || enumeratedTypesTables.containsKey(t1)
-                    || helpEnumerated.getConstantsIds().contains(t1)) {
+            if (symbolTable.get(i).getToken().image.equals(t1.image) || enumeratedTypesTables.containsKey(t1.image)
+                    || constantsList.contains(t1.image)) {
                 semErrorCount++;
                 error = "identificador já declarado";
                 buildPrintSemanticError(error, t1);
@@ -116,9 +126,10 @@ public class SemanticActions {
                 break;
             }
         }
-        if(!found){
-            helpEnumerated.addList(t1);
+        if(!found && !tokenAlredyDeclared){
+            helpEnumerated.addList(t1.image);
             enumeratedTypesTables.put(helpEnumerated.getId(), helpEnumerated);
+            constantsList.add(t1.image);
             System.out.println("Table Enumerated Type trigger4: " + enumeratedTypesTables);
         }
     }
@@ -138,6 +149,7 @@ public class SemanticActions {
         //int cont = 1;
         System.out.println("N: " + n);
         for(int i=symbolTable.size()-1; i>=symbolTable.size()-n ; i--){
+            System.out.println(symbolTable.get(i).getToken());
             symbolTable.get(i).setCategory(type);
         }
         vp = vp + tvi;
@@ -211,8 +223,8 @@ public class SemanticActions {
         System.out.println("Entrou no trigger 9:" + t1);
         boolean found = false;
         for(int i=0; i< symbolTable.size(); i++) {
-            if (symbolTable.get(i).getToken().image.equals(t1.image) || enumeratedTypesTables.containsKey(t1)
-                    || helpEnumerated.getConstantsIds().contains(t1)) {
+            if (symbolTable.get(i).getToken().image.equals(t1.image) || enumeratedTypesTables.containsKey(t1.image)
+                    || constantsList.contains(t1.image)) {
                 semErrorCount++;
                 error = "identificador já declarado";
                 buildPrintSemanticError(error, t1);
@@ -262,7 +274,7 @@ public class SemanticActions {
     public void trigger11(){
         System.out.println("Entrou no trigger 11");
         int attribute = 0;
-        int sizeVector = 0;
+        int sizeVector = -1;
         int category = 0;
         boolean found = false;
         switch (context){
@@ -295,7 +307,7 @@ public class SemanticActions {
                         break;
                     }
                 }
-                if (sizeVector == -1) {
+                if (sizeVector == -1 && found) {
                     if (!indexVariable) {
                         attributesList.add(attribute);
                     } else {
@@ -303,7 +315,7 @@ public class SemanticActions {
                         error = "identificador de variável não indexada";
                         buildPrintSemanticError(error, tokenConstInt);
                     }
-                } else {
+                } else if (sizeVector != -1 && found) {
                     if (indexVariable) {
                         attributesList.add(attribute + constInt - 1);
                     } else {
@@ -312,14 +324,19 @@ public class SemanticActions {
                         buildPrintSemanticError(error, tokenConstInt);
                     }
                 }
-                if(!found){
+                else if(!found){
                     semErrorCount++;
                     error = "identificador não declarado ou identificador de programa, de constante ou de tipo enumerado";
                     buildPrintSemanticError(error, identifier);
                 }
                 break;
             case "entrada dados":
+                System.out.println(symbolTable.size());
+                System.out.println(found);
                 for(int i=0; i< symbolTable.size(); i++) {
+                    System.out.println(symbolTable.get(i).getToken().image);
+                    System.out.println(symbolTable.get(i).getCategory());
+                    System.out.println("Identifier: " + identifier);
                     if (symbolTable.get(i).getToken().image.equals(identifier.image) &&
                             (symbolTable.get(i).getCategory() == 1 ||
                                     symbolTable.get(i).getCategory() == 2 ||
@@ -330,10 +347,16 @@ public class SemanticActions {
                         category = symbolTable.get(i).getCategory();
                         found = true;
                         break;
+                    } else {
+                        System.out.println("Passou por aqui?");
                     }
                 }
-                if (sizeVector == -1) {
+                System.out.println("SizeVector: " + sizeVector);
+                if (sizeVector == -1 && found) {
+                    System.out.println("Entrou no size vector");
+                    System.out.println("IndexVariable: " + indexVariable);
                     if (!indexVariable) {
+                        System.out.println("Entrou no if");
                         helpInstruction = new HelpInstructionTable(getPointer(), "REA", category);
                         instructionList.add(helpInstruction);
                         pointer++;
@@ -341,11 +364,13 @@ public class SemanticActions {
                         instructionList.add(helpInstruction);
                         pointer++;
                     } else {
+                        System.out.println("Entrou no else");
                         semErrorCount++;
                         error = "identificador de variável não indexada";
                         buildPrintSemanticError(error, tokenConstInt);
                     }
-                } else {
+                } else if (sizeVector != -1 && found) {
+                    System.out.println("IndexVariable: " + indexVariable);
                     if (indexVariable) {
                         helpInstruction = new HelpInstructionTable(getPointer(), "REA", category);
                         instructionList.add(helpInstruction);
@@ -355,13 +380,16 @@ public class SemanticActions {
                         pointer++;
                     } else {
                         semErrorCount++;
+                        System.out.println();
                         error = "identificador de variável exige índice";
                         buildPrintSemanticError(error, tokenConstInt);
                     }
                 }
-                if(!found){
+                else if(!found){
                     semErrorCount++;
+                    System.out.println(semErrorCount);
                     error = "identificador não declarado ou identificador de programa, de constante ou de tipo enumerado";
+                    System.out.println(error);
                     buildPrintSemanticError(error, identifier);
                 }
                 break;
@@ -386,6 +414,7 @@ public class SemanticActions {
         } else {
             type = 5;
         }
+        System.out.println("type: " + type);
     }
 
     //Reconhecimento da palavra reservada float
@@ -396,6 +425,7 @@ public class SemanticActions {
         } else {
             type = 6;
         }
+        System.out.println("type: " + type);
     }
 
     //Reconhecimento da palavra reservada string
@@ -406,6 +436,7 @@ public class SemanticActions {
         } else {
             type = 7;
         }
+        System.out.println("type: " + type);
     }
 
     //Reconhecimento da palavra reservada boolean
@@ -419,6 +450,7 @@ public class SemanticActions {
             error = "tipo inválido para constante";
             buildPrintSemanticError(error, t1);
         }
+        System.out.println("type: " + type);
     }
 
     //Reconhecimento de identificador de tipo enumerado
@@ -432,6 +464,7 @@ public class SemanticActions {
             error = "tipo inválido para constante";
             buildPrintSemanticError(error, t1);
         }
+        System.out.println("type: " + type);
     }
 
     //Reconhecimento do comando de atribuição
@@ -502,7 +535,7 @@ public class SemanticActions {
     public void trigger25(Token t1){
         System.out.println("Entrou no trigger 25:" + t1);
         int attribute = 0;
-        int sizeVector = 0;
+        int sizeVector = -1;
         for(int i=0; i< symbolTable.size(); i++) {
             if (symbolTable.get(i).getToken().image.equals(t1.image)) {
                 attribute = symbolTable.get(i).getAttribute();
@@ -510,10 +543,12 @@ public class SemanticActions {
                 break;
             }
         }
+        System.out.println("IndexVariable: " +indexVariable);
+        System.out.println("sizeVector: " +sizeVector );
         if(!indexVariable){
             if(sizeVector == -1){
                 if(output.equals("write all this")){
-                    //confirmar
+                    System.out.println("Entrou no if do sizeVector == -1");
                     helpInstruction = new HelpInstructionTable(getPointer(), "LDS", identifier);
                     instructionList.add(helpInstruction);
                     pointer++;
@@ -532,6 +567,7 @@ public class SemanticActions {
         } else {
             if(sizeVector != -1){
                 if(output.equals("write all this")){
+                    System.out.println("Entrou no else e if do sizeVector != -1");
                     helpInstruction = new HelpInstructionTable(getPointer(), "LDS", identifier);
                     instructionList.add(helpInstruction);
                     pointer++;

@@ -54,7 +54,8 @@ public class HelpTableSymbol {
     @Override
     public String toString() {
         return "HelpTableSymbol{" +
-                "category=" + category +
+                "token=" + token.image +
+                ", category=" + category +
                 ", attribute=" + attribute +
                 ", sizeVector=" + sizeVector +
                 '}';

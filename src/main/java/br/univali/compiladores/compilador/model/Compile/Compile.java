@@ -108,7 +108,7 @@ public class Compile {
                 gui.getTf().append("----------------------------------FIM ANÁLISE SINTÁTICA-------------------------------\n");
                 gui.getTf().append("---------------------------------------------------------------------------------------------------\n\n");
                 gui.getTf().append("\n---------------------------------------------------------------------------------------------------\n");
-                gui.getTf().append("--------------------------------INÍCIO ANÁLISE SEMÂNTICA-------------------------------\n");
+                gui.getTf().append("-------------------------------INÍCIO ANÁLISE SEMÂNTICA-----------------------------\n");
                 gui.getTf().append("---------------------------------------------------------------------------------------------------\n\n");
                 runSemanticVerification(parser);
             }
@@ -135,21 +135,22 @@ public class Compile {
     }
 
     public void runSemanticVerification(LParser parser) {
-        if (semanticActions.getSemErrorCount() > 0) {
+        System.out.println(parser.getSemanticActions().getSemErrorCount());
+        if (parser.getSemanticActions().getSemErrorCount() > 0) {
             gui.getTf().append(parser.getSemanticActions().getPrintSemanticError());
             gui.getTf().append("--------------------------CONCLUSÃO ANÁLISE SEMÂNTICA--------------------------\n\n" +
-                    "Análise Sintática concluída. Erro(s) encontrados: " + semanticActions.getSemErrorCount() + "\n");
+                    "Análise Semântica concluída. Erro(s) encontrados: " + parser.getSemanticActions().getSemErrorCount() + "\n");
             gui.getTf().append("\n\n---------------------------------------------------------------------------------------------------\n");
             gui.getTf().append("----------------------------------FIM ANÁLISE SEMÂNTICA-------------------------------\n");
             gui.getTf().append("---------------------------------------------------------------------------------------------------\n\n");
         } else {
-            gui.getTf().append("--------------------------CONCLUSÃO ANÁLISE SEMÂNTICA--------------------------\n\n" +
-                    "Análise Sintática concluída. Nenhum erro encontrado" + "\n");
+            gui.getTf().append("--------------------------CONCLUSÃO ANÁLISE SEMÂNTICA------------------------\n\n" +
+                    "Análise Semântica concluída. Nenhum erro encontrado" + "\n");
             gui.getTf().append("\n\n---------------------------------------------------------------------------------------------------\n");
-            gui.getTf().append("----------------------------------FIM ANÁLISE SEMÂNTICA-------------------------------\n");
+            gui.getTf().append("---------------------------------FIM ANÁLISE SEMÂNTICA------------------------------\n");
             gui.getTf().append("---------------------------------------------------------------------------------------------------\n\n");
             System.out.println(parser.getSemanticActions().getInstructionList());
-            new WindowCOController();
+            new WindowCOController(parser.getSemanticActions().getInstructionList());
             //mostra o código objeto
         }
     }
