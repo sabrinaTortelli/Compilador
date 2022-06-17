@@ -1,57 +1,51 @@
 package br.univali.compiladores.compilador.view;
 
+import br.univali.compiladores.compilador.model.Compile.HelpInstructionTable;
+
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.JTextComponent;
-import javax.swing.text.StyledDocument;
-import javax.swing.text.Utilities;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.util.ArrayList;
 
-public class WindowCO extends JFrame {
+public class WindowCO {
 
-    private JPanel jpanel;
-    private JTextArea tf, cn;
+    private JPanel rootPanel;
+    private JTable table;
 
-    public WindowCO() {
-        super("Código Objeto");
-        initComponents();
+    private ArrayList<HelpInstructionTable> instructionList;
+
+    public WindowCO(ArrayList<HelpInstructionTable> instructionList) {
+        this.instructionList = instructionList;
+        createUIComponents();
+        createTable();
     }
 
-    private void initComponents() {
-        setWindow();
+    public JTable getTable() {
+        return table;
     }
 
-    private void setWindow() {
-        Dimension size = getPreferredSize();
-        size.width = 500;
-        size.height = 400;
-        setPreferredSize(size);
-        setSize(size);
-        jpanel = new JPanel();
-        jpanel.setLayout(new GridLayout(5,3,5,5));
-        for (int i = 1; i <= 15; i++) {
-            jpanel.add(createMessagesArea());
+    public JPanel getRootPanel() {
+        return rootPanel;
+    }
+
+    private void createTable() {
+        Object[][] rec = new String[this.instructionList.size()][3];
+        for(int i=0; i<this.instructionList.size(); i++){
+            rec[i][0] = String.valueOf(this.instructionList.get(i).getInstruction());
+            rec[i][1] = this.instructionList.get(i).getCode();
+            rec[i][2] = String.valueOf(this.instructionList.get(i).getParameter());
         }
-        getContentPane().add(jpanel);
-        setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        String[] header = { "Instrução", "Código", "Parâmetro" };
+        table.setModel(new DefaultTableModel(rec, header));
     }
 
-    private JTextArea createMessagesArea(){
-        //Área de texto 2
-        tf = new JTextArea();
-        tf.setLineWrap(true);
-        tf.setEditable(false);
-        tf.setForeground(Color.BLACK);
-        Border border = BorderFactory.createTitledBorder("Teste");
-        tf.setBorder(border);
-        return tf;
+    private void createUIComponents() {
+        // TODO: place custom component creation code here
+        Dimension size = getRootPanel().getPreferredSize();
+        size.width = 600;
+        size.height = 400;
+        getRootPanel().setPreferredSize(size);
+        getRootPanel().setSize(size);
+
     }
 }

@@ -6,26 +6,26 @@ import java.util.ArrayList;
 
 public class HelpEnumeratedTypesTable {
 
-    private Token id;
-    private ArrayList<Token> constantsIds;
+    private String id;
+    private ArrayList<String> constantsIds;
 
     public HelpEnumeratedTypesTable(){
         constantsIds = new ArrayList<>();
     }
 
-    public void addList(Token constantId){
+    public void addList(String constantId){
         constantsIds.add(constantId);
     }
 
-    public ArrayList<Token> getConstantsIds() {
+    public ArrayList<String> getConstantsIds() {
         return constantsIds;
     }
 
-    public Token getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Token id) {
+    public void setId(String id) {
         this.id = id;
     }
 

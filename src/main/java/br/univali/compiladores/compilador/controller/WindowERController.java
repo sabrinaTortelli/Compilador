@@ -18,6 +18,8 @@ public class WindowERController {
         EventQueue.invokeLater(() -> {
             window = new WindowER();
             window.setVisible(true);
+            window.pack();
+            window.setLocationRelativeTo(null);
         });
     }
 }
