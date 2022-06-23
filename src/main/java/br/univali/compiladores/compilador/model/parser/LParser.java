@@ -609,7 +609,7 @@ RecoverySet firstOfDeclaration = new RecoverySet(RESERVED_WORD_DECLARATION);
                                                                        semanticActions.trigger11();
         VariablesIdentifiersListL(g);
       } catch (ParseException e) {
-        consumeUntil(g, e, "na declara\u00c3\u00a7\u00c3\u00a3o de identificadores de vari\u00c3\u00a1veis");
+        consumeUntil(g, e, "na declaracao de identificadores de variaveis");
       }
     } finally {
       trace_return("VariablesIdentifiersList");
