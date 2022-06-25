@@ -37,6 +37,10 @@ public class WindowER extends JFrame implements ActionListener, DocumentListener
         changedDocument = false;
     }
 
+    public MenuController getMenuController() {
+        return menuController;
+    }
+
     private void initComponents() {
         setWindow();
         createMenuBar();
@@ -353,7 +357,7 @@ public class WindowER extends JFrame implements ActionListener, DocumentListener
                 menuController.compile();
                 break;
             case "Execute":
-                new WindowVMController();
+                menuController.execute();
                 break;
             default:
                 System.out.println(command);
