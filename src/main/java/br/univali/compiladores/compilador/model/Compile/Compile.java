@@ -10,6 +10,7 @@ import br.univali.compiladores.compilador.model.recovery.RecoverySet;
 import br.univali.compiladores.compilador.view.WindowER;
 import org.apache.commons.io.input.ReaderInputStream;
 
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.StringReader;
@@ -65,9 +66,10 @@ public class Compile {
                     gui.getTf().append("\n\n---------------------------------------------------------------------------------------------------\n");
                     gui.getTf().append("------------------------------------FIM ANÁLISE LÉXICA----------------------------------\n");
                     gui.getTf().append("---------------------------------------------------------------------------------------------------\n\n");
+                    gui.getTf().setForeground(Color.red);
                 } else {
                     gui.getTf().append("---------------------------CONCLUSÃO ANÁLISE LÉXICA-----------------------------\n\n" +
-                            "Análise Léxica concluída. Nenhum erro encontrado" + "\n");
+                            "Análise Léxica concluída. Nenhum erro encontrado." + "\n");
                     gui.getTf().append("\n\n---------------------------------------------------------------------------------------------------\n");
                     gui.getTf().append("------------------------------------FIM ANÁLISE LÉXICA----------------------------------\n");
                     gui.getTf().append("---------------------------------------------------------------------------------------------------\n\n");
@@ -75,15 +77,18 @@ public class Compile {
                     gui.getTf().append("-------------------------------INÍCIO ANÁLISE SINTÁTICA------------------------------\n");
                     gui.getTf().append("---------------------------------------------------------------------------------------------------\n\n");
                     runSintaticVerification(text, parser);
+                    gui.getTf().setForeground(Color.black);
                 }
             } catch (ParseException ex) {
                 System.out.println("ERRO NA ANÁLISE LÉXICA: "+ ex.getMessage());
                 gui.getTf().append("----------------------------------ERRO NO PARSER-----------------------------\n\n" +
                         "Mensagem: " + ex.getMessage() + "\n");
+                gui.getTf().setForeground(Color.red);
             }
         } catch (TokenMgrError ex) {
             gui.getTf().append("------------------------------------ERRO NO TOKEN--------------------------------\n\n" +
                     "Mensagem: " + ex.getMessage() + "\n");
+            gui.getTf().setForeground(Color.red);
         }
     }
 
@@ -100,10 +105,10 @@ public class Compile {
                 gui.getTf().append("\n\n---------------------------------------------------------------------------------------------------\n");
                 gui.getTf().append("----------------------------------FIM ANÁLISE SINTÁTICA-------------------------------\n");
                 gui.getTf().append("---------------------------------------------------------------------------------------------------\n\n");
-                //mostrar uma mensagem ao executar
+                gui.getTf().setForeground(Color.red);
             } else {
                 gui.getTf().append("--------------------------CONCLUSÃO ANÁLISE SINTÁTICA--------------------------\n\n" +
-                        "Análise Sintática concluída. Nenhum erro encontrado" + "\n");
+                        "Análise Sintática concluída. Nenhum erro encontrado." + "\n");
                 gui.getTf().append("\n\n---------------------------------------------------------------------------------------------------\n");
                 gui.getTf().append("----------------------------------FIM ANÁLISE SINTÁTICA-------------------------------\n");
                 gui.getTf().append("---------------------------------------------------------------------------------------------------\n\n");
@@ -111,11 +116,13 @@ public class Compile {
                 gui.getTf().append("-------------------------------INÍCIO ANÁLISE SEMÂNTICA-----------------------------\n");
                 gui.getTf().append("---------------------------------------------------------------------------------------------------\n\n");
                 runSemanticVerification(parser);
+                gui.getTf().setForeground(Color.black);
             }
         } catch (ParseException | ParseEOFException ex) {
             System.out.println("ERRO NA ANÁLISE SINTÁTICA: "+ ex.getMessage());
             gui.getTf().append("----------------------------------ERRO NO PARSER-----------------------------\n\n" +
                     "Mensagem: " + ex.getMessage() + "\n");
+            gui.getTf().setForeground(Color.red);
 
         }
     }
@@ -143,19 +150,20 @@ public class Compile {
             gui.getTf().append("\n\n---------------------------------------------------------------------------------------------------\n");
             gui.getTf().append("----------------------------------FIM ANÁLISE SEMÂNTICA-------------------------------\n");
             gui.getTf().append("---------------------------------------------------------------------------------------------------\n\n");
+            gui.getTf().setForeground(Color.red);
         } else {
             gui.getTf().append("--------------------------CONCLUSÃO ANÁLISE SEMÂNTICA------------------------\n\n" +
-                    "Análise Semântica concluída. Nenhum erro encontrado" + "\n");
+                    "Análise Semântica concluída. Nenhum erro encontrado." + "\n");
             gui.getTf().append("\n\n---------------------------------------------------------------------------------------------------\n");
             gui.getTf().append("---------------------------------FIM ANÁLISE SEMÂNTICA------------------------------\n");
             gui.getTf().append("---------------------------------------------------------------------------------------------------\n\n");
-            System.out.println(parser.getSemanticActions().getInstructionList());
+            gui.getTf().setForeground(Color.black);
             new WindowCOController(parser.getSemanticActions().getInstructionList());
-            //mostra o código objeto
+            gui.getMenuController().setCompiled(true);
         }
     }
 
-    private String eol = System.getProperty("line.separator", "\n");
+    private final String eol = System.getProperty("line.separator", "\n");
 
     public String msgErrorSintatic(ParseException e) {
         StringBuffer expected = new StringBuffer();

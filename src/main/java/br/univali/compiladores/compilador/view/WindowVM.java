@@ -1,17 +1,8 @@
 package br.univali.compiladores.compilador.view;
 
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.JTextComponent;
 import javax.swing.text.StyledDocument;
-import javax.swing.text.Utilities;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 
 public class WindowVM extends JFrame {
 
@@ -46,10 +37,22 @@ public class WindowVM extends JFrame {
         textPane = new JTextPane();
         textPane.setForeground(Color.WHITE);
         textPane.setBackground(Color.BLACK);
-        textPane.setEditable(true);
+        textPane.setEditable(false);
         textPane.setFont(textPane.getFont().deriveFont(16.0f));
         jpanel.add(textPane, BorderLayout.CENTER);
         doc = textPane.getStyledDocument();
         textPane.setText("Profº Alessandro nos dê nota 10 ❤💻");
+    }
+
+    public void printText(String text){
+        textPane.setText(text);
+    }
+
+    public void setEditable(boolean status){
+        textPane.setEditable(status);
+    }
+
+    public JTextPane getTextPane() {
+        return textPane;
     }
 }

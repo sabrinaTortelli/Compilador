@@ -16,6 +16,7 @@ public class MenuController {
     String fileName;
     String fileAddress;
     private boolean respCancel;
+    private boolean compiled = false;
 
     public MenuController(WindowER gui){
         this.gui = gui;
@@ -25,6 +26,7 @@ public class MenuController {
         gui.getTa().setText("");
         gui.getTf().setText("");
         gui.setTitle("Compilador");
+        compiled = false;
         fileName = null;
     }
 
@@ -60,6 +62,7 @@ public class MenuController {
         } else {
             JOptionPane.showMessageDialog(gui, "Erro ao selecionar o arquivo!");
         }
+        compiled = false;
     }
 
     public void save(){
@@ -151,6 +154,7 @@ public class MenuController {
     }
 
     public void compile(){
+        compiled = false;
         if(!gui.getTa().getText().equals("")){
             try {
                 String text = "";
@@ -159,12 +163,25 @@ public class MenuController {
                 compile.runLexicalVerification(text);
             } catch (Exception e){
                 System.out.println("Erro na função do compilador!" + e.getMessage());
+                compiled = false;
             }
         } else {
             gui.getTf().setText("----------Erro - Arquivo vazio não pode ser compilado!------------");
             gui.getTf().setForeground(Color.red);
+            compiled = false;
         }
+    }
 
+    public void execute(){
+        if(gui.getTa().getText().equals("")){
+            gui.getTf().setText("----------Erro - Arquivo vazio não pode ser executado!------------");
+            gui.getTf().setForeground(Color.red);
+        } else if(!compiled){
+            gui.getTf().setText("----------Erro - Arquivo com erro na compilação não pode ser executado!------------");
+            gui.getTf().setForeground(Color.red);
+        } else {
+            new WindowVMController();
+        }
     }
 
     public void verifyEdition(String action){
@@ -203,5 +220,9 @@ public class MenuController {
                 System.out.println(action);
                 break;
         }
+    }
+
+    public void setCompiled(boolean compiled) {
+        this.compiled = compiled;
     }
 }
