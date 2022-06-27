@@ -926,8 +926,8 @@ void ExpressionL(RecoverySet g) throws ParseEOFException:
     try{
         [(<ESP_SYMBOL_EQUAL>  ArithmeticOrLogicalExpression(g) { semanticActions.trigger36(); }
         | <ESP_SYMBOL_DIFFERENT> ArithmeticOrLogicalExpression(g) { semanticActions.trigger37(); }
-        | <ESP_SYMBOL_GREATER>  ArithmeticOrLogicalExpression(g) { semanticActions.trigger38(); }
-        | <ESP_SYMBOL_LESSER> ArithmeticOrLogicalExpression(g) { semanticActions.trigger39(); }
+        | <ESP_SYMBOL_LESSER> ArithmeticOrLogicalExpression(g) { semanticActions.trigger38(); }
+        | <ESP_SYMBOL_GREATER>  ArithmeticOrLogicalExpression(g) { semanticActions.trigger39(); }
         | <ESP_SYMBOL_LESSERREQUAL> ArithmeticOrLogicalExpression(g) { semanticActions.trigger40(); }
         | <ESP_SYMBOL_GREATEREQUAL> ArithmeticOrLogicalExpression(g) { semanticActions.trigger41(); } )]
     }
