@@ -1,6 +1,9 @@
 package br.univali.compiladores.compilador.model.virtualMachine;
 import br.univali.compiladores.compilador.model.Compile.HelpInstructionTable;
+import br.univali.compiladores.compilador.view.WindowVM;
 
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.Stack;
 
@@ -10,8 +13,10 @@ public class VirtualMachine{
     private final ArrayList<HelpInstructionTable> program;
     private boolean halt;
     private int counter; // program counter comeca em zero para pegar as posicoes do array list
+    private WindowVM gui;
 
-    public VirtualMachine(ArrayList program) {
+    public VirtualMachine(ArrayList<HelpInstructionTable> program, WindowVM gui) {
+        this.gui = gui;
         stack = new Stack<>();
         this.program = program;
         halt = false;
@@ -133,6 +138,7 @@ public class VirtualMachine{
 
     private void halt() {
         halt = true;
+        gui.printText("HALT");
         System.out.println("HALT");
     }
 
@@ -151,6 +157,7 @@ public class VirtualMachine{
             stack.push(resultSum);
             counter++;
         } catch (Exception e) {
+            gui.printText(e.getMessage());
             System.out.println(e.getMessage());
             halt();
         }
@@ -163,12 +170,14 @@ public class VirtualMachine{
         DataTypes resultDivision;
         if (secondValue.getType() == DataTypes.INT) {
             if ((int) secondValue.getValue() == 0) {
+                gui.printText("Divisor e zero");
                 System.out.println("Divisor e zero");
                 halt();
                 return;
             }
         } else if (secondValue.getType() == DataTypes.FLOAT) {
             if ((float) secondValue.getValue() == 0.0) {
+                gui.printText("Divisor e zero");
                 System.out.println("Divisor e zero");
                 halt();
                 return;
@@ -179,6 +188,7 @@ public class VirtualMachine{
             stack.push(resultDivision);
             counter++;
         } catch (Exception e) {
+            gui.printText(e.getMessage());
             System.out.println(e.getMessage());
             halt();
         }
@@ -193,6 +203,7 @@ public class VirtualMachine{
             stack.push(resultMultiplication);
             counter++;
         } catch (Exception e) {
+            gui.printText(e.getMessage());
             System.out.println(e.getMessage());
             halt();
         }
@@ -207,6 +218,7 @@ public class VirtualMachine{
             stack.push(resultSubtraction);
             counter++;
         } catch (Exception e) {
+            gui.printText(e.getMessage());
             System.out.println(e.getMessage());
             halt();
         }
@@ -279,6 +291,8 @@ public class VirtualMachine{
                     attribution = new DataTypes(stackTop.getValue(), DataTypes.FLOAT);
                 } else {
                     attribution = stackTop;
+                    gui.printText("Tipo: " + printType(stackTop.getType()) + " não pode ser atribuido a um real. " +
+                            "Atribuição inválida.");
                     System.out.println( "Tipo: " + printType(stackTop.getType()) + " nao pode ser atribuido a um real. " +
                             "Atribuicao invalida.");
                     halt();
@@ -288,6 +302,8 @@ public class VirtualMachine{
                 if (stackTop.getType() == DataTypes.INT) {
                     attribution = new DataTypes(stackTop.getValue(), DataTypes.INT);
                 } else {
+                    gui.printText("Tipo: " + printType(stackTop.getType()) + " não pode ser atribuido a um inteiro. " +
+                            "Atribuição inválida.");
                     System.out.println( "Tipo: " + printType(stackTop.getType()) + " nao pode ser atribuido a um inteiro. " +
                             "Atribuicao invalida.");
                     halt();
@@ -297,6 +313,8 @@ public class VirtualMachine{
                 if (stackTop.getType() == DataTypes.LITERAL) {
                     attribution = new DataTypes((String) stackTop.getValue(), DataTypes.LITERAL);
                 } else {
+                    gui.printText("Tipo: " + printType(stackTop.getType()) + " não pode ser atribuido a um literal. " +
+                            "Atribuição inválida.");
                     System.out.println( "Tipo: " + printType(stackTop.getType()) + " nao pode ser atribuido a um literal. " +
                             "Atribuicao invalida.");
                     halt();
@@ -306,6 +324,8 @@ public class VirtualMachine{
                 if (stackTop.getType() == DataTypes.LOGIC) {
                     attribution = new DataTypes((Boolean) stackTop.getValue(), DataTypes.LOGIC);
                 } else {
+                    gui.printText("Tipo: " + printType(stackTop.getType()) + " não pode ser atribuido a um lógico. " +
+                            "Atribuição inválida.");
                     System.out.println( "Tipo: " + printType(stackTop.getType()) + " nao pode ser atribuido a um logico. " +
                             "Atribuicao invalida.");
                     halt();
@@ -325,6 +345,7 @@ public class VirtualMachine{
             stack.push(resultAnd);
             counter++;
         } catch (Exception e) {
+            gui.printText(e.getMessage());
             System.out.println(e.getMessage());
             halt();
         }
@@ -338,6 +359,7 @@ public class VirtualMachine{
             stack.push(topNot);
             counter++;
         } catch (Exception e) {
+            gui.printText(e.getMessage());
             System.out.println(e.getMessage());
             halt();
         }
@@ -352,6 +374,7 @@ public class VirtualMachine{
             stack.push(resultOr);
             counter++;
         } catch (Exception e) {
+            gui.printText(e.getMessage());
             System.out.println(e.getMessage());
             halt();
         }
@@ -365,6 +388,7 @@ public class VirtualMachine{
             stack.push(new DataTypes<>(resultBiggerOrEqualValue, DataTypes.LOGIC));
             counter++;
         } catch (Exception e) {
+            gui.printText(e.getMessage());
             System.out.println(e.getMessage());
             halt();
         }
@@ -379,6 +403,7 @@ public class VirtualMachine{
             stack.push(new DataTypes<>(resultBiggerValue, DataTypes.LOGIC));
             counter++;
         } catch (Exception e) {
+            gui.printText(e.getMessage());
             System.out.println(e.getMessage());
             halt();
         }
@@ -393,6 +418,7 @@ public class VirtualMachine{
             stack.push(new DataTypes<>(resultEquals, DataTypes.LOGIC));
             counter++;
         } catch (Exception e) {
+            gui.printText(e.getMessage());
             System.out.println(e.getMessage());
             halt();
         }
@@ -407,6 +433,7 @@ public class VirtualMachine{
             stack.push(new DataTypes<>(resultDifferent, DataTypes.LOGIC));
             counter++;
         } catch (Exception e) {
+            gui.printText(e.getMessage());
             System.out.println(e.getMessage());
             halt();
         }
@@ -420,6 +447,7 @@ public class VirtualMachine{
             stack.push(new DataTypes<>(resultLesserOrEqualValue, DataTypes.LOGIC));
             counter++;
         } catch (Exception e) {
+            gui.printText(e.getMessage());
             System.out.println(e.getMessage());
             halt();
         }
@@ -432,8 +460,9 @@ public class VirtualMachine{
             resultLesserValue = a.checkLesserValue(b);
             stack.push(new DataTypes<>(resultLesserValue, DataTypes.LOGIC));
             counter++;
-        } catch (Exception ex) {
-            System.out.println(ex.getMessage());
+        } catch (Exception e) {
+            gui.printText(e.getMessage());
+            System.out.println(e.getMessage());
             halt();
         }
     }
@@ -462,12 +491,18 @@ public class VirtualMachine{
     private void STP() {
         halt();
     }
+
     private void REA(int valueType) {
         String userInput = "";
         try {
+            gui.setEditable(true);
+//            userInput = gui.getTextPane().getText();
+//            System.out.println(userInput);
+
             //userInput = metodo.read(); //metodo que vai ler a entrada do usuário
             userInput = "2"; //metodo que vai ler a entrada do usuário
         } catch (Exception e) {
+            gui.printText(e.getMessage());
             System.out.println(e.getMessage());
         }
 
@@ -477,6 +512,7 @@ public class VirtualMachine{
                     Float.parseFloat(userInput);
                     stack.push(new DataTypes<>(Float.parseFloat(userInput), valueType));
                 } catch (NumberFormatException e) {
+                    gui.printText("Tipo informado incorreto. Esperava tipo Real");
                     System.out.println("Tipo informado incorreto. Esperava tipo Real");
                     System.out.println(e.getMessage());
                     halt();
@@ -487,6 +523,7 @@ public class VirtualMachine{
                     Integer.parseInt(userInput);
                     stack.push(new DataTypes<>(Integer.parseInt(userInput), valueType));
                 } catch (NumberFormatException e) {
+                    gui.printText("Tipo informado incorreto. Esperava tipo Inteiro");
                     System.out.println("Tipo informado incorreto. Esperava tipo Inteiro");
                     System.out.println(e.getMessage());
                     halt();
@@ -505,8 +542,10 @@ public class VirtualMachine{
 
         if (writeStackTop.getType() == DataTypes.FLOAT) {
             String value = String.format("%.4f", (Float) writeStackTop.getValue());
+            gui.printText("" + value + "\r");
             System.out.println("" + value + "\r");
         } else {
+            gui.printText("" + writeStackTop.getValue() + "\r");
             System.out.println("" + writeStackTop.getValue() + "\r");
         }
         counter++;
@@ -527,12 +566,14 @@ public class VirtualMachine{
 
         if (secondValue.getType() == DataTypes.INT) {
             if ((int) secondValue.getValue() == 0) {
+                gui.printText("Divisor e zero");
                 System.out.println("Divisor e zero");
                 halt();
                 return;
             }
         } else if (secondValue.getType() == DataTypes.FLOAT) {
             if ((float) secondValue.getValue() == 0.0) {
+                gui.printText("Divisor e zero");
                 System.out.println("Divisor e zero");
                 halt();
                 return;
@@ -558,6 +599,7 @@ public class VirtualMachine{
             stack.push(resultMod);
             counter++;
         } catch (Exception e) {
+            gui.printText(e.getMessage());
             System.out.println(e.getMessage());
             halt();
         }
@@ -573,6 +615,7 @@ public class VirtualMachine{
             stack.push(resultPowerOf);
             counter++;
         } catch (Exception e) {
+            gui.printText(e.getMessage());
             System.out.println(e.getMessage());
             halt();
         }
