@@ -17,6 +17,7 @@ public class MenuController {
     String fileAddress;
     private boolean respCancel;
     private boolean compiled = false;
+    private Compile compile;
 
     public MenuController(WindowER gui){
         this.gui = gui;
@@ -159,7 +160,7 @@ public class MenuController {
             try {
                 String text = "";
                 text += gui.getTa().getText();
-                Compile compile = new Compile(gui);
+                compile = new Compile(gui);
                 compile.runLexicalVerification(text);
             } catch (Exception e){
                 System.out.println("Erro na função do compilador!" + e.getMessage());
@@ -180,7 +181,7 @@ public class MenuController {
             gui.getTf().setText("----------Erro - Arquivo com erro na compilação não pode ser executado!------------");
             gui.getTf().setForeground(Color.red);
         } else {
-            new WindowVMController();
+            new WindowVMController(compile.getInstructionList());
         }
     }
 

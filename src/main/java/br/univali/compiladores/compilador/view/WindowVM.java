@@ -1,12 +1,16 @@
 package br.univali.compiladores.compilador.view;
 
+import br.univali.compiladores.compilador.model.Compile.HelpInstructionTable;
+
 import javax.swing.*;
 import javax.swing.text.StyledDocument;
 import java.awt.*;
+import java.util.ArrayList;
 
 public class WindowVM extends JFrame {
 
-    private JTextPane textPane;
+    private JTextArea textArea;
+    private JTextField textField;
     private JPanel jpanel;
     private StyledDocument doc;
 
@@ -34,25 +38,30 @@ public class WindowVM extends JFrame {
     }
 
     private void createEditionArea(){
-        textPane = new JTextPane();
-        textPane.setForeground(Color.WHITE);
-        textPane.setBackground(Color.BLACK);
-        textPane.setEditable(false);
-        textPane.setFont(textPane.getFont().deriveFont(16.0f));
-        jpanel.add(textPane, BorderLayout.CENTER);
-        doc = textPane.getStyledDocument();
-        textPane.setText("Profº Alessandro nos dê nota 10 ❤💻");
-    }
-
-    public void printText(String text){
-        textPane.setText(text);
+        textArea = new JTextArea();
+        textArea.setForeground(Color.yellow);
+        textArea.setBackground(Color.BLACK);
+        textArea.setEditable(false);
+        textArea.setFont(textArea.getFont().deriveFont(16.0f));
+        jpanel.add(textArea);
     }
 
     public void setEditable(boolean status){
-        textPane.setEditable(status);
+        textArea.setEditable(status);
     }
 
-    public JTextPane getTextPane() {
-        return textPane;
+    public void printText(String s) {
+        try {
+            String textComplete="";
+            if(textArea.getText().equals("")){
+                textComplete = s;
+            } else {
+                textComplete = textArea.getText() + "\n" + s;
+            }
+            textArea.setText(textComplete);
+        }
+        catch(Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 }

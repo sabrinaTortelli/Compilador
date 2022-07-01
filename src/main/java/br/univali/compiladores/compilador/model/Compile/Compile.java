@@ -15,11 +15,13 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 
 public class Compile {
 
     private final WindowER gui;
     private SemanticActions semanticActions;
+    private ArrayList<HelpInstructionTable> instructionList;
 
     public Compile(WindowER gui){
         this.gui = gui;
@@ -158,9 +160,18 @@ public class Compile {
             gui.getTf().append("---------------------------------FIM ANÁLISE SEMÂNTICA------------------------------\n");
             gui.getTf().append("---------------------------------------------------------------------------------------------------\n\n");
             gui.getTf().setForeground(Color.black);
+            setInstructionList(parser.getSemanticActions().getInstructionList());
             new WindowCOController(parser.getSemanticActions().getInstructionList());
             gui.getMenuController().setCompiled(true);
         }
+    }
+
+    public void setInstructionList(ArrayList<HelpInstructionTable> instructionList) {
+        this.instructionList = instructionList;
+    }
+
+    public ArrayList<HelpInstructionTable> getInstructionList() {
+        return instructionList;
     }
 
     private final String eol = System.getProperty("line.separator", "\n");
