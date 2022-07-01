@@ -1175,12 +1175,12 @@ RecoverySet f1 = new RecoverySet(ESP_SYMBOL_L_BRACKET),
           case ESP_SYMBOL_GREATER:
             jj_consume_token(ESP_SYMBOL_GREATER);
             ArithmeticOrLogicalExpression(g);
-                                                                   semanticActions.trigger38();
+                                                                   semanticActions.trigger39();
             break;
           case ESP_SYMBOL_LESSER:
             jj_consume_token(ESP_SYMBOL_LESSER);
             ArithmeticOrLogicalExpression(g);
-                                                                 semanticActions.trigger39();
+                                                                 semanticActions.trigger38();
             break;
           case ESP_SYMBOL_LESSERREQUAL:
             jj_consume_token(ESP_SYMBOL_LESSERREQUAL);
