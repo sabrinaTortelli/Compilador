@@ -5,6 +5,7 @@ import br.univali.compiladores.compilador.view.WindowVM;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
+import java.util.Scanner;
 import java.util.Stack;
 
 public class VirtualMachine{
@@ -495,12 +496,12 @@ public class VirtualMachine{
     private void REA(int valueType) {
         String userInput = "";
         try {
-            gui.setEditable(true);
+//            gui.setEditable(true);
 //            userInput = gui.getTextPane().getText();
 //            System.out.println(userInput);
-
+            Scanner sc = new Scanner(System.in);
             //userInput = metodo.read(); //metodo que vai ler a entrada do usuário
-            userInput = "2"; //metodo que vai ler a entrada do usuário
+            userInput = sc.next(); //metodo que vai ler a entrada do usuário
         } catch (Exception e) {
             gui.printText(e.getMessage());
             System.out.println(e.getMessage());
