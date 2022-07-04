@@ -1,29 +1,27 @@
 package br.univali.compiladores.compilador.model.virtualMachine;
-import br.univali.compiladores.compilador.model.Compile.HelpInstructionTable;
-import br.univali.compiladores.compilador.view.WindowVM;
 
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import br.univali.compiladores.compilador.model.Compile.HelpInstructionTable;
+
 import java.util.ArrayList;
-import java.util.Scanner;
 import java.util.Stack;
 
-public class VirtualMachine{
-    private final Stack<DataTypes> stack; //stack comeca do zero e o array list tambem
-                                        // por isso todos os enderecos levam -1
+public class VirtualMachine {
+    private final Stack<DataTypesAndOperations> stack; //stack comeca do zero por isso endereco -1 onde envolve a stack
     private final ArrayList<HelpInstructionTable> program;
     private boolean halt;
-    private int counter; // program counter comeca em zero para pegar as posicoes do array list
-    private WindowVM gui;
+    private int counter; // program counter
+    private TerminalEmulator terminal;
 
-    public VirtualMachine(ArrayList<HelpInstructionTable> program, WindowVM gui) {
-        this.gui = gui;
+    public VirtualMachine(ArrayList program) {
         stack = new Stack<>();
         this.program = program;
         halt = false;
         counter = 0;
+        TerminalEmulator terminator = new TerminalEmulator();
+        this.terminal = terminator;
     }
-     public void executeCode() {
+    public void executeCode() {
+
 
         while (!halt) {
             switch (program.get(counter).getCode()) {
@@ -139,7 +137,7 @@ public class VirtualMachine{
 
     private void halt() {
         halt = true;
-        gui.printText("HALT");
+        terminal.println("HALT");
         System.out.println("HALT");
     }
 
@@ -150,15 +148,14 @@ public class VirtualMachine{
     }
 
     private void ADD() {
-        DataTypes secondValue = stack.pop();
-        DataTypes firstValue = stack.pop();
-        DataTypes resultSum;
+        DataTypesAndOperations secondValue = stack.pop();
+        DataTypesAndOperations firstValue = stack.pop();
+        DataTypesAndOperations resultSum;
         try {
             resultSum = firstValue.checkSum(secondValue);
             stack.push(resultSum);
             counter++;
         } catch (Exception e) {
-            gui.printText(e.getMessage());
             System.out.println(e.getMessage());
             halt();
         }
@@ -166,109 +163,106 @@ public class VirtualMachine{
     }
 
     private void DIV() {
-        DataTypes secondValue = stack.pop();
-        DataTypes firstValue = stack.pop();
-        DataTypes resultDivision;
-        if (secondValue.getType() == DataTypes.INT) {
+        DataTypesAndOperations secondValue = stack.pop();
+        DataTypesAndOperations firstValue = stack.pop();
+        DataTypesAndOperations resultDivision;
+        if (secondValue.getType() == DataTypesAndOperations.INT) {
             if ((int) secondValue.getValue() == 0) {
-                gui.printText("Divisor e zero");
+                terminal.println("Erro: Divisor e zero");
                 System.out.println("Divisor e zero");
                 halt();
                 return;
             }
-        } else if (secondValue.getType() == DataTypes.FLOAT) {
+        } else if (secondValue.getType() == DataTypesAndOperations.FLOAT) {
             if ((float) secondValue.getValue() == 0.0) {
-                gui.printText("Divisor e zero");
+                terminal.println("Erro: Divisor e zero");
                 System.out.println("Divisor e zero");
                 halt();
                 return;
             }
         }
         try {
-            resultDivision = firstValue.checkFloatDivision(secondValue);
+            resultDivision = firstValue.checkFloatDivision(secondValue);//float
             stack.push(resultDivision);
             counter++;
         } catch (Exception e) {
-            gui.printText(e.getMessage());
             System.out.println(e.getMessage());
             halt();
         }
     }
 
     private void MUL() {
-        DataTypes secondValue = stack.pop();
-        DataTypes firstValue = stack.pop();
-        DataTypes resultMultiplication;
+        DataTypesAndOperations secondValue = stack.pop();
+        DataTypesAndOperations firstValue = stack.pop();
+        DataTypesAndOperations resultMultiplication;
         try {
             resultMultiplication = firstValue.checkMultiplication(secondValue);
             stack.push(resultMultiplication);
             counter++;
         } catch (Exception e) {
-            gui.printText(e.getMessage());
             System.out.println(e.getMessage());
             halt();
         }
     }
 
     private void SUB() {
-        DataTypes secondValue = stack.pop();
-        DataTypes firstValue = stack.pop();
-        DataTypes resultSubtraction;
+        DataTypesAndOperations secondValue = stack.pop();
+        DataTypesAndOperations firstValue = stack.pop();
+        DataTypesAndOperations resultSubtraction;
         try {
             resultSubtraction = firstValue.checkSubtraction(secondValue);
             stack.push(resultSubtraction);
             counter++;
         } catch (Exception e) {
-            gui.printText(e.getMessage());
             System.out.println(e.getMessage());
             halt();
         }
     }
     private void ALB(int deslocamento) {
         for (int i = 0; i < deslocamento; i++) {
-            stack.push(new DataTypes<>(false, DataTypes.LOGIC));
+            stack.push(new DataTypesAndOperations<>(false, DataTypesAndOperations.LOGIC));
         }
         counter++;
     }
     private void ALI(int deslocamento) {
         for (int i = 0; i < deslocamento; i++) {
-            stack.push(new DataTypes<>(0, DataTypes.INT));
+            stack.push(new DataTypesAndOperations<>(0, DataTypesAndOperations.INT));
         }
         counter++;
     }
     private void ALR(int deslocamento) {
         for (int i = 0; i < deslocamento; i++) {
-            stack.push(new DataTypes<>(0.0f, DataTypes.FLOAT));
+            stack.push(new DataTypesAndOperations<>(0.0f, DataTypesAndOperations.FLOAT));
         }
         counter++;
     }
 
     private void ALS(int deslocamento) {
         for (int i = 0; i < deslocamento; i++) {
-            stack.push(new DataTypes("", DataTypes.LITERAL)); //string vazia para literal
+            stack.push(new DataTypesAndOperations("", DataTypesAndOperations.LITERAL)); //string vazia para literal
         }
         counter++;
     }
 
     private void LDB(boolean constBool) {
-        DataTypes boolValue = new DataTypes<>(constBool, DataTypes.LOGIC);
+        DataTypesAndOperations boolValue = new DataTypesAndOperations<>(constBool, DataTypesAndOperations.LOGIC);
         stack.push(boolValue);
         counter++;
     }
 
     private void LDI(int constInt) {
-        DataTypes intValue = new DataTypes<>(constInt, DataTypes.INT);
+        DataTypesAndOperations intValue = new DataTypesAndOperations<>(constInt, DataTypesAndOperations.INT);
         stack.push(intValue);
         counter++;
     }
 
     private void LDR(float consFloat) {
-        DataTypes realValue = new DataTypes<>(consFloat, DataTypes.FLOAT);
+        DataTypesAndOperations realValue = new DataTypesAndOperations<>(consFloat, DataTypesAndOperations.FLOAT);
         stack.push(realValue);
         counter++;
     }
     private void LDS(String constLiteral) {
-        DataTypes litValue = new DataTypes<>(constLiteral, DataTypes.LITERAL);
+        DataTypesAndOperations litValue = new DataTypesAndOperations<>(constLiteral, DataTypesAndOperations.LITERAL);
         stack.push(litValue);
         counter++;
     }
@@ -279,55 +273,58 @@ public class VirtualMachine{
     }
 
     private void STR(int endereco) {
-        DataTypes destination = stack.get(endereco - 1);
-        DataTypes stackTop = stack.pop();
-        DataTypes attribution = null;
+        DataTypesAndOperations destination = stack.get(endereco - 1);
+        DataTypesAndOperations stackTop = stack.pop();
+        DataTypesAndOperations attribution = null;
 
         switch (printType(destination.getType())){
             case "Real":
-                if (stackTop.getType() == DataTypes.INT) {
+                if (stackTop.getType() == DataTypesAndOperations.INT) {
                     float auxCast = (Integer) stackTop.getValue();
-                    attribution = new DataTypes(auxCast, DataTypes.FLOAT);
-                } else if (stackTop.getType() == DataTypes.FLOAT) {
-                    attribution = new DataTypes(stackTop.getValue(), DataTypes.FLOAT);
+                    attribution = new DataTypesAndOperations(auxCast, DataTypesAndOperations.FLOAT);
+                } else if (stackTop.getType() == DataTypesAndOperations.FLOAT) {
+                    attribution = new DataTypesAndOperations(stackTop.getValue(), DataTypesAndOperations.FLOAT);
                 } else {
                     attribution = stackTop;
-                    gui.printText("Tipo: " + printType(stackTop.getType()) + " não pode ser atribuido a um real. " +
-                            "Atribuição inválida.");
-                    System.out.println( "Tipo: " + printType(stackTop.getType()) + " nao pode ser atribuido a um real. " +
+                    terminal.println( "Tipo: " + printType(stackTop.getType()) + " nao pode ser atribuito a um real. " +
+                            "Atribuicao invalida.");
+                    System.out.println( "Tipo: " + printType(stackTop.getType()) + " nao pode ser atribuito a um real. " +
                             "Atribuicao invalida.");
                     halt();
                 }
                 break;
             case "Inteiro":
-                if (stackTop.getType() == DataTypes.INT) {
-                    attribution = new DataTypes(stackTop.getValue(), DataTypes.INT);
+                if (stackTop.getType() == DataTypesAndOperations.INT) {
+                    attribution = new DataTypesAndOperations(stackTop.getValue(), DataTypesAndOperations.INT);
                 } else {
-                    gui.printText("Tipo: " + printType(stackTop.getType()) + " não pode ser atribuido a um inteiro. " +
-                            "Atribuição inválida.");
-                    System.out.println( "Tipo: " + printType(stackTop.getType()) + " nao pode ser atribuido a um inteiro. " +
+                    attribution = stackTop;
+                    terminal.println( "Tipo: " + printType(stackTop.getType()) + " nao pode ser atribuito a um inteiro. " +
+                            "Atribuicao invalida.");
+                    System.out.println( "Tipo: " + printType(stackTop.getType()) + " nao pode ser atribuito a um inteiro. " +
                             "Atribuicao invalida.");
                     halt();
                 }
                 break;
             case "Literal":
-                if (stackTop.getType() == DataTypes.LITERAL) {
-                    attribution = new DataTypes((String) stackTop.getValue(), DataTypes.LITERAL);
+                if (stackTop.getType() == DataTypesAndOperations.LITERAL) {
+                    attribution = new DataTypesAndOperations((String) stackTop.getValue(), DataTypesAndOperations.LITERAL);
                 } else {
-                    gui.printText("Tipo: " + printType(stackTop.getType()) + " não pode ser atribuido a um literal. " +
-                            "Atribuição inválida.");
-                    System.out.println( "Tipo: " + printType(stackTop.getType()) + " nao pode ser atribuido a um literal. " +
+                    attribution = stackTop;
+                    terminal.println( "Tipo: " + printType(stackTop.getType()) + " nao pode ser atribuito a um literal. " +
+                            "Atribuicao invalida.");
+                    System.out.println( "Tipo: " + printType(stackTop.getType()) + " nao pode ser atribuito a um literal. " +
                             "Atribuicao invalida.");
                     halt();
                 }
                 break;
             case "Logico":
-                if (stackTop.getType() == DataTypes.LOGIC) {
-                    attribution = new DataTypes((Boolean) stackTop.getValue(), DataTypes.LOGIC);
+                if (stackTop.getType() == DataTypesAndOperations.LOGIC) {
+                    attribution = new DataTypesAndOperations((Boolean) stackTop.getValue(), DataTypesAndOperations.LOGIC);
                 } else {
-                    gui.printText("Tipo: " + printType(stackTop.getType()) + " não pode ser atribuido a um lógico. " +
-                            "Atribuição inválida.");
-                    System.out.println( "Tipo: " + printType(stackTop.getType()) + " nao pode ser atribuido a um logico. " +
+                    attribution = stackTop;
+                    terminal.println( "Tipo: " + printType(stackTop.getType()) + " nao pode ser atribuito a um logico. " +
+                            "Atribuicao invalida.");
+                    System.out.println( "Tipo: " + printType(stackTop.getType()) + " nao pode ser atribuito a um logico. " +
                             "Atribuicao invalida.");
                     halt();
                 }
@@ -337,138 +334,129 @@ public class VirtualMachine{
         counter++;
     }
     private void AND() {
-        DataTypes secondValue = stack.pop();
-        DataTypes firstValue = stack.pop();
-        DataTypes resultAnd;
+        DataTypesAndOperations secondValue = stack.pop();
+        DataTypesAndOperations firstValue = stack.pop();
+        DataTypesAndOperations resultAnd;
 
         try {
             resultAnd = firstValue.checkAnd(secondValue);
             stack.push(resultAnd);
             counter++;
         } catch (Exception e) {
-            gui.printText(e.getMessage());
             System.out.println(e.getMessage());
             halt();
         }
     }
 
     private void NOT() {
-        DataTypes topNot;
+        DataTypesAndOperations topNot;
 
         try {
             topNot = stack.pop().checkNot();
             stack.push(topNot);
             counter++;
         } catch (Exception e) {
-            gui.printText(e.getMessage());
             System.out.println(e.getMessage());
             halt();
         }
     }
 
     private void OR() {
-        DataTypes secondValue = stack.pop();
-        DataTypes firstValue = stack.pop();
-        DataTypes resultOr;
+        DataTypesAndOperations secondValue = stack.pop();
+        DataTypesAndOperations firstValue = stack.pop();
+        DataTypesAndOperations resultOr;
         try {
             resultOr = firstValue.checkOr(secondValue);
             stack.push(resultOr);
             counter++;
         } catch (Exception e) {
-            gui.printText(e.getMessage());
             System.out.println(e.getMessage());
             halt();
         }
     }
     private void BGE() {
-        DataTypes secondValue = stack.pop();
-        DataTypes firstValue = stack.pop();
+        DataTypesAndOperations secondValue = stack.pop();
+        DataTypesAndOperations firstValue = stack.pop();
         boolean resultBiggerOrEqualValue;
         try {
             resultBiggerOrEqualValue = firstValue.checkBiggerOrEqualValue(secondValue);
-            stack.push(new DataTypes<>(resultBiggerOrEqualValue, DataTypes.LOGIC));
+            stack.push(new DataTypesAndOperations<>(resultBiggerOrEqualValue, DataTypesAndOperations.LOGIC));
             counter++;
         } catch (Exception e) {
-            gui.printText(e.getMessage());
             System.out.println(e.getMessage());
             halt();
         }
     }
 
     private void BGR() {
-        DataTypes secondValue = stack.pop();
-        DataTypes firstValue = stack.pop();
+        DataTypesAndOperations secondValue = stack.pop();
+        DataTypesAndOperations firstValue = stack.pop();
         boolean resultBiggerValue;
         try {
             resultBiggerValue = firstValue.checkBiggerValue(secondValue);
-            stack.push(new DataTypes<>(resultBiggerValue, DataTypes.LOGIC));
+            stack.push(new DataTypesAndOperations<>(resultBiggerValue, DataTypesAndOperations.LOGIC));
             counter++;
         } catch (Exception e) {
-            gui.printText(e.getMessage());
             System.out.println(e.getMessage());
             halt();
         }
     }
 
     private void EQL() {
-        DataTypes secondValue = stack.pop();
-        DataTypes firstValue = stack.pop();
+        DataTypesAndOperations secondValue = stack.pop();
+        DataTypesAndOperations firstValue = stack.pop();
         boolean resultEquals;
         try {
             resultEquals = firstValue.checkEqual(secondValue);
-            stack.push(new DataTypes<>(resultEquals, DataTypes.LOGIC));
+            stack.push(new DataTypesAndOperations<>(resultEquals, DataTypesAndOperations.LOGIC));
             counter++;
         } catch (Exception e) {
-            gui.printText(e.getMessage());
             System.out.println(e.getMessage());
             halt();
         }
     }
 
     private void DIF() {
-        DataTypes secondValue = stack.pop();
-        DataTypes firstValue = stack.pop();
+        DataTypesAndOperations secondValue = stack.pop();
+        DataTypesAndOperations firstValue = stack.pop();
         boolean resultDifferent;
         try {
             resultDifferent = firstValue.checkDifferent(secondValue);
-            stack.push(new DataTypes<>(resultDifferent, DataTypes.LOGIC));
+            stack.push(new DataTypesAndOperations<>(resultDifferent, DataTypesAndOperations.LOGIC));
             counter++;
         } catch (Exception e) {
-            gui.printText(e.getMessage());
             System.out.println(e.getMessage());
             halt();
         }
     }
     private void SME() {
-        DataTypes secondValue = stack.pop();
-        DataTypes firstValue = stack.pop();
+        DataTypesAndOperations secondValue = stack.pop();
+        DataTypesAndOperations firstValue = stack.pop();
         boolean resultLesserOrEqualValue;
         try {
             resultLesserOrEqualValue = firstValue.checkLesserOrEqualValue(secondValue);
-            stack.push(new DataTypes<>(resultLesserOrEqualValue, DataTypes.LOGIC));
+            stack.push(new DataTypesAndOperations<>(resultLesserOrEqualValue, DataTypesAndOperations.LOGIC));
             counter++;
         } catch (Exception e) {
-            gui.printText(e.getMessage());
             System.out.println(e.getMessage());
             halt();
         }
     }
     private void SMR() {
-        DataTypes b = stack.pop();
-        DataTypes a = stack.pop();
+        DataTypesAndOperations b = stack.pop();
+        DataTypesAndOperations a = stack.pop();
         boolean resultLesserValue;
         try {
             resultLesserValue = a.checkLesserValue(b);
-            stack.push(new DataTypes<>(resultLesserValue, DataTypes.LOGIC));
+            stack.push(new DataTypesAndOperations<>(resultLesserValue, DataTypesAndOperations.LOGIC));
             counter++;
-        } catch (Exception e) {
-            gui.printText(e.getMessage());
-            System.out.println(e.getMessage());
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
             halt();
         }
     }
     private void JMF(int endereco) {
-        DataTypes falseCheckJump = stack.pop();
+        DataTypesAndOperations falseCheckJump = stack.pop();
         if (!(boolean) falseCheckJump.getValue()) {
             counter = endereco -1;
         } else {
@@ -481,7 +469,7 @@ public class VirtualMachine{
     }
 
     private void JMT(int endereco) {
-        DataTypes trueCheckJump = stack.pop();
+        DataTypesAndOperations trueCheckJump = stack.pop();
         if ((boolean) trueCheckJump.getValue()) {
             counter = endereco -1;
         } else {
@@ -492,46 +480,43 @@ public class VirtualMachine{
     private void STP() {
         halt();
     }
-
     private void REA(int valueType) {
         String userInput = "";
+//        Scanner scan = new Scanner(System.in);
         try {
-//            gui.setEditable(true);
-//            userInput = gui.getTextPane().getText();
-//            System.out.println(userInput);
-            Scanner sc = new Scanner(System.in);
-            //userInput = metodo.read(); //metodo que vai ler a entrada do usuário
-            userInput = sc.next(); //metodo que vai ler a entrada do usuário
-        } catch (Exception e) {
-            gui.printText(e.getMessage());
+            terminal.println("Inserir valor esperado: ");
+            userInput = terminal.read(); //metodo que vai ler a entrada do usuário
+//            userInput = scan.next();
+        }
+        catch (Exception e) {
             System.out.println(e.getMessage());
         }
 
         switch (valueType) {
-            case DataTypes.FLOAT:
+            case DataTypesAndOperations.FLOAT:
                 try {
                     Float.parseFloat(userInput);
-                    stack.push(new DataTypes<>(Float.parseFloat(userInput), valueType));
+                    stack.push(new DataTypesAndOperations<>(Float.parseFloat(userInput), valueType));
                 } catch (NumberFormatException e) {
-                    gui.printText("Tipo informado incorreto. Esperava tipo Real");
+                    terminal.println("Tipo informado incorreto. Esperava tipo Real");
                     System.out.println("Tipo informado incorreto. Esperava tipo Real");
                     System.out.println(e.getMessage());
                     halt();
                 }
                 break;
-            case DataTypes.INT:
+            case DataTypesAndOperations.INT:
                 try {
                     Integer.parseInt(userInput);
-                    stack.push(new DataTypes<>(Integer.parseInt(userInput), valueType));
+                    stack.push(new DataTypesAndOperations<>(Integer.parseInt(userInput), valueType));
                 } catch (NumberFormatException e) {
-                    gui.printText("Tipo informado incorreto. Esperava tipo Inteiro");
+                    terminal.println("Tipo informado incorreto. Esperava tipo Inteiro");
                     System.out.println("Tipo informado incorreto. Esperava tipo Inteiro");
                     System.out.println(e.getMessage());
                     halt();
                 }
                 break;
-            case DataTypes.LITERAL:
-                stack.push(new DataTypes<>(userInput, valueType));
+            case DataTypesAndOperations.LITERAL:
+                stack.push(new DataTypesAndOperations<>(userInput, valueType));
                 break;
         }
 
@@ -539,21 +524,21 @@ public class VirtualMachine{
     }
 
     private void WRT() {
-        DataTypes writeStackTop = stack.pop();
+        DataTypesAndOperations writeStackTop = stack.pop();
 
-        if (writeStackTop.getType() == DataTypes.FLOAT) {
+        if (writeStackTop.getType() == DataTypesAndOperations.FLOAT) {
             String value = String.format("%.4f", (Float) writeStackTop.getValue());
-            gui.printText("" + value + "\r");
             System.out.println("" + value + "\r");
+            terminal.println("" + value + "\r");
         } else {
-            gui.printText("" + writeStackTop.getValue() + "\r");
             System.out.println("" + writeStackTop.getValue() + "\r");
+            terminal.println("" + writeStackTop.getValue() + "\r");
         }
         counter++;
     }
 
     private void STC(int deslocamento) {
-        DataTypes stackTop = stack.pop();
+        DataTypesAndOperations stackTop = stack.pop();
         for (int i = stack.size() - deslocamento; i < stack.size(); i++) {
             stack.set(i, stackTop);
         }
@@ -561,20 +546,20 @@ public class VirtualMachine{
         counter++;
     }
     private void DVI() {
-        DataTypes secondValue = stack.pop();
-        DataTypes firstValue = stack.pop();
-        DataTypes resultIntDivision;
+        DataTypesAndOperations secondValue = stack.pop();
+        DataTypesAndOperations firstValue = stack.pop();
+        DataTypesAndOperations resultIntDivision;
 
-        if (secondValue.getType() == DataTypes.INT) {
+        if (secondValue.getType() == DataTypesAndOperations.INT) {
             if ((int) secondValue.getValue() == 0) {
-                gui.printText("Divisor e zero");
+                terminal.println("Erro: Divisor e zero");
                 System.out.println("Divisor e zero");
                 halt();
                 return;
             }
-        } else if (secondValue.getType() == DataTypes.FLOAT) {
+        } else if (secondValue.getType() == DataTypesAndOperations.FLOAT) {
             if ((float) secondValue.getValue() == 0.0) {
-                gui.printText("Divisor e zero");
+                terminal.println("Erro: Divisor e zero");
                 System.out.println("Divisor e zero");
                 halt();
                 return;
@@ -592,15 +577,14 @@ public class VirtualMachine{
 
     }
     private void MOD() {
-        DataTypes secondValue = stack.pop();
-        DataTypes firstValue = stack.pop();
-        DataTypes resultMod;
+        DataTypesAndOperations secondValue = stack.pop();
+        DataTypesAndOperations firstValue = stack.pop();
+        DataTypesAndOperations resultMod;
         try {
             resultMod = firstValue.checkMod(secondValue);
             stack.push(resultMod);
             counter++;
         } catch (Exception e) {
-            gui.printText(e.getMessage());
             System.out.println(e.getMessage());
             halt();
         }
@@ -608,15 +592,14 @@ public class VirtualMachine{
     }
 
     private void POW() {
-        DataTypes secondValue = stack.pop();
-        DataTypes firstValue = stack.pop();
-        DataTypes resultPowerOf;
+        DataTypesAndOperations secondValue = stack.pop();
+        DataTypesAndOperations firstValue = stack.pop();
+        DataTypesAndOperations resultPowerOf;
         try {
             resultPowerOf = firstValue.checkPowerOf(secondValue);
             stack.push(resultPowerOf);
             counter++;
         } catch (Exception e) {
-            gui.printText(e.getMessage());
             System.out.println(e.getMessage());
             halt();
         }
@@ -625,16 +608,16 @@ public class VirtualMachine{
     private String printType(int type) {
         String printableTypeName;
         switch (type) {
-            case DataTypes.FLOAT:
+            case DataTypesAndOperations.FLOAT:
                 printableTypeName = "Real";
                 break;
-            case DataTypes.INT:
+            case DataTypesAndOperations.INT:
                 printableTypeName = "Inteiro";
                 break;
-            case DataTypes.LITERAL:
+            case DataTypesAndOperations.LITERAL:
                 printableTypeName = "Literal";
                 break;
-            case DataTypes.LOGIC:
+            case DataTypesAndOperations.LOGIC:
                 printableTypeName = "Logico";
                 break;
             default:
