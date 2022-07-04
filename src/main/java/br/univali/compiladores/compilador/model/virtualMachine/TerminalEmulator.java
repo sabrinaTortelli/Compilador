@@ -10,7 +10,7 @@ public class TerminalEmulator extends JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea jtxtConsole;
 
-    private final TerminalObserver conListerner;
+    private final TerminalObserver terminalListener;
 
     public TerminalEmulator() {
         initComponents();
@@ -29,8 +29,8 @@ public class TerminalEmulator extends JFrame {
         });
 
         jtxtConsole.getCaret().setVisible(true);
-        conListerner = new TerminalObserver(jtxtConsole);
-        jtxtConsole.addKeyListener(conListerner);
+        terminalListener = new TerminalObserver(jtxtConsole);
+        jtxtConsole.addKeyListener(terminalListener);
         this.setVisible(true);
     }
     private void initComponents() {
@@ -82,9 +82,9 @@ public class TerminalEmulator extends JFrame {
     }
 
     public String read() {
-        conListerner.setIsReading(true);
+        terminalListener.setIsReading(true);
 
-        while (conListerner.isReading()) {
+        while (terminalListener.isReading()) {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException ex) {
@@ -92,8 +92,8 @@ public class TerminalEmulator extends JFrame {
             }
         }
 
-        String userInput = conListerner.getUserInputBuffer();
-        conListerner.emptyUserBuffer();
+        String userInput = terminalListener.getUserInputBuffer();
+        terminalListener.emptyUserBuffer();
         return userInput;
     }
 

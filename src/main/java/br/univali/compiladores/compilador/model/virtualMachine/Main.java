@@ -70,7 +70,7 @@ public class Main {
         HelpInstructionTable helper20 = new HelpInstructionTable(20,"STP",0);
         driver.add(helper20);
 
-//        VirtualMachine vm = new VirtualMachine(driver);
-//        vm.executeCode();
+        VirtualMachine vm = new VirtualMachine(driver);
+        vm.executeCode();
     }
 }
