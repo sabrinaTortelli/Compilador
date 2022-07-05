@@ -72,5 +72,12 @@ public class Main {
 
         VirtualMachine vm = new VirtualMachine(driver);
         vm.executeCode();
+
+    }
+    public static void vmTeste(ArrayList<HelpInstructionTable> command){
+        ArrayList<HelpInstructionTable> driver = command;
+        VirtualMachine vm = new VirtualMachine(driver);
+        vm.executeWithMaxPriority();
+
     }
 }

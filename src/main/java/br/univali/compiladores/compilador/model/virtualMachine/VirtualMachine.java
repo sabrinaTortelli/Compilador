@@ -3,9 +3,10 @@ package br.univali.compiladores.compilador.model.virtualMachine;
 import br.univali.compiladores.compilador.model.Compile.HelpInstructionTable;
 
 import java.util.ArrayList;
+import java.util.Scanner;
 import java.util.Stack;
 
-public class VirtualMachine {
+public class VirtualMachine extends Thread{
     private final Stack<DataTypesAndOperations> stack; //stack comeca do zero por isso endereco -1 onde envolve a stack
     private final ArrayList<HelpInstructionTable> program;
     private boolean halt;
@@ -20,9 +21,12 @@ public class VirtualMachine {
         TerminalEmulator terminator = new TerminalEmulator();
         this.terminal = terminator;
     }
+
+    public void executeWithMaxPriority(){
+        this.setPriority(Thread.MAX_PRIORITY);
+        executeCode();
+    }
     public void executeCode() {
-
-
         while (!halt) {
             switch (program.get(counter).getCode()) {
                 //aritimeticas
@@ -482,7 +486,7 @@ public class VirtualMachine {
     }
     private void REA(int valueType) {
         String userInput = "";
-//        Scanner scan = new Scanner(System.in);
+        Scanner scan = new Scanner(System.in);
         try {
             terminal.println("Inserir valor esperado: ");
             userInput = terminal.read(); //metodo que vai ler a entrada do usuário

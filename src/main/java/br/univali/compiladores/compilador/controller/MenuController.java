@@ -180,8 +180,9 @@ public class MenuController {
     public void execute(){
         ArrayList<HelpInstructionTable> driver = new ArrayList<>();
         driver = compile.getInstructionList();
-        VirtualMachine vm = new VirtualMachine(driver);
-        vm.executeCode();
+//        VirtualMachine vm = new VirtualMachine(driver);
+//        vm.executeCode();
+        Main.vmTeste(driver);
 
 
 
