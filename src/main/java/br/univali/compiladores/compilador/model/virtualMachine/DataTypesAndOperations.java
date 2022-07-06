@@ -1,5 +1,7 @@
 package br.univali.compiladores.compilador.model.virtualMachine;
 
+import br.univali.compiladores.compilador.view.WindowConsole;
+
 public class DataTypesAndOperations<T>{
     //valores definidos por causa do REA INT =1, REAL/FLOAT = 2, LITERAL/STRING = 3
     static final int FLOAT = 2;
@@ -25,37 +27,40 @@ public class DataTypesAndOperations<T>{
     }
 
     //operacoes logicas
-    public DataTypesAndOperations checkAnd(DataTypesAndOperations secondValue) throws Exception {
+    public DataTypesAndOperations checkAnd(DataTypesAndOperations secondValue, WindowConsole gui) throws Exception {
         if (this.getType() == DataTypesAndOperations.LOGIC && secondValue.getType() == DataTypesAndOperations.LOGIC) {
             boolean and = (Boolean) this.getValue() & (boolean) secondValue.getValue();
             DataTypesAndOperations result = new DataTypesAndOperations<>(and, DataTypesAndOperations.LOGIC);
             return result;
         } else {
+            gui.println("Erro: operação 'E' esperava valores lógicos");
             throw new Exception("Erro: operacao 'E' esperava valores logicos");
         }
     }
 
-    public DataTypesAndOperations checkOr(DataTypesAndOperations secondValue) throws Exception {
+    public DataTypesAndOperations checkOr(DataTypesAndOperations secondValue, WindowConsole gui) throws Exception {
         if (this.getType() == DataTypesAndOperations.LOGIC && secondValue.getType() == DataTypesAndOperations.LOGIC) {
             boolean or = (Boolean) this.getValue() | (boolean) secondValue.getValue();
             DataTypesAndOperations result = new DataTypesAndOperations<>(or, DataTypesAndOperations.LOGIC);
             return result;
         } else {
+            gui.println("Erro: operação 'OU' esperava valores lógicos");
             throw new Exception("Erro: operacao 'OU' esperava valores logicos");
         }
     }
 
-    public DataTypesAndOperations checkNot() throws Exception {
+    public DataTypesAndOperations checkNot(WindowConsole gui) throws Exception {
         if (this.getType() == DataTypesAndOperations.LOGIC) {
             DataTypesAndOperations result = new DataTypesAndOperations<>(!(Boolean) this.getValue(), DataTypesAndOperations.LOGIC);
             return result;
         } else {
+            gui.println("Erro: negação esperava um valor lógico");
             throw new Exception("Erro: negacao esperava um valor logico");
         }
     }
 
     //operacoes aritimeticas
-    public DataTypesAndOperations checkSum(DataTypesAndOperations secondValue) throws Exception {
+    public DataTypesAndOperations checkSum(DataTypesAndOperations secondValue, WindowConsole gui) throws Exception {
         if (this.getType() == DataTypesAndOperations.FLOAT && secondValue.getType() == DataTypesAndOperations.FLOAT) {
             float sum = (Float) this.getValue() + (float) secondValue.getValue();
             DataTypesAndOperations result = new DataTypesAndOperations<>(sum, DataTypesAndOperations.FLOAT);
@@ -76,10 +81,11 @@ public class DataTypesAndOperations<T>{
             DataTypesAndOperations result = new DataTypesAndOperations<>(sum, DataTypesAndOperations.FLOAT);
             return result;
         }
+        gui.println("Erro: operação adição esperava inteiro ou real");
         throw new Exception("Erro: operacao adicao esperava inteiro ou real");
     }
 
-    public DataTypesAndOperations checkSubtraction(DataTypesAndOperations secondValue) throws Exception {
+    public DataTypesAndOperations checkSubtraction(DataTypesAndOperations secondValue, WindowConsole gui) throws Exception {
         if (this.getType() == DataTypesAndOperations.FLOAT && secondValue.getType() == DataTypesAndOperations.FLOAT) {
             float subtraction = (Float) this.getValue() - (float) secondValue.getValue();
             DataTypesAndOperations result = new DataTypesAndOperations<>(subtraction, DataTypesAndOperations.FLOAT);
@@ -100,10 +106,11 @@ public class DataTypesAndOperations<T>{
             DataTypesAndOperations result = new DataTypesAndOperations<>(subtraction, DataTypesAndOperations.FLOAT);
             return result;
         }
+        gui.println("Erro: operação subtração esperava inteiro ou real");
         throw new Exception("Erro: operacao subtracao esperava inteiro ou real");
     }
 
-    public DataTypesAndOperations checkMultiplication(DataTypesAndOperations secondValue) throws Exception {
+    public DataTypesAndOperations checkMultiplication(DataTypesAndOperations secondValue, WindowConsole gui) throws Exception {
         if (this.getType() == DataTypesAndOperations.FLOAT && secondValue.getType() == DataTypesAndOperations.FLOAT) {
             float multiplication = (Float) this.getValue() * (float) secondValue.getValue();
             DataTypesAndOperations result = new DataTypesAndOperations<>(multiplication, DataTypesAndOperations.FLOAT);
@@ -124,10 +131,11 @@ public class DataTypesAndOperations<T>{
             DataTypesAndOperations result = new DataTypesAndOperations<>(multiplication, DataTypesAndOperations.FLOAT);
             return result;
         }
+        gui.println("Erro: operação multiplicação esperava inteiro ou real");
         throw new Exception("Erro: operacao multiplicacao esperava inteiro ou real");
     }
 
-    public DataTypesAndOperations checkFloatDivision(DataTypesAndOperations secondValue) throws Exception {
+    public DataTypesAndOperations checkFloatDivision(DataTypesAndOperations secondValue, WindowConsole gui) throws Exception {
         if (this.getType() == DataTypesAndOperations.FLOAT && secondValue.getType() == DataTypesAndOperations.FLOAT) {
             float division = (Float) this.getValue() / (float) secondValue.getValue();
             DataTypesAndOperations result = new DataTypesAndOperations<>(division, DataTypesAndOperations.FLOAT);
@@ -148,10 +156,11 @@ public class DataTypesAndOperations<T>{
             DataTypesAndOperations result = new DataTypesAndOperations<>(division, DataTypesAndOperations.FLOAT);
             return result;
         }
+        gui.println("Erro: operação divisão esperava inteiro ou real");
         throw new Exception("Erro: operacao divisao esperava inteiro ou real");
     }
 
-    public DataTypesAndOperations checkIntDivision(DataTypesAndOperations secondValue) throws Exception {
+    public DataTypesAndOperations checkIntDivision(DataTypesAndOperations secondValue, WindowConsole gui) throws Exception {
         if (this.getType() == DataTypesAndOperations.FLOAT && secondValue.getType() == DataTypesAndOperations.FLOAT) {
             int division = (int) ((Float) this.getValue()/ (float) secondValue.getValue());
             DataTypesAndOperations result = new DataTypesAndOperations<>(division, DataTypesAndOperations.INT);
@@ -173,10 +182,11 @@ public class DataTypesAndOperations<T>{
             DataTypesAndOperations result = new DataTypesAndOperations<>(division, DataTypesAndOperations.INT);
             return result;
         }
+        gui.println("Erro: operação divisão esperava inteiro ou real");
         throw new Exception("Erro: operacao divisao esperava inteiro ou real");
     }
 
-    public DataTypesAndOperations checkPowerOf(DataTypesAndOperations secondValue) throws Exception {
+    public DataTypesAndOperations checkPowerOf(DataTypesAndOperations secondValue, WindowConsole gui) throws Exception {
         if (this.getType() == DataTypesAndOperations.FLOAT && secondValue.getType() == DataTypesAndOperations.FLOAT) {
             float floatResult = (float) Math.pow((Float) this.getValue(), (float) secondValue.getValue());
             DataTypesAndOperations result = new DataTypesAndOperations<>(floatResult, DataTypesAndOperations.FLOAT);
@@ -197,10 +207,11 @@ public class DataTypesAndOperations<T>{
             DataTypesAndOperations result = new DataTypesAndOperations<>(floatResult, DataTypesAndOperations.FLOAT);
             return result;
         }
+        gui.println("Erro: potenciação esperava inteiro ou real");
         throw new Exception("Erro: potenciacao esperava inteiro ou real");
     }
 
-    public DataTypesAndOperations checkMod(DataTypesAndOperations secondValue) throws Exception {
+    public DataTypesAndOperations checkMod(DataTypesAndOperations secondValue, WindowConsole gui) throws Exception {
         if (this.getType() == DataTypesAndOperations.FLOAT && secondValue.getType() == DataTypesAndOperations.FLOAT) {
             float auxCast1 = (Float) this.getValue();
             float auxCast2 = (float) secondValue.getValue();
@@ -224,11 +235,12 @@ public class DataTypesAndOperations<T>{
             DataTypesAndOperations result = new DataTypesAndOperations<>(intMod, DataTypesAndOperations.INT);
             return result;
         }
+        gui.println("Erro: resto esperava inteiro ou real");
         throw new Exception("Erro: resto esperava inteiro ou real");
     }
 
     //comparacoes
-    public boolean checkEqual(DataTypesAndOperations secondValue) throws Exception {
+    public boolean checkEqual(DataTypesAndOperations secondValue, WindowConsole gui) throws Exception {
 
         if (this.getType() == DataTypesAndOperations.FLOAT && secondValue.getType() == DataTypesAndOperations.FLOAT) {
             boolean result = (Float) this.getValue() == (float) secondValue.getValue();
@@ -246,10 +258,11 @@ public class DataTypesAndOperations<T>{
             boolean result = (Integer) this.getValue() == (float) secondValue.getValue();
             return result;
         }
+        gui.println("Erro: comparação de igualdade esperava inteiro ou real");
         throw new Exception("Erro: comparacao de igualdade esperava inteiro ou real");
     }
 
-    public boolean checkDifferent(DataTypesAndOperations secondValue) throws Exception {
+    public boolean checkDifferent(DataTypesAndOperations secondValue, WindowConsole gui) throws Exception {
         if (this.getType() == DataTypesAndOperations.FLOAT && secondValue.getType() == DataTypesAndOperations.FLOAT) {
             boolean result = (Float) this.getValue() != (float) secondValue.getValue();
             return result;
@@ -266,10 +279,11 @@ public class DataTypesAndOperations<T>{
             boolean result = (Integer) this.getValue() != (float) secondValue.getValue();
             return result;
         }
+        gui.println("Erro: diferenciação esperava inteiro ou real");
         throw new Exception("Erro: diferenciacao esperava inteiro ou real");
     }
 
-    public boolean checkBiggerValue(DataTypesAndOperations secondValue) throws Exception {
+    public boolean checkBiggerValue(DataTypesAndOperations secondValue, WindowConsole gui) throws Exception {
         if (this.getType() == DataTypesAndOperations.FLOAT && secondValue.getType() == DataTypesAndOperations.FLOAT) {
             boolean result = (Float) this.getValue() > (float) secondValue.getValue();
             return result;
@@ -286,10 +300,11 @@ public class DataTypesAndOperations<T>{
             boolean result = (Integer) this.getValue() > (float) secondValue.getValue();
             return result;
         }
+        gui.println("Erro: comparação de valor maior esperava inteiro ou real");
         throw new Exception("Erro: comparacao de valor maior esperava inteiro ou real");
     }
 
-    public boolean checkLesserValue(DataTypesAndOperations secondValue) throws Exception {
+    public boolean checkLesserValue(DataTypesAndOperations secondValue, WindowConsole gui) throws Exception {
         if (this.getType() == DataTypesAndOperations.FLOAT && secondValue.getType() == DataTypesAndOperations.FLOAT) {
             boolean result = (Float) this.getValue() < (float) secondValue.getValue();
             return result;
@@ -306,10 +321,11 @@ public class DataTypesAndOperations<T>{
             boolean result = (Integer) this.getValue() < (float) secondValue.getValue();
             return result;
         }
+        gui.println("Erro: comparação de valor menor esperava inteiro ou real");
         throw new Exception("Erro: comparacao de valor menor esperava inteiro ou real");
     }
 
-    public boolean checkBiggerOrEqualValue(DataTypesAndOperations secondValue) throws Exception {
+    public boolean checkBiggerOrEqualValue(DataTypesAndOperations secondValue, WindowConsole gui) throws Exception {
         if (this.getType() == DataTypesAndOperations.FLOAT && secondValue.getType() == DataTypesAndOperations.FLOAT) {
             boolean result = (Float) this.getValue() >= (float) secondValue.getValue();
             return result;
@@ -326,10 +342,11 @@ public class DataTypesAndOperations<T>{
             boolean result = (Integer) this.getValue() >= (float) secondValue.getValue();
             return result;
         }
+        gui.println("Erro: comparação de valor igual ou maior esperava inteiro ou real");
         throw new Exception("Erro: comparacao de valor igual ou maior esperava inteiro ou real");
     }
 
-    public boolean checkLesserOrEqualValue(DataTypesAndOperations secondValue) throws Exception {
+    public boolean checkLesserOrEqualValue(DataTypesAndOperations secondValue, WindowConsole gui) throws Exception {
         if (this.getType() == DataTypesAndOperations.FLOAT && secondValue.getType() == DataTypesAndOperations.FLOAT) {
             boolean result = (Float) this.getValue() <= (float) secondValue.getValue();
             return result;
@@ -346,6 +363,7 @@ public class DataTypesAndOperations<T>{
             boolean result = (Integer) this.getValue() <= (float) secondValue.getValue();
             return result;
         }
+        gui.println("Erro: comparação de valor igual ou mmenor esperava inteiro ou real");
         throw new Exception("Erro: comparacao de valor igual ou mmenor esperava inteiro ou real");
     }
 }

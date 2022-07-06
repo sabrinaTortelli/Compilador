@@ -1,9 +1,6 @@
 package br.univali.compiladores.compilador.controller;
 
 import br.univali.compiladores.compilador.model.Compile.Compile;
-import br.univali.compiladores.compilador.model.Compile.HelpInstructionTable;
-import br.univali.compiladores.compilador.model.virtualMachine.VirtualMachine;
-import br.univali.compiladores.compilador.model.virtualMachine.Main;
 import br.univali.compiladores.compilador.view.WindowER;
 
 import javax.swing.*;
@@ -12,7 +9,6 @@ import javax.swing.text.DefaultEditorKit;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.*;
-import java.util.ArrayList;
 
 public class MenuController {
 
@@ -178,14 +174,16 @@ public class MenuController {
     }
 
     public void execute(){
-        ArrayList<HelpInstructionTable> driver = new ArrayList<>();
-        driver = compile.getInstructionList();
-//        VirtualMachine vm = new VirtualMachine(driver);
-//        vm.executeCode();
-        Main.vmTeste(driver);
-
-
-
+        if(gui.getTa().getText().equals("")){
+            gui.getTf().setText("----------Erro - Arquivo vazio não pode ser executado!------------");
+            gui.getTf().setForeground(Color.red);
+        } else if(!compiled){
+            gui.getTf().setText("----------Erro - Arquivo com erro na compilação não pode ser executado!------------");
+            gui.getTf().setForeground(Color.red);
+        } else {
+            compile.getWindowCO().getFrame().dispose();
+            new WindowVMController(compile.getInstructionList());
+        }
     }
 
     public void verifyEdition(String action){
