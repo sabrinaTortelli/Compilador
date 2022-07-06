@@ -1,7 +1,6 @@
 package br.univali.compiladores.compilador.view;
 
 import br.univali.compiladores.compilador.controller.MenuController;
-//import br.univali.compiladores.compilador.controller.WindowVMController;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;

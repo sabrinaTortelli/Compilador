@@ -22,6 +22,7 @@ public class Compile {
     private final WindowER gui;
     private SemanticActions semanticActions;
     private ArrayList<HelpInstructionTable> instructionList;
+    private WindowCOController windowCO;
 
     public Compile(WindowER gui){
         this.gui = gui;
@@ -161,9 +162,13 @@ public class Compile {
             gui.getTf().append("---------------------------------------------------------------------------------------------------\n\n");
             gui.getTf().setForeground(Color.black);
             setInstructionList(parser.getSemanticActions().getInstructionList());
-            new WindowCOController(parser.getSemanticActions().getInstructionList());
+            windowCO = new WindowCOController(parser.getSemanticActions().getInstructionList());
             gui.getMenuController().setCompiled(true);
         }
+    }
+
+    public WindowCOController getWindowCO() {
+        return windowCO;
     }
 
     public void setInstructionList(ArrayList<HelpInstructionTable> instructionList) {

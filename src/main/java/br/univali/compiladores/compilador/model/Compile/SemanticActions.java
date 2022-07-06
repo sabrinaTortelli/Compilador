@@ -549,7 +549,7 @@ public class SemanticActions {
             if(sizeVector == -1){
                 if(output.equals("write all this")){
                     System.out.println("Entrou no if do sizeVector == -1");
-                    helpInstruction = new HelpInstructionTable(getPointer(), "LDS", identifier);
+                    helpInstruction = new HelpInstructionTable(getPointer(), "LDS", ("\"" + identifier + "=\""));
                     instructionList.add(helpInstruction);
                     pointer++;
                     helpInstruction = new HelpInstructionTable(getPointer(), "WRT", 0);
@@ -568,7 +568,7 @@ public class SemanticActions {
             if(sizeVector != -1){
                 if(output.equals("write all this")){
                     System.out.println("Entrou no else e if do sizeVector != -1");
-                    helpInstruction = new HelpInstructionTable(getPointer(), "LDS", identifier);
+                    helpInstruction = new HelpInstructionTable(getPointer(), "LDS", ("\"" + identifier + "=\""));
                     instructionList.add(helpInstruction);
                     pointer++;
                     helpInstruction = new HelpInstructionTable(getPointer(), "WRT", 0);

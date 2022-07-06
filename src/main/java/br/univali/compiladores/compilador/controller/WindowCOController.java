@@ -10,6 +10,8 @@ public class WindowCOController {
 
     private WindowCO window;
 
+    private JFrame frame;
+
     public WindowCOController(ArrayList<HelpInstructionTable> instructionList){
         initComponents(instructionList);
     }
@@ -26,11 +28,15 @@ public class WindowCOController {
     private void createGui(ArrayList<HelpInstructionTable> instructionList){
         window = new WindowCO(instructionList);
         JPanel root = window.getRootPanel();
-        JFrame frame = new JFrame("Código Objeto");
-        frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        frame = new JFrame("Código Objeto");
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setContentPane(root);
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
+    }
+
+    public JFrame getFrame() {
+        return frame;
     }
 }
