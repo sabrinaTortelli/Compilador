@@ -31,6 +31,7 @@ public class DataTypesAndOperations<T>{
             DataTypesAndOperations result = new DataTypesAndOperations<>(and, DataTypesAndOperations.LOGIC);
             return result;
         } else {
+            System.out.println("Erro: operacao 'E' esperava valores logicos");
             throw new Exception("Erro: operacao 'E' esperava valores logicos");
         }
     }
@@ -41,6 +42,7 @@ public class DataTypesAndOperations<T>{
             DataTypesAndOperations result = new DataTypesAndOperations<>(or, DataTypesAndOperations.LOGIC);
             return result;
         } else {
+            System.out.println("Erro: operacao 'OU' esperava valores logicos");
             throw new Exception("Erro: operacao 'OU' esperava valores logicos");
         }
     }
@@ -50,6 +52,7 @@ public class DataTypesAndOperations<T>{
             DataTypesAndOperations result = new DataTypesAndOperations<>(!(Boolean) this.getValue(), DataTypesAndOperations.LOGIC);
             return result;
         } else {
+            System.out.println("Erro: negacao esperava um valor logico");
             throw new Exception("Erro: negacao esperava um valor logico");
         }
     }
@@ -76,6 +79,7 @@ public class DataTypesAndOperations<T>{
             DataTypesAndOperations result = new DataTypesAndOperations<>(sum, DataTypesAndOperations.FLOAT);
             return result;
         }
+        System.out.println("Erro: operacao adicao esperava inteiro ou real");
         throw new Exception("Erro: operacao adicao esperava inteiro ou real");
     }
 
@@ -100,6 +104,7 @@ public class DataTypesAndOperations<T>{
             DataTypesAndOperations result = new DataTypesAndOperations<>(subtraction, DataTypesAndOperations.FLOAT);
             return result;
         }
+        System.out.println("Erro: operacao subtracao esperava inteiro ou real");
         throw new Exception("Erro: operacao subtracao esperava inteiro ou real");
     }
 
@@ -124,6 +129,7 @@ public class DataTypesAndOperations<T>{
             DataTypesAndOperations result = new DataTypesAndOperations<>(multiplication, DataTypesAndOperations.FLOAT);
             return result;
         }
+        System.out.println("Erro: operacao multiplicacao esperava inteiro ou real");
         throw new Exception("Erro: operacao multiplicacao esperava inteiro ou real");
     }
 
@@ -148,6 +154,7 @@ public class DataTypesAndOperations<T>{
             DataTypesAndOperations result = new DataTypesAndOperations<>(division, DataTypesAndOperations.FLOAT);
             return result;
         }
+        System.out.println("Erro: operacao divisao esperava inteiro ou real");
         throw new Exception("Erro: operacao divisao esperava inteiro ou real");
     }
 
@@ -173,6 +180,7 @@ public class DataTypesAndOperations<T>{
             DataTypesAndOperations result = new DataTypesAndOperations<>(division, DataTypesAndOperations.INT);
             return result;
         }
+        System.out.println("Erro: operacao divisao esperava inteiro ou real");
         throw new Exception("Erro: operacao divisao esperava inteiro ou real");
     }
 
@@ -197,6 +205,7 @@ public class DataTypesAndOperations<T>{
             DataTypesAndOperations result = new DataTypesAndOperations<>(floatResult, DataTypesAndOperations.FLOAT);
             return result;
         }
+        System.out.println("Erro: potenciacao esperava inteiro ou real");
         throw new Exception("Erro: potenciacao esperava inteiro ou real");
     }
 
@@ -224,6 +233,7 @@ public class DataTypesAndOperations<T>{
             DataTypesAndOperations result = new DataTypesAndOperations<>(intMod, DataTypesAndOperations.INT);
             return result;
         }
+        System.out.println("Erro: resto esperava inteiro ou real");
         throw new Exception("Erro: resto esperava inteiro ou real");
     }
 
@@ -246,6 +256,7 @@ public class DataTypesAndOperations<T>{
             boolean result = (Integer) this.getValue() == (float) secondValue.getValue();
             return result;
         }
+        System.out.println("Erro: comparacao de igualdade esperava inteiro ou real");
         throw new Exception("Erro: comparacao de igualdade esperava inteiro ou real");
     }
 
@@ -266,6 +277,7 @@ public class DataTypesAndOperations<T>{
             boolean result = (Integer) this.getValue() != (float) secondValue.getValue();
             return result;
         }
+        System.out.println("Erro: diferenciacao esperava inteiro ou real");
         throw new Exception("Erro: diferenciacao esperava inteiro ou real");
     }
 
@@ -286,6 +298,7 @@ public class DataTypesAndOperations<T>{
             boolean result = (Integer) this.getValue() > (float) secondValue.getValue();
             return result;
         }
+        System.out.println("Erro: comparacao de valor maior esperava inteiro ou real");
         throw new Exception("Erro: comparacao de valor maior esperava inteiro ou real");
     }
 
@@ -306,6 +319,7 @@ public class DataTypesAndOperations<T>{
             boolean result = (Integer) this.getValue() < (float) secondValue.getValue();
             return result;
         }
+        System.out.println("Erro: comparacao de valor menor esperava inteiro ou real");
         throw new Exception("Erro: comparacao de valor menor esperava inteiro ou real");
     }
 
@@ -326,6 +340,7 @@ public class DataTypesAndOperations<T>{
             boolean result = (Integer) this.getValue() >= (float) secondValue.getValue();
             return result;
         }
+        System.out.println("Erro: comparacao de valor igual ou maior esperava inteiro ou real");
         throw new Exception("Erro: comparacao de valor igual ou maior esperava inteiro ou real");
     }
 
@@ -346,6 +361,7 @@ public class DataTypesAndOperations<T>{
             boolean result = (Integer) this.getValue() <= (float) secondValue.getValue();
             return result;
         }
+        System.out.println("Erro: comparacao de valor igual ou mmenor esperava inteiro ou real");
         throw new Exception("Erro: comparacao de valor igual ou mmenor esperava inteiro ou real");
     }
 }

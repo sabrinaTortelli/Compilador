@@ -7,15 +7,16 @@ import java.awt.event.FocusListener;
 
 public class TerminalEmulator extends JFrame {
 
-    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane;
     private javax.swing.JTextArea jtxtConsole;
-
     private final TerminalObserver terminalListener;
 
     public TerminalEmulator() {
         initComponents();
         setLocationRelativeTo(null);
         setTitle("Terminal Emulator");
+
+
 
         jtxtConsole.addFocusListener(new FocusListener() {
             @Override
@@ -35,20 +36,20 @@ public class TerminalEmulator extends JFrame {
     }
     private void initComponents() {
 
-        jScrollPane1 = new javax.swing.JScrollPane();
+        jScrollPane = new javax.swing.JScrollPane();
         jtxtConsole = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         jtxtConsole.setEditable(false);
         jtxtConsole.setBackground(java.awt.Color.black);
-        jtxtConsole.setColumns(150);
+        jtxtConsole.setColumns(80);
         jtxtConsole.setFont(new java.awt.Font("Arial Black", 0, 14)); // NOI18N
         jtxtConsole.setForeground(Color.green);
-        jtxtConsole.setRows(50);
+        jtxtConsole.setRows(20);
         jtxtConsole.setCaretColor(Color.lightGray);
         jtxtConsole.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        jScrollPane1.setViewportView(jtxtConsole);
+        jScrollPane.setViewportView(jtxtConsole);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
 
@@ -56,7 +57,7 @@ public class TerminalEmulator extends JFrame {
                 layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addGroup(layout.createSequentialGroup()
                                 .addContainerGap()
-                                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 537, Short.MAX_VALUE)
+                                .addComponent(jScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 537, Short.MAX_VALUE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addContainerGap())
         );
@@ -65,7 +66,7 @@ public class TerminalEmulator extends JFrame {
                         .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                 .addContainerGap()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 408, Short.MAX_VALUE))
+                                        .addComponent(jScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 408, Short.MAX_VALUE))
                                 .addContainerGap())
         );
 
@@ -96,5 +97,4 @@ public class TerminalEmulator extends JFrame {
         terminalListener.emptyUserBuffer();
         return userInput;
     }
-
 }

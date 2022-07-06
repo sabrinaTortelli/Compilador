@@ -3,13 +3,14 @@ package br.univali.compiladores.compilador.model.virtualMachine;
 import br.univali.compiladores.compilador.model.Compile.HelpInstructionTable;
 
 import java.util.ArrayList;
+import java.util.Scanner;
 import java.util.Stack;
 
 public class VirtualMachine {
     private final Stack<DataTypesAndOperations> stack; //stack comeca do zero por isso endereco -1 onde envolve a stack
     private final ArrayList<HelpInstructionTable> program;
     private boolean halt;
-    private int counter; // program counter
+    private int counter; // counter para o while
     private TerminalEmulator terminal;
 
     public VirtualMachine(ArrayList program) {
@@ -482,11 +483,11 @@ public class VirtualMachine {
     }
     private void REA(int valueType) {
         String userInput = "";
-//        Scanner scan = new Scanner(System.in);
+        Scanner scan = new Scanner(System.in);
         try {
             terminal.println("Inserir valor esperado: ");
-            userInput = terminal.read(); //metodo que vai ler a entrada do usuário
-//            userInput = scan.next();
+//            userInput = terminal.read(); //metodo que vai ler a entrada do usuário
+            userInput = scan.next();
         }
         catch (Exception e) {
             System.out.println(e.getMessage());
@@ -553,14 +554,14 @@ public class VirtualMachine {
         if (secondValue.getType() == DataTypesAndOperations.INT) {
             if ((int) secondValue.getValue() == 0) {
                 terminal.println("Erro: Divisor e zero");
-                System.out.println("Divisor e zero");
+                System.out.println("Erro: Divisor e zero");
                 halt();
                 return;
             }
         } else if (secondValue.getType() == DataTypesAndOperations.FLOAT) {
             if ((float) secondValue.getValue() == 0.0) {
                 terminal.println("Erro: Divisor e zero");
-                System.out.println("Divisor e zero");
+                System.out.println("Erro: Divisor e zero");
                 halt();
                 return;
             }
