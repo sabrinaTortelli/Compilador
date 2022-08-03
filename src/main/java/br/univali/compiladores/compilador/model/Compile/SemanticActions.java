@@ -400,8 +400,8 @@ public class SemanticActions {
     public void trigger12(Token t1){
         System.out.println("Entrou no trigger 12:" + t1);
         tokenConstInt = t1;
-        Object temp = t1.getValue();
-        constInt = (int) temp;
+        //Object temp = tokenConstInt.getValue();
+        constInt = Integer.parseInt(String.valueOf(tokenConstInt));
         System.out.println("Constante inteira lida em trigger12: " + constInt);
         indexVariable = true;
     }
@@ -479,11 +479,12 @@ public class SemanticActions {
         for(int i=0; i<attributesList.size(); i++){
             helpInstruction = new HelpInstructionTable(getPointer(), "STR", attributesList.get(i));
             instructionList.add(helpInstruction);
+
             pointer++;
             //valor do topo não deverá ser decrementado para cada instrução STR gerada, exceto para a última
             //Alterar na máquina virtual
         }
-
+        attributesList.clear();
     }
 
     //Reconhecimento do comando de entrada de dados
